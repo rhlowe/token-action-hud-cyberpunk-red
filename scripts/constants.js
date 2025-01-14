@@ -60,3 +60,8 @@ export const ITEM_TYPE = {
   vehicles: { groupId: 'vehicles'},
   weapons: { groupId: 'weapons'},
 };
+
+/**
+ * RED Core Actor types
+ */
+export const ACTOR_TYPES = ['character', 'mook'];

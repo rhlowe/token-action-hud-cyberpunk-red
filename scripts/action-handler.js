@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_TYPE, ITEM_TYPE } from './constants.js';
+import { ACTION_TYPE, ACTOR_TYPES, ITEM_TYPE } from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
@@ -9,7 +9,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
    * Extends Token Action HUD Core's ActionHandler class and builds system-defined actions for the HUD
    */
   ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
-    allowedTypes = ['character', 'mook'];
     /**
      * Build system actions
      * Called by Token Action HUD Core
@@ -33,7 +32,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         this.items = items;
       }
 
-      if (this.allowedTypes.includes(this.actorType)) {
+      if (ACTOR_TYPES.includes(this.actorType)) {
         this.#buildCharacterActions();
       } else if (!this.actor) {
         this.#buildMultipleTokenActions();
@@ -118,7 +117,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const actors = canvas.tokens.controlled
         .filter((token) => token.actor)
         .map((token) => token.actor);
-      if (actors.every((actor) => this.allowedTypes.includes(actor.type))) {
+      if (actors.every((actor) => ACTOR_TYPES.includes(actor.type))) {
         return actors;
       } else {
         return [];
@@ -135,7 +134,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const actors = tokens
         .filter((token) => token.actor)
         .map((token) => token.actor);
-      if (actors.every((actor) => this.allowedTypes.includes(actor.type))) {
+      if (actors.every((actor) => ACTOR_TYPES.includes(actor.type))) {
         return tokens;
       } else {
         return [];
