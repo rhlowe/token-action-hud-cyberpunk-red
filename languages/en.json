@@ -1,0 +1,33 @@
+{
+  "tokenActionHud": {
+    "template": {
+      "activeEffects": "Active Effects",
+      "ammo": "Ammo",
+      "armor": "Armor",
+      "character": "Character",
+      "clothing": "Clothing",
+      "criticalInjuries": "Critical Injuries",
+      "cyber": "Cyber",
+      "cyberdecks": "Cyberdecks",
+      "cyberware": "Cyberware",
+      "drugs": "Drugs",
+      "effects": "Effects",
+      "gear": "Gear",
+      "netArchitecture": "Net Architecture",
+      "programs": "Programs",
+      "role": "Role",
+      "roles": "Roles",
+      "skills": "Skills",
+      "stats": "Stats",
+      "upgrades": "Upgrades",
+      "vehicles": "Vehicles",
+      "weapons": "Weapons",
+      "settings": {
+        "displayUnequipped": {
+          "hint": "Choose whether to display unequipped items on the HUD",
+          "name": "Display Unequipped"
+        }
+      }
+    }
+  }
+}
