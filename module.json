@@ -1,11 +1,12 @@
 {
   "id": "token-action-hud-cyberpunk-red",
   "title": "Token Action HUD for Cyberpunk RED",
+  "description": "Token Action HUD is a repositionable HUD of actions for a selected token",
   "version": "0.0.1",
   "compatibility": {
     "minimum": "11",
-    "verified": "11",
-    "maximum": "11"
+    "maximum": "11",
+    "verified": "11.313"
   },
   "relationships": {
     "requires": [
@@ -22,7 +23,6 @@
       }
     ]
   },
-  "description": "Package Description",
   "authors": [
     {
       "name": "Rob Lowe",
@@ -30,5 +30,27 @@
       "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red"
     }
   ],
-  "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red"
+  "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red",
+  "esmodules": [
+    "./scripts/init.js"
+  ],
+  "scripts": [
+  ],
+  "styles": [
+    "./styles/tah-template-style.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "socket": false,
+  "manifest": "This is auto replaced",
+  "download": "This is auto replaced",
+  "readme": "https://github.com/rhlowe/token-action-hud-cyberpunk-red#readme",
+  "protected": false,
+  "coreTranslation": false,
+  "library": false
 }
