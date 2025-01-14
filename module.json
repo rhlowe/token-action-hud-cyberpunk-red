@@ -11,7 +11,14 @@
     "requires": [
       {
         "id": "token-action-hud-core",
-        "type": "module"
+        "type": "module",
+        "compatibility": {}
+      }
+    ],
+    "systems": [
+      {
+        "id": "cyberpunk-red-core",
+        "type": "system"
       }
     ]
   },
@@ -19,7 +26,8 @@
   "authors": [
     {
       "name": "Rob Lowe",
-      "discord": "rhlowe"
+      "discord": "rhlowe",
+      "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red"
     }
   ],
   "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red"
