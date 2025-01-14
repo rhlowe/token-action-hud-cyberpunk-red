@@ -33,7 +33,7 @@ export const GROUP = {
   // character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' ...collapsedByDefaul, },
   character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' },
   stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
-  skill: { id: 'skills', name: 'tokenActionHud.template.skill', type: 'system' },
+  skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
   role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
   gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
   cyber: { id: 'cyber', name: 'tokenActionHud.template.cyber', type: 'system' },
