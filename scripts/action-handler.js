@@ -9,16 +9,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
    * Extends Token Action HUD Core's ActionHandler class and builds system-defined actions for the HUD
    */
   ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
+    allowedTypes = ['character', 'mook'];
     /**
      * Build system actions
      * Called by Token Action HUD Core
      * @override
      * @param {array} groupIds
-     */ a;
+     */
     async buildSystemActions(groupIds) {
       // Set actor and token variables
-      this.actors = !this.actor ? this._getActors() : [this.actor];
+      this.actors = !this.actor ? this.#getActors() : [this.actor];
+      this.tokens = !this.token ? this.#getTokens() : [this.token];
       this.actorType = this.actor?.type;
+      console.debug('*** buildSystemActions', groupIds);
 
       // Settings
       this.displayUnequipped = Utils.getSetting('displayUnequipped');
@@ -30,7 +33,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         this.items = items;
       }
 
-      if (this.actorType === 'character') {
+      if (this.allowedTypes.includes(this.actorType)) {
         this.#buildCharacterActions();
       } else if (!this.actor) {
         this.#buildMultipleTokenActions();
@@ -57,6 +60,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     async #buildInventory() {
+      console.debug('*** #buildInventory', this.items);
       if (this.items.size === 0) return;
 
       const actionTypeId = 'item';
@@ -102,6 +106,39 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         // TAH Core method to add actions to the action list
         this.addActions(actions, groupData);
+      }
+    }
+
+    /**
+     * Get actors
+     * @private
+     * @returns {object}
+     */
+    async #getActors() {
+      const actors = canvas.tokens.controlled
+        .filter((token) => token.actor)
+        .map((token) => token.actor);
+      if (actors.every((actor) => this.allowedTypes.includes(actor.type))) {
+        return actors;
+      } else {
+        return [];
+      }
+    }
+
+    /**
+     * Get tokens
+     * @private
+     * @returns {object}
+     */
+    async #getTokens() {
+      const tokens = canvas.tokens.controlled;
+      const actors = tokens
+        .filter((token) => token.actor)
+        .map((token) => token.actor);
+      if (actors.every((actor) => this.allowedTypes.includes(actor.type))) {
+        return tokens;
+      } else {
+        return [];
       }
     }
   };
