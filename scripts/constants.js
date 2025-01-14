@@ -64,4 +64,9 @@ export const ITEM_TYPE = {
 /**
  * RED Core Actor types
  */
-export const ACTOR_TYPES = ['character', 'mook'];
+export const ACTOR_TYPES = [
+  'blackIce',
+  'character',
+  'demon',
+  'mook',
+];
