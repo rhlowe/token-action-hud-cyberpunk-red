@@ -1,0 +1,26 @@
+{
+  "id": "token-action-hud-for-cyberpunk-red",
+  "title": "Token Action HUD for Cyberpunk RED",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11",
+    "maximum": "11"
+  },
+  "relationships": {
+    "requires": [
+      {
+        "id": "token-action-hud-core",
+        "type": "module"
+      }
+    ]
+  },
+  "description": "Package Description",
+  "authors": [
+    {
+      "name": "Rob Lowe",
+      "discord": "rhlowe"
+    }
+  ],
+  "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red"
+}
