@@ -21,8 +21,9 @@ export const REQUIRED_CORE_MODULE_VERSION = '1.5';
  * Action types
  */
 export const ACTION_TYPE = {
-  item: 'tokenActionHud.template.item',
-  utility: 'tokenActionHud.utility',
+  // item: 'tokenActionHud.template.item',
+  skill: 'tokenActionHud.template.skill',
+  // utility: 'tokenActionHud.utility',
 };
 
 /**
@@ -31,8 +32,8 @@ export const ACTION_TYPE = {
 export const GROUP = {
   // character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' ...collapsedByDefaul, },
   character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' },
-  stats: { id: 'stats', name: 'tokenActionHud.template.stats', type: 'system' },
-  skills: { id: 'skills', name: 'tokenActionHud.template.skills', type: 'system' },
+  stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
+  skill: { id: 'skills', name: 'tokenActionHud.template.skill', type: 'system' },
   role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
   gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
   cyber: { id: 'cyber', name: 'tokenActionHud.template.cyber', type: 'system' },
@@ -47,18 +48,18 @@ export const ITEM_TYPE = {
   ammo: { groupId: 'ammo'},
   armor: { groupId: 'armor'},
   clothing: { groupId: 'clothing'},
-  criticalInjuries: { groupId: 'criticalInjuries'},
-  cyberdecks: { groupId: 'cyberdecks'},
+  criticalInjury: { groupId: 'criticalInjury'},
+  cyberdeck: { groupId: 'cyberdeck'},
   cyberware: { groupId: 'cyberware'},
-  drugs: { groupId: 'drugs'},
+  drug: { groupId: 'drug'},
   gear: { groupId: 'gear'},
-  upgrades: { groupId: 'upgrades'},
+  upgrade: { groupId: 'upgrade'},
   netArchitecture: { groupId: 'netArchitecture'},
-  programs: { groupId: 'programs'},
-  roles: { groupId: 'roles'},
-  skills: { groupId: 'skills'},
-  vehicles: { groupId: 'vehicles'},
-  weapons: { groupId: 'weapons'},
+  program: { groupId: 'program'},
+  role: { groupId: 'role'},
+  skill: { groupId: 'skill'},
+  vehicle: { groupId: 'vehicle'},
+  weapon: { groupId: 'weapon'},
 };
 
 /**

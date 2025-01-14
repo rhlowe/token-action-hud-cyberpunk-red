@@ -20,7 +20,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.actors = !this.actor ? this.#getActors() : [this.actor];
       this.tokens = !this.token ? this.#getTokens() : [this.token];
       this.actorType = this.actor?.type;
-      console.debug('*** buildSystemActions', groupIds);
 
       // Settings
       this.displayUnequipped = Utils.getSetting('displayUnequipped');
@@ -31,6 +30,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         items = coreModule.api.Utils.sortItemsByName(items);
         this.items = items;
       }
+
+      console.debug('*** buildSystemActions', {
+        groupIds,
+        displayUnequipped: this.displayUnequipped,
+        items: this.items,
+      });
 
       if (ACTOR_TYPES.includes(this.actorType)) {
         this.#buildCharacterActions();
@@ -59,7 +64,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     async #buildInventory() {
-      console.debug('*** #buildInventory', this.items);
       if (this.items.size === 0) return;
 
       const actionTypeId = 'item';
@@ -76,12 +80,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
       }
 
+      // console.debug('*** #buildInventory', inventoryMap);
+
       for (const [type, typeMap] of inventoryMap) {
         const groupId = ITEM_TYPE[type]?.groupId;
+        console.debug('*** #buildInventory groupId', groupId);
 
         if (!groupId) continue;
 
         const groupData = { id: groupId, type: 'system' };
+        console.debug('*** #buildInventory groupData', groupData);
 
         // Get actions
         const actions = [...typeMap].map(([itemId, itemData]) => {
@@ -102,10 +110,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             encodedValue,
           };
         });
+        console.debug('*** #buildInventory actions', actions);
 
         // TAH Core method to add actions to the action list
         this.addActions(actions, groupData);
       }
+
+      console.debug('*** #buildInventory', inventoryMap);
     }
 
     /**

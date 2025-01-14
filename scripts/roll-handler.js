@@ -81,6 +81,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         case 'utility':
           this.#handleUtilityAction(token, actionId);
           break;
+        default:
+          console.debug('*** handleAction', {event, actor, token, actionTypeId, actionId});
       }
     }
 
