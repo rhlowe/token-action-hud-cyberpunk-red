@@ -1,5 +1,6 @@
 import CPRSystemUtils from '../node_modules/fvtt-cyberpunk-red-core/src/modules/utils/cpr-systemUtils.js';
 import CPRChat from '../node_modules/fvtt-cyberpunk-red-core/src/modules/chat/cpr-chat.js';
+import { rollTypes } from './constants.js';
 
 export let RollHandler = null;
 
@@ -87,7 +88,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           // case 'item':
           //   this.#handleItemAction(event, actor, actionId);
           //   break;
-          case 'skill':
+          case rollTypes.SKILL:
             tahCprRoll = item.createRoll(item.type, actor);
             break;
           // case 'utility':
@@ -97,7 +98,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
       }
 
-      if (actionTypeId === 'stat') {
+      if (actionTypeId === rollTypes.STAT) {
         tahCprRoll = actor.createRoll(actionTypeId, actionId);
       }
 

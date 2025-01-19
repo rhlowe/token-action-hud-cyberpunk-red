@@ -72,3 +72,20 @@ export const ACTOR_TYPES = [
   'demon',
   'mook',
 ];
+
+export const rollTypes = {
+  BASE: "base",
+  STAT: "stat",
+  SKILL: "skill",
+  HUMANITY: "humanity",
+  ROLEABILITY: "roleAbility",
+  ATTACK: "attack",
+  AIMED: "aimed",
+  AUTOFIRE: "autofire",
+  SUPPRESSIVE: "suppressive",
+  DAMAGE: "damage",
+  DEATHSAVE: "deathsave",
+  INTERFACEABILITY: "interfaceAbility",
+  CYBERDECKPROGRAM: "cyberdeckProgram",
+  FACEDOWN: "facedown",
+};
