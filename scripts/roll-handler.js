@@ -1,3 +1,6 @@
+import CPRSystemUtils from '../node_modules/fvtt-cyberpunk-red-core/src/modules/utils/cpr-systemUtils.js';
+import CPRChat from '../node_modules/fvtt-cyberpunk-red-core/src/modules/chat/cpr-chat.js';
+
 export let RollHandler = null;
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
@@ -74,16 +77,62 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionId     The actionId
      */
     async #handleAction(event, actor, token, actionTypeId, actionId) {
-      switch (actionTypeId) {
+      const item = actor.items.get(actionId);
+      let tahCPRroll = null;
+
+      switch (item.type) {
         case 'item':
           this.#handleItemAction(event, actor, actionId);
+          break;
+        case 'skill':
+          tahCPRroll = item.createRoll(item.type, actor);
           break;
         case 'utility':
           this.#handleUtilityAction(token, actionId);
           break;
         default:
-          console.debug('*** handleAction', {event, actor, token, actionTypeId, actionId});
+          console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
       }
+
+      // note: for aimed shots this is where location is set
+      const keepRolling = await tahCPRroll.handleRollDialog(event, actor, item);
+      if (!keepRolling) {
+        return;
+      }
+
+      if (item !== null) {
+        // Do any actions that need to be done as part of a roll, like ammo decrementing
+        tahCPRroll = await item.confirmRoll(tahCPRroll);
+      }
+
+      await tahCPRroll.roll();
+
+      // Post roll tasks
+      // if (cprRoll instanceof CPRRolls.CPRDeathSaveRoll) {
+      //   cprRoll.saveResult = this.actor.processDeathSave(cprRoll);
+      // }
+
+      // "Consume" LUCK if used
+      if (Number.isInteger(tahCPRroll.luck) && tahCPRroll.luck > 0) {
+        const luckStat = actor.system.stats.luck.value;
+        actor.update({
+          "system.stats.luck.value":
+            luckStat - (tahCPRroll.luck > luckStat ? luckStat : tahCPRroll.luck),
+        });
+      }
+
+      token = token === null ? null : token.data._id;
+      const targetedTokens = CPRSystemUtils.getUserTargetedOrSelected("targeted"); // get user targeted tokens for output to chat
+
+      tahCPRroll.entityData = {
+        actor: actor.id,
+        token,
+        tokens: targetedTokens,
+      };
+      if (item) {
+        tahCPRroll.entityData.item = item.id;
+      }
+      CPRChat.RenderRollCard(tahCPRroll);
     }
 
     /**

@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_TYPE, ACTOR_TYPES, ITEM_TYPE } from './constants.js';
+import { ACTION_TYPE, ITEM_TYPE } from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
@@ -17,8 +17,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      */
     async buildSystemActions(groupIds) {
       // Set actor and token variables
-      this.actors = !this.actor ? this.#getActors() : [this.actor];
-      this.tokens = !this.token ? this.#getTokens() : [this.token];
+      this.actors = !this.actor ? this._getActors() : [this.actor];
       this.actorType = this.actor?.type;
 
       // Settings
@@ -31,13 +30,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         this.items = items;
       }
 
-      console.debug('*** buildSystemActions', {
-        groupIds,
-        displayUnequipped: this.displayUnequipped,
-        items: this.items,
-      });
-
-      if (ACTOR_TYPES.includes(this.actorType)) {
+      if (this.actorType === 'character') {
         this.#buildCharacterActions();
       } else if (!this.actor) {
         this.#buildMultipleTokenActions();
@@ -80,16 +73,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
       }
 
-      // console.debug('*** #buildInventory', inventoryMap);
-
       for (const [type, typeMap] of inventoryMap) {
         const groupId = ITEM_TYPE[type]?.groupId;
-        console.debug('*** #buildInventory groupId', groupId);
 
         if (!groupId) continue;
 
         const groupData = { id: groupId, type: 'system' };
-        console.debug('*** #buildInventory groupData', groupData);
 
         // Get actions
         const actions = [...typeMap].map(([itemId, itemData]) => {
@@ -110,45 +99,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             encodedValue,
           };
         });
-        console.debug('*** #buildInventory actions', actions);
 
         // TAH Core method to add actions to the action list
         this.addActions(actions, groupData);
-      }
-
-      console.debug('*** #buildInventory', inventoryMap);
-    }
-
-    /**
-     * Get actors
-     * @private
-     * @returns {object}
-     */
-    async #getActors() {
-      const actors = canvas.tokens.controlled
-        .filter((token) => token.actor)
-        .map((token) => token.actor);
-      if (actors.every((actor) => ACTOR_TYPES.includes(actor.type))) {
-        return actors;
-      } else {
-        return [];
-      }
-    }
-
-    /**
-     * Get tokens
-     * @private
-     * @returns {object}
-     */
-    async #getTokens() {
-      const tokens = canvas.tokens.controlled;
-      const actors = tokens
-        .filter((token) => token.actor)
-        .map((token) => token.actor);
-      if (actors.every((actor) => ACTOR_TYPES.includes(actor.type))) {
-        return tokens;
-      } else {
-        return [];
       }
     }
   };
