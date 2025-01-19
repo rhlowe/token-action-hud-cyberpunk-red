@@ -101,7 +101,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           };
         });
 
-        console.debug('*** buildInventory actions', {groupData, actions});
+        console.debug(`*** buildInventory actions: ${groupData.id}`, {groupData, actions});
 
         // TAH Core method to add actions to the action list
         this.addActions(actions, groupData);
