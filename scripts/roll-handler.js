@@ -77,35 +77,42 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionId     The actionId
      */
     async #handleAction(event, actor, token, actionTypeId, actionId) {
-      const item = actor.items.get(actionId);
-      let tahCPRroll = null;
+      console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
+      let tahCprRoll = null;
+      let item = null;
 
-      switch (item.type) {
-        case 'item':
-          this.#handleItemAction(event, actor, actionId);
-          break;
-        case 'skill':
-          tahCPRroll = item.createRoll(item.type, actor);
-          break;
-        case 'utility':
-          this.#handleUtilityAction(token, actionId);
-          break;
-        default:
-          console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
+      if (actionTypeId === 'item') {
+        item = actor.items.get(actionId);
+        switch (item.type) {
+          // case 'item':
+          //   this.#handleItemAction(event, actor, actionId);
+          //   break;
+          case 'skill':
+            tahCprRoll = item.createRoll(item.type, actor);
+            break;
+          // case 'utility':
+          //   this.#handleUtilityAction(token, actionId);
+          //   break;
+          default:
+        }
+      }
+
+      if (actionTypeId === 'stat') {
+        tahCprRoll = actor.createRoll(actionTypeId, actionId);
       }
 
       // note: for aimed shots this is where location is set
-      const keepRolling = await tahCPRroll.handleRollDialog(event, actor, item);
+      const keepRolling = await tahCprRoll.handleRollDialog(event, actor, item);
       if (!keepRolling) {
         return;
       }
 
       if (item !== null) {
         // Do any actions that need to be done as part of a roll, like ammo decrementing
-        tahCPRroll = await item.confirmRoll(tahCPRroll);
+        tahCprRoll = await item.confirmRoll(tahCprRoll);
       }
 
-      await tahCPRroll.roll();
+      await tahCprRoll.roll();
 
       // Post roll tasks
       // if (cprRoll instanceof CPRRolls.CPRDeathSaveRoll) {
@@ -113,26 +120,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       // }
 
       // "Consume" LUCK if used
-      if (Number.isInteger(tahCPRroll.luck) && tahCPRroll.luck > 0) {
+      if (Number.isInteger(tahCprRoll.luck) && tahCprRoll.luck > 0) {
         const luckStat = actor.system.stats.luck.value;
         actor.update({
           "system.stats.luck.value":
-            luckStat - (tahCPRroll.luck > luckStat ? luckStat : tahCPRroll.luck),
+            luckStat - (tahCprRoll.luck > luckStat ? luckStat : tahCprRoll.luck),
         });
       }
 
       token = token === null ? null : token.data._id;
       const targetedTokens = CPRSystemUtils.getUserTargetedOrSelected("targeted"); // get user targeted tokens for output to chat
 
-      tahCPRroll.entityData = {
+      tahCprRoll.entityData = {
         actor: actor.id,
         token,
         tokens: targetedTokens,
       };
       if (item) {
-        tahCPRroll.entityData.item = item.id;
+        tahCprRoll.entityData.item = item.id;
       }
-      CPRChat.RenderRollCard(tahCPRroll);
+      CPRChat.RenderRollCard(tahCprRoll);
     }
 
     /**

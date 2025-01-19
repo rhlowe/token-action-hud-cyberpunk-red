@@ -28,13 +28,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       {
         nestId: 'stat',
         id: 'stat',
-        name: coreModule.api.Utils.i18n('tokenActionHud.template.stat'),
+        name: coreModule.api.Utils.i18n('tokenActionHud.template.statsLabel'),
         groups: [{ ...groups.stat, nestId: 'stat_stat' }],
       },
       {
         nestId: 'skill',
         id: 'skill',
-        name: coreModule.api.Utils.i18n('tokenActionHud.template.skill'),
+        name: coreModule.api.Utils.i18n('tokenActionHud.template.skills'),
         groups: [{ ...groups.skill, nestId: 'skill_skill' }],
       },
     //   {

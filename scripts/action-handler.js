@@ -32,6 +32,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       if (this.actorType === 'character') {
         this.#buildCharacterActions();
+        this.#buildStats();
       } else if (!this.actor) {
         this.#buildMultipleTokenActions();
       }
@@ -100,9 +101,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           };
         });
 
+        console.debug('*** buildInventory actions', {groupData, actions});
+
         // TAH Core method to add actions to the action list
         this.addActions(actions, groupData);
       }
+    }
+
+    async #buildStats() {
+      const groupData = { id: 'stat', type: 'system' };
+
+      const actions = Object.entries(this.actor.system.stats).map(stat => {
+        const name = coreModule.api.Utils.i18n(`tokenActionHud.template.stats.${stat[0]}`);
+
+        return {
+          encodedValue: ['stat', stat[0]].join(this.delimiter),
+          id: stat[0],
+          listName: stat[0],
+          name
+        };
+      });
+
+      this.addActions(actions, groupData);
     }
   };
 });

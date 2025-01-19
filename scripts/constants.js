@@ -23,6 +23,7 @@ export const REQUIRED_CORE_MODULE_VERSION = '1.5';
 export const ACTION_TYPE = {
   // item: 'tokenActionHud.template.item',
   skill: 'tokenActionHud.template.skill',
+  stat: 'tokenActionHud.template.stat',
   // utility: 'tokenActionHud.utility',
 };
 
