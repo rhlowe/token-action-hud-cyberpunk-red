@@ -23,6 +23,7 @@ export const REQUIRED_CORE_MODULE_VERSION = '1.5';
 export const ACTION_TYPE = {
   // item: 'tokenActionHud.template.item',
   skill: 'tokenActionHud.template.skill',
+  attack: 'tokenActionHud.template.attack',
   stat: 'tokenActionHud.template.stat',
   // utility: 'tokenActionHud.utility',
 };
@@ -39,12 +40,13 @@ export const GROUP = {
   gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
   cyber: { id: 'cyber', name: 'tokenActionHud.template.cyber', type: 'system' },
   effects: { id: 'effects', name: 'tokenActionHud.template.effects', type: 'system' },
+  weapon: { id: 'weapon', name: 'tokenActionHud.template.weapon', type: 'system' },
 };
 
 /**
  * Item types
  */
-export const ITEM_TYPE = {
+export const SYSTEM_ITEM_TYPE = {
   activeEffects: { groupId: 'activeEffects'},
   ammo: { groupId: 'ammo'},
   armor: { groupId: 'armor'},
@@ -73,7 +75,13 @@ export const ACTOR_TYPES = [
   'mook',
 ];
 
-export const rollTypes = {
+export const ITEM_TYPES = {
+  STAT: "stat",
+  SKILL: "skill",
+  WEAPON: "weapon",
+};
+
+export const ROLL_TYPES = {
   BASE: "base",
   STAT: "stat",
   SKILL: "skill",

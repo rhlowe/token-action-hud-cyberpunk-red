@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_TYPE, ITEM_TYPE } from './constants.js';
+import { ACTION_TYPE, SYSTEM_ITEM_TYPE } from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
@@ -75,7 +75,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       for (const [type, typeMap] of inventoryMap) {
-        const groupId = ITEM_TYPE[type]?.groupId;
+        const groupId = SYSTEM_ITEM_TYPE[type]?.groupId;
 
         if (!groupId) continue;
 
@@ -83,6 +83,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         // Get actions
         const actions = [...typeMap].map(([itemId, itemData]) => {
+          // REMINDER: for roll actions, look at actor.items[].system.abilities.hasRoll
+
           const id = itemId;
           const name = itemData.name;
           const actionTypeName = coreModule.api.Utils.i18n(

@@ -25,42 +25,56 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             { ...groups.role, nestId: 'character_role' }
         ],
       },
+
       {
         nestId: 'stat',
         id: 'stat',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.statsLabel'),
         groups: [{ ...groups.stat, nestId: 'stat_stat' }],
       },
+
       {
         nestId: 'skill',
         id: 'skill',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.skills'),
         groups: [{ ...groups.skill, nestId: 'skill_skill' }],
       },
-    //   {
-    //     nestId: 'role',
-    //     id: 'role',
-    //     name: coreModule.api.Utils.i18n('tokenActionHud.template.role'),
-    //     groups: [{ ...groups.role, nestId: 'role_role' }],
-    //   },
+
+      {
+        nestId: 'weapon',
+        id: 'weapon',
+        name: coreModule.api.Utils.i18n('tokenActionHud.template.weapons'),
+        groups: [{ ...groups.weapon, nestId: 'weapon_weapon' }],
+      },
+
+      // {
+      //   nestId: 'role',
+      //   id: 'role',
+      //   name: coreModule.api.Utils.i18n('tokenActionHud.template.role'),
+      //   groups: [{ ...groups.role, nestId: 'role_role' }],
+      // },
+
       {
         nestId: 'gear',
         id: 'gear',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.gear'),
         groups: [{ ...groups.gear, nestId: 'gear_gear' }],
       },
+
       {
         nestId: 'cyber',
         id: 'cyber',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.cyber'),
         groups: [{ ...groups.cyber, nestId: 'cyber_cyber' }],
       },
+
       {
         nestId: 'effects',
         id: 'effects',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.effects'),
         groups: [{ ...groups.effects, nestId: 'effects_effects' }],
       },
+
       {
         nestId: 'utility',
         id: 'utility',

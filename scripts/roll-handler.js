@@ -1,6 +1,6 @@
 import CPRSystemUtils from '../node_modules/fvtt-cyberpunk-red-core/src/modules/utils/cpr-systemUtils.js';
 import CPRChat from '../node_modules/fvtt-cyberpunk-red-core/src/modules/chat/cpr-chat.js';
-import { rollTypes } from './constants.js';
+import { ITEM_TYPES, ROLL_TYPES } from './constants.js';
 
 export let RollHandler = null;
 
@@ -83,13 +83,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       let item = null;
 
       if (actionTypeId === 'item') {
-        item = actor.items.get(actionId);
+        item = actor.getOwnedItem(actionId);
+        console.debug('*** item', item);
         switch (item.type) {
           // case 'item':
           //   this.#handleItemAction(event, actor, actionId);
           //   break;
-          case rollTypes.SKILL:
-            tahCprRoll = item.createRoll(item.type, actor);
+          case ITEM_TYPES.SKILL:
+            tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
+            break;
+          case ITEM_TYPES.WEAPON:
+            // TODO: Figure out autofire and suppressive
+            tahCprRoll = item.createRoll(ROLL_TYPES.ATTACK, actor);
             break;
           // case 'utility':
           //   this.#handleUtilityAction(token, actionId);
@@ -98,9 +103,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
       }
 
-      if (actionTypeId === rollTypes.STAT) {
+      if (actionTypeId === ITEM_TYPES.STAT) {
         tahCprRoll = actor.createRoll(actionTypeId, actionId);
       }
+      console.debug('*** tahCprRoll check', tahCprRoll);
 
       // note: for aimed shots this is where location is set
       const keepRolling = await tahCprRoll.handleRollDialog(event, actor, item);
