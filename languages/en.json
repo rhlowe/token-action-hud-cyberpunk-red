@@ -11,40 +11,42 @@
       "cyber": "Cyber",
       "cyberdecks": "Cyberdecks",
       "cyberware": "Cyberware",
+      "deathsave": "Death Save",
       "drugs": "Drugs",
       "effects": "Effects",
+      "facedown": "Facedown",
       "gear": "Gear",
       "netArchitecture": "Net Architecture",
       "programs": "Programs",
       "role": "Role",
       "roles": "Roles",
-      "skill": "Skill",
-      "skills": "Skills",
-      "stat": "Stat",
-      "statsLabel": "Stats",
-      "stats": {
-        "body": "Body (BODY)",
-        "cool": "Cool (COOL)",
-        "dex": "Dexterity (DEX)",
-        "emp": "Empathy (EMP)",
-        "int": "Intelligence (INT)",
-        "luck": "Luck (LUCK)",
-        "move": "Movement (MOVE)",
-        "ref": "Reflexes (REF)",
-        "tech": "Technique (TECH)",
-        "will": "Willpower (WILL)"
-      },
-      "utility": "Utility",
-      "upgrades": "Upgrades",
-      "vehicles": "Vehicles",
-      "weapon": "Weapon",
-      "weapons": "Weapons",
       "settings": {
         "displayUnequipped": {
           "hint": "Choose whether to display unequipped items on the HUD",
           "name": "Display Unequipped"
         }
-      }
+      },
+      "skill": "Skill",
+      "skills": "Skills",
+      "stat": "Stat",
+      "statsLabel": "Stats",
+      "stats": {
+        "body": "Body [BODY]",
+        "cool": "Cool [COOL]",
+        "dex": "Dexterity [DEX]",
+        "emp": "Empathy [EMP]",
+        "int": "Intelligence [INT]",
+        "luck": "Luck [LUCK]",
+        "move": "Movement [MOVE]",
+        "ref": "Reflexes [REF]",
+        "tech": "Technique [TECH]",
+        "will": "Willpower [WILL]"
+      },
+      "utility": "Utility",
+      "upgrades": "Upgrades",
+      "vehicles": "Vehicles",
+      "weapon": "Weapon",
+      "weapons": "Weapons"
     }
   }
 }

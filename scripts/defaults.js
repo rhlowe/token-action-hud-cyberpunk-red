@@ -21,8 +21,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         id: 'character',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.character'),
         groups: [
-            { ...groups.character, nestId: 'character_character' },
-            { ...groups.role, nestId: 'character_role' }
+            { ...groups.role, nestId: 'character_role' },
+            { ...groups.facedown, nestId: 'character_facedown' },
+            { ...groups.deathsave, nestId: 'character_deathsave' },
         ],
       },
 

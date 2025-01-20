@@ -99,13 +99,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           // case 'utility':
           //   this.#handleUtilityAction(token, actionId);
           //   break;
-          default:
+          // default:
         }
       }
 
-      if (actionTypeId === ITEM_TYPES.STAT) {
-        tahCprRoll = actor.createRoll(actionTypeId, actionId);
+      switch (actionTypeId) {
+        case ITEM_TYPES.STAT:
+        case ROLL_TYPES.DEATHSAVE:
+        case ROLL_TYPES.FACEDOWN:
+          tahCprRoll = actor.createRoll(actionTypeId, actionId);
+          break;
+        // default:
       }
+
       console.debug('*** tahCprRoll check', tahCprRoll);
 
       // note: for aimed shots this is where location is set

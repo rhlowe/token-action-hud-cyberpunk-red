@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_TYPE, SYSTEM_ITEM_TYPE } from './constants.js';
+import { ACTION_TYPE, ROLL_TYPES, SYSTEM_ITEM_TYPE } from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
@@ -32,6 +32,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       if (this.actorType === 'character') {
         this.#buildCharacterActions();
+        this.#buildDeathSave();
+        this.#buildFacedown();
         this.#buildStats();
       } else if (!this.actor) {
         this.#buildMultipleTokenActions();
@@ -52,6 +54,36 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @returns {object}
      */
     #buildMultipleTokenActions() {}
+
+    async #buildDeathSave() {
+      const groupData = { id: ROLL_TYPES.DEATHSAVE, type: 'system' };
+      const name = coreModule.api.Utils.i18n(`tokenActionHud.template.deathsave`);
+      const actions = [
+        {
+          encodedValue: [groupData.id, groupData.id].join(this.delimiter),
+          id: groupData.id,
+          listName: groupData.id,
+          name
+        }
+      ];
+
+      this.addActions(actions, groupData);
+    }
+
+    async #buildFacedown() {
+      const groupData = { id: ROLL_TYPES.FACEDOWN, type: 'system' };
+      const name = coreModule.api.Utils.i18n(`tokenActionHud.template.facedown`);
+      const actions = [
+        {
+          encodedValue: [groupData.id, groupData.id].join(this.delimiter),
+          id: groupData.id,
+          listName: groupData.id,
+          name
+        }
+      ];
+
+      this.addActions(actions, groupData);
+    }
 
     /**
      * Build inventory
@@ -86,7 +118,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           // REMINDER: for roll actions, look at actor.items[].system.abilities.hasRoll
 
           const id = itemId;
-          const name = itemData.name;
+          let name = itemData.name;
           const actionTypeName = coreModule.api.Utils.i18n(
             ACTION_TYPE[actionTypeId]
           );
@@ -94,9 +126,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             actionTypeName ? `${actionTypeName}: ` : ''
           }${name}`;
           const encodedValue = [actionTypeId, id].join(this.delimiter);
+          const img = itemData.type === 'weapon' ? coreModule.api.Utils.getImage(itemData) : undefined;
+          let info1;
+          if (itemData.type === 'skill') {
+            let totalMod = 0;
+            const level = itemData.system.level;
+            const stat = this.actor.system.stats[itemData.system.stat].value;
+
+            console.debug('*** stat', itemData.system.stat)
+
+            totalMod += (level + stat);
+            info1 = { text: totalMod.toString() };
+
+            name = [name, `[${itemData.system.stat}]`.toUpperCase()].join(' ');
+          }
 
           return {
             id,
+            info1,
+            img,
             name,
             listName,
             encodedValue,
@@ -119,6 +167,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         return {
           encodedValue: ['stat', stat[0]].join(this.delimiter),
           id: stat[0],
+          info1: { text: this.actor.system.stats[stat[0]].value },
           listName: stat[0],
           name
         };
