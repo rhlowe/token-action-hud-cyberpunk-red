@@ -33,14 +33,14 @@ export const ACTION_TYPE = {
  */
 export const GROUP = {
   // character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' ...collapsedByDefault, },
-  facedown: { id: 'facedown', name: 'tokenActionHud.template.facedown', type: 'system' },
-  deathsave: { id: 'deathsave', name: 'tokenActionHud.template.deathsave', type: 'system' },
-  stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
-  skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
-  role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
-  gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
   cyber: { id: 'cyber', name: 'tokenActionHud.template.cyber', type: 'system' },
+  deathsave: { id: 'deathsave', name: 'tokenActionHud.template.deathsave', type: 'system' },
   effects: { id: 'effects', name: 'tokenActionHud.template.effects', type: 'system' },
+  facedown: { id: 'facedown', name: 'tokenActionHud.template.facedown', type: 'system' },
+  gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
+  role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
+  skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
+  stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
   weapon: { id: 'weapon', name: 'tokenActionHud.template.weapon', type: 'system' },
 };
 

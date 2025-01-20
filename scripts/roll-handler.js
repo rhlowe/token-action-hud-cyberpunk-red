@@ -163,7 +163,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionId The action id
      */
     #handleItemAction(event, actor, actionId) {
-      console.debug('*** handleItemAction', {event, actor, actionId})
       const item = actor.items.get(actionId);
       item.toChat(event);
     }

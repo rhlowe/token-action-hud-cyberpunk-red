@@ -30,7 +30,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         this.items = items;
       }
 
-      if (this.actorType === 'character') {
+      if (this.actorType === 'character' || this.actorType === 'mook') {
         this.#buildCharacterActions();
         this.#buildDeathSave();
         this.#buildFacedown();
@@ -133,8 +133,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const level = itemData.system.level;
             const stat = this.actor.system.stats[itemData.system.stat].value;
 
-            console.debug('*** stat', itemData.system.stat)
-
             totalMod += (level + stat);
             info1 = { text: totalMod.toString() };
 
@@ -151,9 +149,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           };
         });
 
-        console.debug(`*** buildInventory actions: ${groupData.id}`, {groupData, actions});
+        // console.debug(`*** buildInventory actions: ${groupData.id}`, {groupData, actions});
 
-        // TAH Core method to add actions to the action list
         this.addActions(actions, groupData);
       }
     }
