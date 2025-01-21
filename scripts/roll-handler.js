@@ -79,18 +79,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionId     The actionId
      */
     async #handleAction(event, actor, token, actionTypeId, actionId, encodedValue) {
-      // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
+      console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
       let tahCprRoll = null;
       let item = null;
 
       if (actionTypeId === 'item') {
         item = actor.getOwnedItem(actionId);
-        // console.debug('*** item.type', item.type);
 
         switch (item.type) {
-          // case 'item':
-          //   this.#handleItemAction(event, actor, actionId);
-          //   break;
           case ITEM_TYPES.SKILL:
             tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
             break;
@@ -120,12 +116,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         case ITEM_TYPES.STAT:
         case ROLL_TYPES.DEATHSAVE:
         case ROLL_TYPES.FACEDOWN:
-          tahCprRoll = actor.createRoll(actionTypeId, actionId);
+          if (['character', 'mook'].includes(actor.type)) {
+            tahCprRoll = actor.createRoll(actionTypeId, actionId);
+          }
+
+          if (['blackIce', 'demon'].includes(actor.type)) {
+            tahCprRoll = actor.createStatRoll(actionId);
+          }
           break;
-        // default:
+        case ROLL_TYPES.NET:
+          const programUUID = actor.token.flags['cyberpunk-red-core'].programUUID;
+          const netrunnerTokenId = undefined;
+          const sceneId = token.scene.uuid;
+          tahCprRoll = actor.createDamageRoll(
+            programUUID,
+            netrunnerTokenId,
+            sceneId
+          );
+          break;
+          // default:
       }
 
-      // console.debug('*** tahCprRoll check', tahCprRoll);
+      console.debug('*** tahCprRoll check', tahCprRoll);
 
       // note: for aimed shots this is where location is set
       const keepRolling = await tahCprRoll.handleRollDialog(event, actor, item);

@@ -30,11 +30,63 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         this.items = items;
       }
 
-      if (this.actorType === 'character' || this.actorType === 'mook') {
-        this.#buildCharacterActions();
-      } else if (!this.actor) {
+      console.debug('*** buildSystemActions', {
+        actor: this.actor,
+        items: this.items,
+      });
+
+      switch (this.actorType) {
+        case 'character':
+        case 'mook':
+          this.#buildCharacterActions();
+          break;
+        case 'blackIce':
+          this.#buildBlackIceDamage();
+        case 'demon':
+          this.#buildStats();
+          break;
+      }
+
+      if (!this.actor) {
         this.#buildMultipleTokenActions();
       }
+    }
+
+    async #buildBlackIceDamage() {
+      const groupData = { id: 'weapon', type: 'system' };
+      const programUUID =
+        this.actor.token.flags['cyberpunk-red-core'].programUUID.split('.');
+      const {standard, blackIce} = game.items.get(programUUID[1]).system.damage;
+      const actions = [];
+
+      if (Number.isNumeric(Number.parseInt(standard))) {
+        actions.push({
+          encodedValue: [ROLL_TYPES.NET, 'standard'].join(this.delimiter),
+          id: programUUID,
+          info1: { text: standard },
+          // listName: stat[0],
+          name: coreModule.api.Utils.i18n(`tokenActionHud.template.standard`),
+        });
+      }
+
+      if (Number.isNumeric(Number.parseInt(blackIce))) {
+        actions.push({
+          encodedValue: [ROLL_TYPES.NET, 'blackIce'].join(this.delimiter),
+          id: programUUID,
+          info1: { text: blackIce },
+          // listName: stat[0],
+          name: coreModule.api.Utils.i18n(`tokenActionHud.template.blackIce`),
+        });
+      }
+
+      console.debug('*** #buildBlackIceDamage', {
+        actions,
+        groupData,
+        programUUID,
+        standard,
+        blackIce,
+      });
+      this.addActions(actions, groupData);
     }
 
     /**
@@ -46,7 +98,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildFacedown();
       this.#buildInventory();
       this.#buildStats();
-  }
+    }
 
     /**
      * Build multiple token actions
@@ -142,7 +194,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }${name}`;
           const encodedValue = [actionTypeId, id].join(this.delimiter);
           const img =
-            (itemData.type === 'cyberware' || itemData.type === 'weapon')
+            itemData.type === 'cyberware' || itemData.type === 'weapon'
               ? coreModule.api.Utils.getImage(itemData)
               : undefined;
           let info1;
@@ -179,13 +231,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
        * Roles are items, some of those role items have a main role action, some have multiple sub role actions, still others have nothing. Here we collect all the Role Rolls as cloned items of the original Role items and store-slash-hide them on the actor so we don't pollute the Character Sheet. We refrence these hidden items in `roll-handler.js` to build the rollable actions.
        */
       if (!this.actor.system.externalData.hiddenRoleItems) {
-        this.actor.update({'system.externalData.hiddenRoleItems': hiddenRoleItems});
+        this.actor.update({
+          'system.externalData.hiddenRoleItems': hiddenRoleItems,
+        });
       }
 
       typeMap.forEach(async (role) => {
         if (role.system.hasRoll) {
           const name = `${role.system.mainRoleAbility} [${role.name}]`;
-          const encodedValue = [role.name, role.system.mainRoleAbility].join(this.delimiter);
+          const encodedValue = [role.name, role.system.mainRoleAbility].join(
+            this.delimiter
+          );
 
           let roleItem = await role.clone();
           roleItem.baseItem = role;
@@ -203,7 +259,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (subRole.hasRoll) {
               const name = `${subRole.name} [${role.name}]`;
 
-              const encodedValue = [role.name, subRole.name].join(this.delimiter);
+              const encodedValue = [role.name, subRole.name].join(
+                this.delimiter
+              );
 
               let roleSubItem = await role.clone();
 
@@ -228,19 +286,33 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildStats() {
       const groupData = { id: 'stat', type: 'system' };
 
-      const actions = Object.entries(this.actor.system.stats).map((stat) => {
-        const name = coreModule.api.Utils.i18n(
-          `tokenActionHud.template.stats.${stat[0]}`
-        );
+      const actions = Object.entries(this.actor.system.stats)
+        .filter(([stat, value]) => !['rez', 'actions'].includes(stat))
+        .map((stat) => {
+          const name = coreModule.api.Utils.i18n(
+            `tokenActionHud.template.stats.${stat[0]}`
+          );
 
-        return {
-          encodedValue: ['stat', stat[0]].join(this.delimiter),
-          id: stat[0],
-          info1: { text: this.actor.system.stats[stat[0]].value },
-          listName: stat[0],
-          name,
-        };
-      });
+          let modifier;
+          switch (this.actorType) {
+            case 'character':
+            case 'mook':
+              modifier = this.actor.system.stats[stat[0]].value;
+              break;
+            case 'blackIce':
+            case 'demon':
+              modifier = this.actor.system.stats[stat[0]];
+              break;
+          }
+
+          return {
+            encodedValue: ['stat', stat[0]].join(this.delimiter),
+            id: stat[0],
+            info1: { text: modifier.toString() },
+            listName: stat[0],
+            name,
+          };
+        });
 
       this.addActions(actions, groupData);
     }

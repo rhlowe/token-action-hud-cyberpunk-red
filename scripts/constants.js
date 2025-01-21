@@ -84,18 +84,19 @@ export const ITEM_TYPES = {
 };
 
 export const ROLL_TYPES = {
-  BASE: "base",
-  STAT: "stat",
-  SKILL: "skill",
-  HUMANITY: "humanity",
-  ROLEABILITY: "roleAbility",
-  ATTACK: "attack",
   AIMED: "aimed",
+  ATTACK: "attack",
   AUTOFIRE: "autofire",
-  SUPPRESSIVE: "suppressive",
+  BASE: "base",
+  CYBERDECKPROGRAM: "cyberdeckProgram",
   DAMAGE: "damage",
   DEATHSAVE: "deathsave",
-  INTERFACEABILITY: "interfaceAbility",
-  CYBERDECKPROGRAM: "cyberdeckProgram",
   FACEDOWN: "facedown",
+  HUMANITY: "humanity",
+  INTERFACEABILITY: "interfaceAbility",
+  NET: "net",
+  ROLEABILITY: "roleAbility",
+  SKILL: "skill",
+  STAT: "stat",
+  SUPPRESSIVE: "suppressive",
 };
