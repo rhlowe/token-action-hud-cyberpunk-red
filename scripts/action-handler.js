@@ -103,12 +103,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const type = itemData.type;
         const equipped = itemData.equipped;
 
+        if (type === 'cyberware' && !itemData.system.isWeapon) {
+          continue;
+        }
+
         if (equipped || this.displayUnequipped) {
           const typeMap = inventoryMap.get(type) ?? new Map();
           typeMap.set(itemId, itemData);
           inventoryMap.set(type, typeMap);
         }
       }
+
+      // console.debug('*** inventoryMap', inventoryMap);
 
       for (let [type, typeMap] of inventoryMap) {
         const groupId = SYSTEM_ITEM_TYPE[type]?.groupId;
@@ -118,6 +124,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         if (type === 'role') {
           typeMap = await this.#buildRoleActions([type, typeMap]);
           actionTypeId = 'role';
+        } else {
+          actionTypeId = 'item';
         }
 
         const groupData = { id: groupId, type: 'system' };
@@ -134,10 +142,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }${name}`;
           const encodedValue = [actionTypeId, id].join(this.delimiter);
           const img =
-            itemData.type === 'weapon'
+            (itemData.type === 'cyberware' || itemData.type === 'weapon')
               ? coreModule.api.Utils.getImage(itemData)
               : undefined;
           let info1;
+
           if (itemData.type === 'skill') {
             let totalMod = 0;
             const level = itemData.system.level;
@@ -150,15 +159,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }
 
           return {
-            id,
-            info1,
-            img,
-            name,
-            listName,
             encodedValue,
+            id,
+            img,
+            info1,
+            listName,
+            name,
           };
         });
 
+        // console.debug(`*** #buildInventory ${groupId}`, actions, groupData)
         this.addActions(actions, groupData);
       }
     }

@@ -45,28 +45,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         nestId: 'weapon',
         id: 'weapon',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.weapons'),
-        groups: [{ ...groups.weapon, nestId: 'weapon_weapon' }],
+        groups: [
+          { ...groups.weapon, nestId: 'weapon_weapon' },
+          { ...groups.cyberware, nestId: 'weapon_cyberware' },
+        ],
       },
-
-      // {
-      //   nestId: 'role',
-      //   id: 'role',
-      //   name: coreModule.api.Utils.i18n('tokenActionHud.template.role'),
-      //   groups: [{ ...groups.role, nestId: 'role_role' }],
-      // },
 
       {
         nestId: 'gear',
         id: 'gear',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.gear'),
         groups: [{ ...groups.gear, nestId: 'gear_gear' }],
-      },
-
-      {
-        nestId: 'cyber',
-        id: 'cyber',
-        name: coreModule.api.Utils.i18n('tokenActionHud.template.cyber'),
-        groups: [{ ...groups.cyber, nestId: 'cyber_cyber' }],
       },
 
       {

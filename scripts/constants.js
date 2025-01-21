@@ -33,7 +33,7 @@ export const ACTION_TYPE = {
  */
 export const GROUP = {
   // character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' ...collapsedByDefault, },
-  cyber: { id: 'cyber', name: 'tokenActionHud.template.cyber', type: 'system' },
+  cyberware: { id: 'cyberware', name: 'tokenActionHud.template.cyberware', type: 'system' },
   deathsave: { id: 'deathsave', name: 'tokenActionHud.template.deathsave', type: 'system' },
   effects: { id: 'effects', name: 'tokenActionHud.template.effects', type: 'system' },
   facedown: { id: 'facedown', name: 'tokenActionHud.template.facedown', type: 'system' },
@@ -77,8 +77,9 @@ export const ACTOR_TYPES = [
 ];
 
 export const ITEM_TYPES = {
-  STAT: "stat",
+  CYBERWARE: "cyberware",
   SKILL: "skill",
+  STAT: "stat",
   WEAPON: "weapon",
 };
 

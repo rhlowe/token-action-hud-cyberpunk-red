@@ -79,12 +79,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionId     The actionId
      */
     async #handleAction(event, actor, token, actionTypeId, actionId, encodedValue) {
-      console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
+      // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
       let tahCprRoll = null;
       let item = null;
 
       if (actionTypeId === 'item') {
         item = actor.getOwnedItem(actionId);
+        // console.debug('*** item.type', item.type);
 
         switch (item.type) {
           // case 'item':
@@ -93,6 +94,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           case ITEM_TYPES.SKILL:
             tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
             break;
+          case ITEM_TYPES.CYBERWARE:
           case ITEM_TYPES.WEAPON:
             // @todo: Figure out autofire, suppressive, and aimed shots
             tahCprRoll = item.createRoll(ROLL_TYPES.ATTACK, actor);
@@ -123,7 +125,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         // default:
       }
 
-      console.debug('*** tahCprRoll check', tahCprRoll);
+      // console.debug('*** tahCprRoll check', tahCprRoll);
 
       // note: for aimed shots this is where location is set
       const keepRolling = await tahCprRoll.handleRollDialog(event, actor, item);
