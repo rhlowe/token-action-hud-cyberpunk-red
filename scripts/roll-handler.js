@@ -34,7 +34,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           this.actor,
           this.token,
           actionTypeId,
-          actionId
+          actionId,
+          encodedValue
         );
         return;
       }
@@ -77,14 +78,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionTypeId The action type id
      * @param {string} actionId     The actionId
      */
-    async #handleAction(event, actor, token, actionTypeId, actionId) {
+    async #handleAction(event, actor, token, actionTypeId, actionId, encodedValue) {
       console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
       let tahCprRoll = null;
       let item = null;
 
       if (actionTypeId === 'item') {
         item = actor.getOwnedItem(actionId);
-        console.debug('*** item', item);
+
         switch (item.type) {
           // case 'item':
           //   this.#handleItemAction(event, actor, actionId);
@@ -93,7 +94,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
             break;
           case ITEM_TYPES.WEAPON:
-            // TODO: Figure out autofire and suppressive
+            // @todo: Figure out autofire, suppressive, and aimed shots
             tahCprRoll = item.createRoll(ROLL_TYPES.ATTACK, actor);
             break;
           // case 'utility':
@@ -101,6 +102,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           //   break;
           // default:
         }
+      }
+
+      if (actionTypeId === 'role' && encodedValue && actor.system.externalData.secretItems.size) {
+        const searchTerm = encodedValue.replace('role|', '');
+        item = actor.system.externalData.secretItems.get(searchTerm);
+
+        tahCprRoll = item.createRoll(ROLL_TYPES.ROLEABILITY, actor, {
+          rollSubType: item.rollSubType,
+          subRoleName: item.subRoleName,
+        });
       }
 
       switch (actionTypeId) {
