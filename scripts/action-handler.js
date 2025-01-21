@@ -32,9 +32,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       if (this.actorType === 'character' || this.actorType === 'mook') {
         this.#buildCharacterActions();
-        this.#buildDeathSave();
-        this.#buildFacedown();
-        this.#buildStats();
       } else if (!this.actor) {
         this.#buildMultipleTokenActions();
       }
@@ -45,8 +42,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     #buildCharacterActions() {
+      this.#buildDeathSave();
+      this.#buildFacedown();
       this.#buildInventory();
-    }
+      this.#buildStats();
+  }
 
     /**
      * Build multiple token actions

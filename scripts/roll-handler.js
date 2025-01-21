@@ -1,6 +1,6 @@
-import CPRSystemUtils from '../node_modules/fvtt-cyberpunk-red-core/src/modules/utils/cpr-systemUtils.js';
-import CPRChat from '../node_modules/fvtt-cyberpunk-red-core/src/modules/chat/cpr-chat.js';
 import { ITEM_TYPES, ROLL_TYPES } from './constants.js';
+import CPRChat from '../node_modules/fvtt-cyberpunk-red-core/src/modules/chat/cpr-chat.js';
+import CPRSystemUtils from '../node_modules/fvtt-cyberpunk-red-core/src/modules/utils/cpr-systemUtils.js';
 
 export let RollHandler = null;
 
@@ -141,9 +141,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       await tahCprRoll.roll();
 
       // Post roll tasks
-      // if (cprRoll instanceof CPRRolls.CPRDeathSaveRoll) {
-      //   cprRoll.saveResult = this.actor.processDeathSave(cprRoll);
-      // }
+      if (tahCprRoll.rollTitle === "Death Save") {
+        tahCprRoll.saveResult = this.actor.processDeathSave(tahCprRoll);
+      }
 
       // "Consume" LUCK if used
       if (Number.isInteger(tahCprRoll.luck) && tahCprRoll.luck > 0) {
