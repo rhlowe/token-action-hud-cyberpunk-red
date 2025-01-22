@@ -1,0 +1,3 @@
+- <https://foundryvtt.com/packages/token-action-hud-core/>
+- <https://github.com/Larkinabout/fvtt-token-action-hud-core/wiki/Developing-a-System-Module>
+- <https://gitlab.com/cyberpunk-red-team/fvtt-cyberpunk-red-core/-/tree/v0.88.2/src?ref_type=tags>
