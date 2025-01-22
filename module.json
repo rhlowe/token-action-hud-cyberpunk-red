@@ -30,36 +30,37 @@
           "verified": "v0.88.2"
         }
       }
+    ],
+    "recommends": [
+      {
+        "id": "color-picker",
+        "type": "module"
+      }
     ]
   },
   "authors": [
     {
       "name": "Rob Lowe",
-      "discord": "rhlowe",
-      "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red"
+      "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red",
+      "discord": "rhlowe"
     }
   ],
   "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red",
   "esmodules": [
-    "./scripts/init.js"
-  ],
-  "scripts": [
+    "scripts/init.js"
   ],
   "styles": [
-    "./styles/tah-template-style.css"
+    "styles/tah-template-style.css"
   ],
   "languages": [
     {
       "lang": "en",
       "name": "English",
-      "path": "languages/en.json"
+      "path": "languages/en.json",
+      "flags": {}
     }
   ],
-  "socket": false,
   "manifest": "This is auto replaced",
   "download": "This is auto replaced",
-  "readme": "https://github.com/rhlowe/token-action-hud-cyberpunk-red#readme",
-  "protected": false,
-  "coreTranslation": false,
-  "library": false
+  "readme": "https://github.com/rhlowe/token-action-hud-cyberpunk-red#readme"
 }
