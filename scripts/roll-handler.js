@@ -1,6 +1,6 @@
 import { ITEM_TYPES, ROLL_TYPES } from './constants.js';
-import CPRChat from '../node_modules/fvtt-cyberpunk-red-core/src/modules/chat/cpr-chat.js';
-import CPRSystemUtils from '../node_modules/fvtt-cyberpunk-red-core/src/modules/utils/cpr-systemUtils.js';
+import CPRChat from '../../../systems/cyberpunk-red-core/modules/chat/cpr-chat.js';
+import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
 
 export let RollHandler = null;
 

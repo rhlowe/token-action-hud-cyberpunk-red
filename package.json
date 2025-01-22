@@ -15,7 +15,5 @@
     "rollup": "^2.56.3",
     "rollup-plugin-terser": "^7.0.2"
   },
-  "dependencies": {
-    "fvtt-cyberpunk-red-core": "git+https://gitlab.com/cyberpunk-red-team/fvtt-cyberpunk-red-core.git#v0.88.2"
-  }
+  "dependencies": {}
 }
