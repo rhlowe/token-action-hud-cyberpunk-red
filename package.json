@@ -1,6 +1,6 @@
 {
   "name": "token-action-hud-cyberpunk-red",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.4",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -wcm",
