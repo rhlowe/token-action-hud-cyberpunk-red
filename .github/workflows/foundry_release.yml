@@ -12,7 +12,6 @@ on:
 jobs:
   create_foundry_release:
     runs-on: ubuntu-latest
-    permissions: write-all
     name: Foundry Release
     steps:
       - name: Checkout
