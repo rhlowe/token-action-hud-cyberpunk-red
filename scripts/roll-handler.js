@@ -126,10 +126,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           break;
         case ROLL_TYPES.INTERFACEABILITY:
           const activeCyberdeck = Array.from(actor.items).find((itemData) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
-          console.debug('*** activeCyberdeck', activeCyberdeck);
-          const netRoleItem = actor.itemTypes.role.find(
-            (r) => r.id === actor.system.roleInfo.activeNetRole
-          );
+          const netRoleItem = actor.itemTypes.role.find((r) => r.id === actor.system.roleInfo.activeNetRole);
 
           // if (!netRoleItem) {
           //   const error = SystemUtils.Localize(
@@ -144,9 +141,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             cyberdeck: activeCyberdeck,
             netRoleItem,
           });
-
-          console.debug(`*** ${ROLL_TYPES.INTERFACEABILITY}`, {activeCyberdeck, netRoleItem});
-
           break;
         case ROLL_TYPES.NET:
           const programUUID = actor.token.flags['cyberpunk-red-core'].programUUID;
@@ -158,10 +152,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             sceneId
           );
           break;
-          // default:
+        default:
+          break;
       }
 
-      console.debug('*** tahCprRoll check', tahCprRoll);
+      // console.debug('*** tahCprRoll check', tahCprRoll);
 
       // note: for aimed shots this is where location is set
       const keepRolling = await tahCprRoll.handleRollDialog(event, actor, item);

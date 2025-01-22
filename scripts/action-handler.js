@@ -83,9 +83,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     #buildCharacterActions() {
       this.#buildDeathSave();
       this.#buildFacedown();
-      this.#buildInventory();
       this.#buildInterfaceActions();
-      // this.#buildNetActions();
+      this.#buildInventory();
+      // this.#buildProgramActions();
       this.#buildStats();
     }
 
@@ -183,6 +183,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           let img;
           switch(itemData.type) {
             case 'cyberware':
+            case 'cyberdeck':
             case 'gear':
             case 'weapon':
               img = coreModule.api.Utils.getImage(itemData);
@@ -214,7 +215,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           };
         });
 
-        // console.debug(`*** #buildInventory ${groupId}`, {actions, groupData});
+        // console.debug('*** #buildInventory', {actions, groupData});
         this.addActions(actions, groupData);
       }
     }
@@ -222,12 +223,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildInterfaceActions() {
       if (this.items.size === 0) return;
 
-      // const activeCyberdeck = Array.from(this.items).filter(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
-
+      // const activeCyberdeck = Array.from(this.items).find(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
       let activeCyberdeckId;
       for (const [itemId, itemData] of this.items) {
         if (itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped') {
-          // console.debug('*** {itemId, itemData}', {itemId, itemData});
           activeCyberdeckId = itemId;
         }
       }
@@ -257,28 +256,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           name,
         })
       }
-      // console.debug('*** #buildInterfaceActions', {actions, groupData});
+
       this.addActions(actions, groupData);
     }
 
-    async #buildNetActions() {
-      console.debug('*** buildNetActions', {
-        actor: this.actor,
-        items: this.items,
-      });
-
+    async #buildProgramActions() {
       if (this.items.size === 0) return;
 
-      let activeCyberdeckId;
-      let actionTypeId = 'item';
+      const activeCyberdeck = Array.from(this.items).find(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
+      const installedProgramItems = Array.from(this.items).filter(([itemId, itemData]) => itemData.type === 'program' && itemData.system.installedIn.includes(activeCyberdeck[1].id));
+
+      console.debug('*** buildProgramActions', {
+        actor: this.actor,
+        items: this.items,
+        activeCyberdeck,
+        installedProgramItems,
+      });
+
+      let actionTypeId = 'program';
 
       const inventoryMap = new Map();
 
       for (const [itemId, itemData] of this.items) {
-        if (itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped') {
-          console.debug('*** {itemId, itemData}', {itemId, itemData});
-          activeCyberdeckId = itemId;
-        }
         const type = itemData.type;
         const equipped = itemData.equipped;
 
@@ -288,8 +287,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           inventoryMap.set(type, typeMap);
         }
       }
-
-      console.debug('*** #buildNetActions inventoryMap', {activeCyberdeckId, inventoryMap});
     }
 
     async #buildRoleActions([type, typeMap]) {

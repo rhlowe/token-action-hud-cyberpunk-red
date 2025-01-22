@@ -52,7 +52,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         name: coreModule.api.Utils.i18n('tokenActionHud.template.netrunning'),
         groups: [
           { ...groups.interface, nestId: 'netrunning_interface' },
-          { ...groups.cyberdeck, nestId: 'netrunning_cyberdeck' },
+          // { ...groups.program, nestId: 'netrunning_program' },
         ],
       },
 
@@ -61,6 +61,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         id: 'gear',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.gear'),
         groups: [
+          // { ...groups.cyberdeck, nestId: 'gear_cyberdeck' },
           { ...groups.gear, nestId: 'gear_gear' },
         ],
       },
@@ -83,5 +84,4 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     ],
     groups: groupsArray,
   };
-  console.debug('*** groupsArray', DEFAULTS);
 });

@@ -41,6 +41,7 @@ export const GROUP = {
   facedown: { id: 'facedown', name: 'tokenActionHud.template.facedown', type: 'system' },
   gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
   interface: { id: 'interface', name: 'tokenActionHud.template.interface', type: 'system' },
+  program: { id: 'program', name: 'tokenActionHud.template.programs', type: 'system' },
   role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
   skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
   stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
