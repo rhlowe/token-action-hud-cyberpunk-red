@@ -2,7 +2,7 @@
   "id": "token-action-hud-cyberpunk-red",
   "title": "Token Action HUD for Cyberpunk RED",
   "description": "Token Action HUD is a repositionable HUD of actions for a selected token",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "compatibility": {
     "minimum": "11",
     "maximum": "11",
