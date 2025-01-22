@@ -22,6 +22,7 @@ export const REQUIRED_CORE_MODULE_VERSION = '1.5';
  */
 export const ACTION_TYPE = {
   // item: 'tokenActionHud.template.item',
+  interface: 'tokenActionHud.template.interface',
   skill: 'tokenActionHud.template.skill',
   attack: 'tokenActionHud.template.attack',
   stat: 'tokenActionHud.template.stat',
@@ -33,11 +34,13 @@ export const ACTION_TYPE = {
  */
 export const GROUP = {
   // character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' ...collapsedByDefault, },
+  cyberdeck: { id: 'cyberdeck', name: 'tokenActionHud.template.cyberdeck', type: 'system' },
   cyberware: { id: 'cyberware', name: 'tokenActionHud.template.cyberware', type: 'system' },
   deathsave: { id: 'deathsave', name: 'tokenActionHud.template.deathsave', type: 'system' },
   effects: { id: 'effects', name: 'tokenActionHud.template.effects', type: 'system' },
   facedown: { id: 'facedown', name: 'tokenActionHud.template.facedown', type: 'system' },
   gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
+  interface: { id: 'interface', name: 'tokenActionHud.template.interface', type: 'system' },
   role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
   skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
   stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
@@ -57,6 +60,7 @@ export const SYSTEM_ITEM_TYPE = {
   cyberware: { groupId: 'cyberware'},
   drug: { groupId: 'drug'},
   gear: { groupId: 'gear'},
+  interface: { groupId: 'interface'},
   upgrade: { groupId: 'upgrade'},
   netArchitecture: { groupId: 'netArchitecture'},
   program: { groupId: 'program'},
@@ -93,7 +97,7 @@ export const ROLL_TYPES = {
   DEATHSAVE: "deathsave",
   FACEDOWN: "facedown",
   HUMANITY: "humanity",
-  INTERFACEABILITY: "interfaceAbility",
+  INTERFACEABILITY: "interface",
   NET: "net",
   ROLEABILITY: "roleAbility",
   SKILL: "skill",

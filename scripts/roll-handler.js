@@ -124,6 +124,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             tahCprRoll = actor.createStatRoll(actionId);
           }
           break;
+        case ROLL_TYPES.INTERFACEABILITY:
+          const activeCyberdeck = Array.from(actor.items).find((itemData) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
+          console.debug('*** activeCyberdeck', activeCyberdeck);
+          const netRoleItem = actor.itemTypes.role.find(
+            (r) => r.id === actor.system.roleInfo.activeNetRole
+          );
+
+          // if (!netRoleItem) {
+          //   const error = SystemUtils.Localize(
+          //     "CPR.messages.noNetrunningRoleConfigured"
+          //   );
+          //   SystemUtils.DisplayMessage("error", error);
+          //   return;
+          // }
+
+          tahCprRoll = activeCyberdeck.createRoll('interfaceAbility', actor, {
+            interfaceAbility: actionId,
+            cyberdeck: activeCyberdeck,
+            netRoleItem,
+          });
+
+          console.debug(`*** ${ROLL_TYPES.INTERFACEABILITY}`, {activeCyberdeck, netRoleItem});
+
+          break;
         case ROLL_TYPES.NET:
           const programUUID = actor.token.flags['cyberpunk-red-core'].programUUID;
           const netrunnerTokenId = undefined;

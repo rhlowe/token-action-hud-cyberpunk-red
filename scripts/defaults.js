@@ -21,17 +21,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         id: 'character',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.character'),
         groups: [
+            { ...groups.stat, nestId: 'character_stat' },
             { ...groups.role, nestId: 'character_role' },
             { ...groups.facedown, nestId: 'character_facedown' },
             { ...groups.deathsave, nestId: 'character_deathsave' },
         ],
-      },
-
-      {
-        nestId: 'stat',
-        id: 'stat',
-        name: coreModule.api.Utils.i18n('tokenActionHud.template.statsLabel'),
-        groups: [{ ...groups.stat, nestId: 'stat_stat' }],
       },
 
       {
@@ -51,11 +45,24 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         ],
       },
 
+
+      {
+        nestId: 'netrunning',
+        id: 'netrunning',
+        name: coreModule.api.Utils.i18n('tokenActionHud.template.netrunning'),
+        groups: [
+          { ...groups.interface, nestId: 'netrunning_interface' },
+          { ...groups.cyberdeck, nestId: 'netrunning_cyberdeck' },
+        ],
+      },
+
       {
         nestId: 'gear',
         id: 'gear',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.gear'),
-        groups: [{ ...groups.gear, nestId: 'gear_gear' }],
+        groups: [
+          { ...groups.gear, nestId: 'gear_gear' },
+        ],
       },
 
       {
@@ -76,4 +83,5 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     ],
     groups: groupsArray,
   };
+  console.debug('*** groupsArray', DEFAULTS);
 });

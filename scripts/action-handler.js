@@ -30,11 +30,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         this.items = items;
       }
 
-      console.debug('*** buildSystemActions', {
-        actor: this.actor,
-        items: this.items,
-      });
-
       switch (this.actorType) {
         case 'character':
         case 'mook':
@@ -78,14 +73,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           name: coreModule.api.Utils.i18n(`tokenActionHud.template.blackIce`),
         });
       }
-
-      console.debug('*** #buildBlackIceDamage', {
-        actions,
-        groupData,
-        programUUID,
-        standard,
-        blackIce,
-      });
       this.addActions(actions, groupData);
     }
 
@@ -97,6 +84,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildDeathSave();
       this.#buildFacedown();
       this.#buildInventory();
+      this.#buildInterfaceActions();
+      // this.#buildNetActions();
       this.#buildStats();
     }
 
@@ -166,8 +155,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
       }
 
-      // console.debug('*** inventoryMap', inventoryMap);
-
       for (let [type, typeMap] of inventoryMap) {
         const groupId = SYSTEM_ITEM_TYPE[type]?.groupId;
 
@@ -193,10 +180,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             actionTypeName ? `${actionTypeName}: ` : ''
           }${name}`;
           const encodedValue = [actionTypeId, id].join(this.delimiter);
-          const img =
-            itemData.type === 'cyberware' || itemData.type === 'weapon'
-              ? coreModule.api.Utils.getImage(itemData)
-              : undefined;
+          let img;
+          switch(itemData.type) {
+            case 'cyberware':
+            case 'gear':
+            case 'weapon':
+              img = coreModule.api.Utils.getImage(itemData);
+              break;
+            default:
+              img = undefined;
+              break;
+          }
           let info1;
 
           if (itemData.type === 'skill') {
@@ -220,9 +214,82 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           };
         });
 
-        // console.debug(`*** #buildInventory ${groupId}`, actions, groupData)
+        // console.debug(`*** #buildInventory ${groupId}`, {actions, groupData});
         this.addActions(actions, groupData);
       }
+    }
+
+    async #buildInterfaceActions() {
+      if (this.items.size === 0) return;
+
+      // const activeCyberdeck = Array.from(this.items).filter(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
+
+      let activeCyberdeckId;
+      for (const [itemId, itemData] of this.items) {
+        if (itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped') {
+          // console.debug('*** {itemId, itemData}', {itemId, itemData});
+          activeCyberdeckId = itemId;
+        }
+      }
+
+      if (!activeCyberdeckId) return;
+
+      const groupData = { id: 'interface', type: 'system' };
+      const interfaceActions = [
+        ["backdoor", "Backdoor"],
+        ["cloak", "Cloak"],
+        ["control", "Control"],
+        ["eyedee", "Eye-Dee"],
+        ["pathfinder", "Pathfinder"],
+        ["scanner", "Scanner"],
+        ["slide", "Slide"],
+        ["virus", "Virus"],
+        ["zap", "Zap"],
+      ];
+      const actions = [];
+
+      for (let [id, name] of interfaceActions) {
+        actions.push({
+          encodedValue: ['interface', id].join(this.delimiter),
+          id,
+          // info1,
+          listName: id,
+          name,
+        })
+      }
+      // console.debug('*** #buildInterfaceActions', {actions, groupData});
+      this.addActions(actions, groupData);
+    }
+
+    async #buildNetActions() {
+      console.debug('*** buildNetActions', {
+        actor: this.actor,
+        items: this.items,
+      });
+
+      if (this.items.size === 0) return;
+
+      let activeCyberdeckId;
+      let actionTypeId = 'item';
+
+      const inventoryMap = new Map();
+
+      for (const [itemId, itemData] of this.items) {
+        if (itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped') {
+          console.debug('*** {itemId, itemData}', {itemId, itemData});
+          activeCyberdeckId = itemId;
+        }
+        const type = itemData.type;
+        const equipped = itemData.equipped;
+
+        if (equipped || this.displayUnequipped) {
+          const typeMap = inventoryMap.get(type) ?? new Map();
+          typeMap.set(itemId, itemData);
+          inventoryMap.set(type, typeMap);
+        }
+      }
+
+      console.debug('*** #buildNetActions inventoryMap', {activeCyberdeckId, inventoryMap});
     }
 
     async #buildRoleActions([type, typeMap]) {
