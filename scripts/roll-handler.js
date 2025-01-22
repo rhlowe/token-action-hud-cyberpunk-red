@@ -79,7 +79,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionId     The actionId
      */
     async #handleAction(event, actor, token, actionTypeId, actionId, encodedValue) {
-      console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
+      // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
       let tahCprRoll = null;
       let item = null;
 
@@ -157,6 +157,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       // console.debug('*** tahCprRoll check', tahCprRoll);
+      if (!tahCprRoll) {
+        return;
+      }
 
       // note: for aimed shots this is where location is set
       const keepRolling = await tahCprRoll.handleRollDialog(event, actor, item);
