@@ -291,14 +291,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #buildRoleActions([type, typeMap]) {
       const roleMap = new Map();
-      /**
-       * Roles are items, some of those role items have a main role action, some have multiple sub role actions, still others have nothing. Here we collect all the Role Rolls as cloned items of the original Role items and store-slash-hide them on the actor so we don't pollute the Character Sheet. We refrence these hidden items in `roll-handler.js` to build the rollable actions.
-       */
-      if (!this.actor.system.externalData.hiddenRoleItems) {
-        this.actor.update({
-          'system.externalData.hiddenRoleItems': hiddenRoleItems,
-        });
-      }
 
       typeMap.forEach(async (role) => {
         if (role.system.hasRoll) {
