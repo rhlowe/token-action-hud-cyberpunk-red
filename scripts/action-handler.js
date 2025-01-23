@@ -21,6 +21,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.actorType = this.actor?.type;
 
       // Settings
+      this.displayMookSkillWithZeroMod = Utils.getSetting('displayMookSkillWithZeroMod');
+      this.displayCharacterSkillWithZeroMod = Utils.getSetting('displayCharacterSkillWithZeroMod');
       this.displayUnequipped = Utils.getSetting('displayUnequipped');
 
       // Set items variable
@@ -141,18 +143,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const inventoryMap = new Map();
 
       for (const [itemId, itemData] of this.items) {
+        // console.debug('*** itemData', itemData);
         const type = itemData.type;
-        const equipped = itemData.equipped;
+        const { equipped, isWeapon, level } = itemData.system;
 
-        if (type === 'cyberware' && !itemData.system.isWeapon) {
-          continue;
-        }
+        if (type === 'cyberware' && !isWeapon) continue;
+        if (this.displayUnequipped === false && type === 'weapon' && equipped !== 'equipped') continue;
+        if (this.actorType === 'mook' && this.displayMookSkillWithZeroMod === false && type === 'skill' && level === 0) continue;
+        if (this.actorType === 'character' && this.displayCharacterSkillWithZeroMod === false && type === 'skill' && level === 0) continue;
 
-        if (equipped || this.displayUnequipped) {
-          const typeMap = inventoryMap.get(type) ?? new Map();
-          typeMap.set(itemId, itemData);
-          inventoryMap.set(type, typeMap);
-        }
+        const typeMap = inventoryMap.get(type) ?? new Map();
+        typeMap.set(itemId, itemData);
+        inventoryMap.set(type, typeMap);
       }
 
       for (let [type, typeMap] of inventoryMap) {

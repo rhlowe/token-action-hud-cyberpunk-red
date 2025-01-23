@@ -21,4 +21,30 @@ export function register(coreUpdate) {
       coreUpdate(value);
     },
   });
+
+  game.settings.register(MODULE.ID, 'displayMookSkillWithZeroMod', {
+    name: game.i18n.localize(
+      'tokenActionHud.template.settings.displayMookSkillWithZeroMod.name'
+    ),
+    scope: 'client',
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: (value) => {
+      coreUpdate(value);
+    },
+  });
+
+  game.settings.register(MODULE.ID, 'displayCharacterSkillWithZeroMod', {
+    name: game.i18n.localize(
+      'tokenActionHud.template.settings.displayCharacterSkillWithZeroMod.name'
+    ),
+    scope: 'client',
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: (value) => {
+      coreUpdate(value);
+    },
+  });
 }
