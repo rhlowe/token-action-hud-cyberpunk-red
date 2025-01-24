@@ -37,7 +37,14 @@
         "displayUnequipped": {
           "hint": "Choose whether to display unequipped items on the HUD",
           "name": "Display Unequipped"
-        }
+        },
+        "displayMookSkillWithZeroMod": {
+          "name": "Display Mook Skills With Zero Mod"
+        },
+        "displayCharacterSkillWithZeroMod": {
+          "name": "Display Player Skills With Zero Mod"
+        },
+        "": {}
       },
       "skill": "Skill",
       "skills": "Skills",
