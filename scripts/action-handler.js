@@ -360,7 +360,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           switch (this.actorType) {
             case 'character':
             case 'mook':
-              modifier = this.actor.system.stats[stat[0]].value;
+              modifier = this.actor.system.stats[stat[0]].value ?? 0;
               const namePath = `CPR.global.stats.${stat[0]}`;
               const tooltipPath = `CPR.global.stats.${stat[0]}ToolTip`;
               name = game.i18n.localize(namePath);
