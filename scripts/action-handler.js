@@ -208,10 +208,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               tooltipPath = `CPR.global.skill.${itemData.system.stat}ToolTip`;
             }
 
-            info1 = { text: totalMod.toString() };
             name = [name, `[${itemData.system.stat}]`.toUpperCase()].join(' ');
             // tooltip = game.i18n.localize(tooltipPath);
             totalMod += level + stat;
+            info1 = { text: totalMod.toString() };
           }
 
           return {
