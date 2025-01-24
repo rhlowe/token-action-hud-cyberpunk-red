@@ -1,10 +1,10 @@
-// System Module Imports
 import { ACTION_TYPE, ROLL_TYPES, SYSTEM_ITEM_TYPE } from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
+  // console.debug('*** coreModule', coreModule);
   /**
    * Extends Token Action HUD Core's ActionHandler class and builds system-defined actions for the HUD
    */
@@ -173,22 +173,23 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         // Get actions
         const actions = [...typeMap].map(([itemId, itemData]) => {
-          const id = itemId;
           let name = itemData.name;
-          const actionTypeName = coreModule.api.Utils.i18n(
-            ACTION_TYPE[actionTypeId]
-          );
-          const listName = `${
-            actionTypeName ? `${actionTypeName}: ` : ''
-          }${name}`;
+
+          const id = itemId;
+          const actionTypeName = coreModule.api.Utils.i18n(ACTION_TYPE[actionTypeId]);
+          const listName = `${actionTypeName ? `${actionTypeName}: ` : ''}${name}`;
           const encodedValue = [actionTypeId, id].join(this.delimiter);
+
           let img;
+          let tooltip;
+
           switch(itemData.type) {
             case 'cyberware':
             case 'cyberdeck':
             case 'gear':
             case 'weapon':
               img = coreModule.api.Utils.getImage(itemData);
+              tooltip = itemData.system.description.value;
               break;
             default:
               img = undefined;
@@ -197,14 +198,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           let info1;
 
           if (itemData.type === 'skill') {
+            const camelSkill = Utils.cprCamelCase(itemData.name);
+            // console.debug('*** itemData', {camelSkill, itemData});
             let totalMod = 0;
             const level = itemData.system.level;
             const stat = this.actor.system.stats[itemData.system.stat].value;
+            let tooltipPath;
+            if (!camelSkill.includes('(') && !camelSkill.includes(')')) {
+              tooltipPath = `CPR.global.skill.${itemData.system.stat}ToolTip`;
+            }
 
-            totalMod += level + stat;
             info1 = { text: totalMod.toString() };
-
             name = [name, `[${itemData.system.stat}]`.toUpperCase()].join(' ');
+            // tooltip = game.i18n.localize(tooltipPath);
+            totalMod += level + stat;
           }
 
           return {
@@ -214,6 +221,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             info1,
             listName,
             name,
+            tooltip,
           };
         });
 
@@ -236,28 +244,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       if (!activeCyberdeckId) return;
 
       const groupData = { id: 'interface', type: 'system' };
-      const interfaceActions = [
-        ["backdoor", "Backdoor"],
-        ["cloak", "Cloak"],
-        ["control", "Control"],
-        ["eyedee", "Eye-Dee"],
-        ["pathfinder", "Pathfinder"],
-        ["scanner", "Scanner"],
-        ["slide", "Slide"],
-        ["virus", "Virus"],
-        ["zap", "Zap"],
-      ];
       const actions = [];
-
-      for (let [id, name] of interfaceActions) {
+      [
+        "backdoor",
+        "cloak",
+        "control",
+        "eyedee",
+        "pathfinder",
+        "scanner",
+        "slide",
+        "virus",
+        "zap",
+      ].forEach(id => {
         actions.push({
           encodedValue: ['interface', id].join(this.delimiter),
           id,
           // info1,
           listName: id,
-          name,
+          name: game.i18n.localize(`CPR.global.role.netrunner.interfaceAbility.${id}`),
         })
-      }
+      });
 
       this.addActions(actions, groupData);
     }
@@ -268,12 +274,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const activeCyberdeck = Array.from(this.items).find(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
       const installedProgramItems = Array.from(this.items).filter(([itemId, itemData]) => itemData.type === 'program' && itemData.system.installedIn.includes(activeCyberdeck[1].id));
 
-      console.debug('*** buildProgramActions', {
-        actor: this.actor,
-        items: this.items,
-        activeCyberdeck,
-        installedProgramItems,
-      });
+      // console.debug('*** buildProgramActions', {
+      //   actor: this.actor,
+      //   items: this.items,
+      //   activeCyberdeck,
+      //   installedProgramItems,
+      // });
 
       let actionTypeId = 'program';
 
@@ -343,21 +349,27 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #buildStats() {
       const groupData = { id: 'stat', type: 'system' };
-
       const actions = Object.entries(this.actor.system.stats)
         .filter(([stat, value]) => !['rez', 'actions'].includes(stat))
         .map((stat) => {
-          const name = coreModule.api.Utils.i18n(
-            `tokenActionHud.template.stats.${stat[0]}`
-          );
-
+          // console.debug('*** stat', stat);
+          let tooltip = '';
+          let name = coreModule.api.Utils.i18n(`tokenActionHud.template.stats.${stat[0]}`);
           let modifier;
+
           switch (this.actorType) {
             case 'character':
             case 'mook':
               modifier = this.actor.system.stats[stat[0]].value;
+              const namePath = `CPR.global.stats.${stat[0]}`;
+              const tooltipPath = `CPR.global.stats.${stat[0]}ToolTip`;
+              name = game.i18n.localize(namePath);
+              // tooltip = game.i18n.localize(tooltipPath);
+              // console.debug(`*** ${stat[0]} tool`, tooltipPath, tooltip);
+
               break;
             case 'blackIce':
+              // "CPR.global.blackIce.stats.atk": "ATK",
             case 'demon':
               modifier = this.actor.system.stats[stat[0]];
               break;
@@ -369,6 +381,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             info1: { text: modifier.toString() },
             listName: stat[0],
             name,
+            tooltip,
           };
         });
 
