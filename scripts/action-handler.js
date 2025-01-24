@@ -200,7 +200,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           if (itemData.type === 'skill') {
             const camelSkill = Utils.cprCamelCase(itemData.name);
             // console.debug('*** itemData', {camelSkill, itemData});
-            let totalMod = 0;
             const level = itemData.system.level;
             const stat = this.actor.system.stats[itemData.system.stat].value;
             let tooltipPath;
@@ -208,9 +207,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               tooltipPath = `CPR.global.skill.${itemData.system.stat}ToolTip`;
             }
 
+            // img = itemData.img;
             name = [name, `[${itemData.system.stat}]`.toUpperCase()].join(' ');
-            // tooltip = game.i18n.localize(tooltipPath);
-            totalMod += level + stat;
+            // tooltip = itemData.system?.description?.value ? itemData.system.description.value : game.i18n.localize(tooltipPath);
+            tooltip = itemData.system?.description?.value ? itemData.system.description.value : '';
+
+            let totalMod = level + stat;
             info1 = { text: totalMod.toString() };
           }
 
@@ -360,7 +362,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           switch (this.actorType) {
             case 'character':
             case 'mook':
-              modifier = this.actor.system.stats[stat[0]].value;
+              modifier = this.actor.system.stats[stat[0]].value ?? 0;
               const namePath = `CPR.global.stats.${stat[0]}`;
               const tooltipPath = `CPR.global.stats.${stat[0]}ToolTip`;
               name = game.i18n.localize(namePath);
