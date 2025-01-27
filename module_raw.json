@@ -34,7 +34,10 @@
     "recommends": [
       {
         "id": "color-picker",
-        "type": "module"
+        "type": "module",
+        "compatibility": {
+          "verified": "1.4"
+        }
       }
     ]
   },
