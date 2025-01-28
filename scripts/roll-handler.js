@@ -1,4 +1,4 @@
-import { ITEM_TYPES, ROLL_TYPES } from './constants.js';
+import { GROUP, ITEM_TYPES, ROLL_TYPES } from './constants.js';
 import CPRChat from '../../../systems/cyberpunk-red-core/modules/chat/cpr-chat.js';
 import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
 
@@ -26,6 +26,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       const knownCharacters = ['character'];
+
+      if (this.actor && actionTypeId === GROUP.utility.id) {
+        await this.#handleUtilityAction(
+          this.actor,
+          this.token,
+          actionId,
+        );
+        return;
+      }
 
       // If single actor is selected
       if (this.actor) {
@@ -78,7 +87,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionTypeId The action type id
      * @param {string} actionId     The actionId
      */
-    async #handleAction(event, actor, token, actionTypeId, actionId, encodedValue) {
+    async #handleAction(
+      event,
+      actor,
+      token,
+      actionTypeId,
+      actionId,
+      encodedValue
+    ) {
       // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
       let tahCprRoll = null;
       let item = null;
@@ -102,7 +118,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
       }
 
-      if (actionTypeId === 'role' && encodedValue && actor.system.externalData.secretItems.size) {
+      if (
+        actionTypeId === 'role' &&
+        encodedValue &&
+        actor.system.externalData.secretItems.size
+      ) {
         const searchTerm = encodedValue.replace('role|', '');
         item = actor.system.externalData.secretItems.get(searchTerm);
 
@@ -125,8 +145,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }
           break;
         case ROLL_TYPES.INTERFACEABILITY:
-          const activeCyberdeck = Array.from(actor.items).find((itemData) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
-          const netRoleItem = actor.itemTypes.role.find((r) => r.id === actor.system.roleInfo.activeNetRole);
+          const activeCyberdeck = Array.from(actor.items).find(
+            (itemData) =>
+              itemData.type === 'cyberdeck' &&
+              itemData.system.equipped === 'equipped'
+          );
+          const netRoleItem = actor.itemTypes.role.find(
+            (r) => r.id === actor.system.roleInfo.activeNetRole
+          );
 
           // if (!netRoleItem) {
           //   const error = SystemUtils.Localize(
@@ -143,7 +169,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           });
           break;
         case ROLL_TYPES.NET:
-          const programUUID = actor.token.flags['cyberpunk-red-core'].programUUID;
+          const programUUID =
+            actor.token.flags['cyberpunk-red-core'].programUUID;
           const netrunnerTokenId = undefined;
           const sceneId = token.scene.uuid;
           tahCprRoll = actor.createDamageRoll(
@@ -175,7 +202,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       await tahCprRoll.roll();
 
       // Post roll tasks
-      if (tahCprRoll.rollTitle === "Death Save") {
+      if (tahCprRoll.rollTitle === 'Death Save') {
         tahCprRoll.saveResult = this.actor.processDeathSave(tahCprRoll);
       }
 
@@ -183,13 +210,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       if (Number.isInteger(tahCprRoll.luck) && tahCprRoll.luck > 0) {
         const luckStat = actor.system.stats.luck.value;
         actor.update({
-          "system.stats.luck.value":
-            luckStat - (tahCprRoll.luck > luckStat ? luckStat : tahCprRoll.luck),
+          'system.stats.luck.value':
+            luckStat -
+            (tahCprRoll.luck > luckStat ? luckStat : tahCprRoll.luck),
         });
       }
 
       token = token === null ? null : token.data._id;
-      const targetedTokens = CPRSystemUtils.getUserTargetedOrSelected("targeted"); // get user targeted tokens for output to chat
+      const targetedTokens =
+        CPRSystemUtils.getUserTargetedOrSelected('targeted'); // get user targeted tokens for output to chat
 
       tahCprRoll.entityData = {
         actor: actor.id,
@@ -217,14 +246,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     /**
      * Handle utility action
      * @private
+     * @param {object} actor    The actor
      * @param {object} token    The token
      * @param {string} actionId The action id
      */
-    async #handleUtilityAction(token, actionId) {
+    async #handleUtilityAction(actor, token, actionId) {
       switch (actionId) {
         case 'endTurn':
           if (game.combat?.current?.tokenId === token.id) {
             await game.combat?.nextTurn();
+          }
+          break;
+        case 'initiative':
+          let combatant = game.combat?.combatants.find(
+            (c) => c.tokenId == token.id
+          );
+          if (combatant) {
+            game.combat.rollInitiative([combatant.id]);
+          } else {
+            actor.rollInitiative({ createCombatants: true });
           }
           break;
       }

@@ -1,4 +1,4 @@
-import { ACTION_TYPE, ROLL_TYPES, SYSTEM_ITEM_TYPE } from './constants.js';
+import { ACTION_TYPE, GROUP, ROLL_TYPES, SYSTEM_ITEM_TYPE } from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
@@ -83,11 +83,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     #buildCharacterActions() {
+      // this.#buildProgramActions();
+      this.#buildCoreActions();
       this.#buildDeathSave();
       this.#buildFacedown();
       this.#buildInterfaceActions();
       this.#buildInventory();
-      // this.#buildProgramActions();
       this.#buildStats();
     }
 
@@ -97,6 +98,44 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @returns {object}
      */
     #buildMultipleTokenActions() {}
+
+    async #buildCoreActions() {
+      const groupData = { id: GROUP.utility.id, type: 'system' };
+      const actionType = 'initiative';
+      const name = coreModule.api.Utils.i18n(`CPR.chat.initiative`);
+      let visibiltyString = `tokenActionHud.template.visibility.${(this.token.data.hidden ? 'makeVisible' : 'makeInvisible')}`;
+      const endCombatTurnAction =
+        game.combat?.current?.tokenId === this.token?.id
+          ? {
+              encodedValue: [groupData.id, 'endTurn'].join(this.delimiter),
+              id: 'endTurn',
+              name: coreModule.api.Utils.i18n(
+                'tokenActionHud.template.endTurn'
+              ),
+            }
+          : false;
+
+      const actions = [
+        {
+          encodedValue: [groupData.id, actionType].join(this.delimiter),
+          id: groupData.id,
+          listName: groupData.id,
+          name,
+        },
+        endCombatTurnAction,
+        /**
+         * toggleVisibility doesn't require anything in roll-handler.js
+         * either it is handled in TAH Core or via magic in FVTT.
+         */
+        {
+          encodedValue: [groupData.id, 'toggleVisibility'].join(this.delimiter),
+          id: 'toggleVisibility',
+          name: coreModule.api.Utils.i18n(visibiltyString),
+        },
+      ].filter(Boolean);
+
+      this.addActions(actions, groupData);
+    }
 
     async #buildDeathSave() {
       const groupData = { id: ROLL_TYPES.DEATHSAVE, type: 'system' };

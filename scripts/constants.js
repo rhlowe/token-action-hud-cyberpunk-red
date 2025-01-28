@@ -26,7 +26,7 @@ export const ACTION_TYPE = {
   skill: 'tokenActionHud.template.skill',
   attack: 'tokenActionHud.template.attack',
   stat: 'tokenActionHud.template.stat',
-  // utility: 'tokenActionHud.utility',
+  utility: 'tokenActionHud.utility',
 };
 
 /**
@@ -45,6 +45,7 @@ export const GROUP = {
   role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
   skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
   stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
+  utility: { id: 'utility', name: 'tokenActionHud.template.utility', type: 'system' },
   weapon: { id: 'weapon', name: 'tokenActionHud.template.weapon', type: 'system' },
 };
 
