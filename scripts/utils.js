@@ -118,5 +118,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
       return icon;
     }
+
+    static highlightDVRuler(item, token) {
+      let itemDvTable = item.system?.dvTable;
+      if (token !== null && itemDvTable !== null && itemDvTable !== "") {
+        const tokenDv = token.document.getFlag(
+          game.system.id,
+          "cprDvTable"
+        );
+        const firetype = token.actor.getFlag(
+          game.system.id,
+          `firetype-${item.id}`
+        );
+        if (firetype === "autofire") {
+          itemDvTable = `${itemDvTable} (Autofire)`;
+        }
+        if (tokenDv?.name === itemDvTable) {
+          return true;
+        }
+      }
+      return false;
+    }
   };
 });

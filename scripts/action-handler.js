@@ -521,14 +521,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           actions.push(
             // Base Weapon info
             {
+              cssClass: 'toggle' + (itemData.system.equipped === 'equipped' ? ' active' : ''),
               encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
                 this.delimiter
               ),
               id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
               img: coreModule.api.Utils.getImage(itemData),
               info1: { text: itemData.system.equipped },
-              // info2: { text: 'info2' },
-              // info3: { text: 'info3' },
+              info2: { text: `ROF: ${itemData.system.rof}` },
+              info3: { text: `Hands: ${itemData.system.handsReq}` },
               name: itemData.name,
               tooltip: itemData.system.description.value,
             }
@@ -570,15 +571,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE
                   ),
                   info1: { text: 'Fire Mode' },
-                  info2: { text: isAutofire ? ' active' : undefined },
+                  info2: { text: `x${itemData.system.fireModes.autoFire}` },
+                  info3: { text: isAutofire ? ' active' : undefined },
                   name: 'Autofire',
-                  onClick: (event) => {
-                    console.debug('*** event', event);
-                  },
-                  system: {
-                    id: itemId,
-                    enoki: 'bar',
-                  },
                 });
               }
               // Suppressive Fire: itemData.system.fireModes.suppressive
@@ -602,6 +597,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 ...[
                   // Measure DV:
                   {
+                    cssClass: 'toggle' + (Utils.highlightDVRuler(itemData, this.token) ? ' active' : ''),
                     encodedValue: [WEAPON_ACTION_TYPES.MEASURE_DV, itemId].join(
                       this.delimiter
                     ),
@@ -630,6 +626,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                     img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.RELOAD),
                     id: WEAPON_ACTION_TYPES.RELOAD,
+                    info1: { text: itemData.system.magazine.value ? `${itemData.system.magazine.ammoData.name}` : 'unloaded' },
+                    info2: { text: `${itemData.system.magazine.value}/${itemData.system.magazine.max}` },
                     name: 'Reload',
                   },
                 ]
@@ -658,6 +656,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     WEAPON_ACTION_TYPES.ROLL_DAMAGE
                   ),
                   id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
+                  info2: { text: `${itemData.system.damage}` },
                   name: 'Roll Damage',
                 },
               ]

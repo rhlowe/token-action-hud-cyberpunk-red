@@ -277,9 +277,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #handleWeaponAction(actor, token, actionTypeId, actionId) {
       const item = actor.items.get(actionId);
-      console.debug('*** #handleWeaponAction', {actor, token, actionTypeId, actionId, item});
+      console.debug('*** #handleWeaponAction', {
+        actionId,
+        actionTypeId,
+        actor,
+        item,
+        token,
+      });
 
-      let formElement;
       let dataId;
 
       switch(actionTypeId) {
@@ -334,17 +339,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         // data-action
         case WEAPON_ACTION_TYPES.CHANGE_AMMO:
+          await item._loadItem();
+          break;
         case WEAPON_ACTION_TYPES.MEASURE_DV:
+          // return item._setDvTable(actor, this.system.dvTable);
+          await item._setDvTable(actor, item.system.dvTable);
+          break;
         case WEAPON_ACTION_TYPES.RELOAD:
-          dataId = 'data-action';
-          formElement = actor.sheet.form.querySelector(`[data-item-id="${actionId}"][${dataId}="${actionTypeId}"]`)
+          await item._loadItem(item.system.magazine.ammoData.uuid);
           break;
 
         // data-roll-type
         case WEAPON_ACTION_TYPES.ROLL_ATTACK:
         case WEAPON_ACTION_TYPES.ROLL_DAMAGE:
           dataId = 'data-roll-type';
-          formElement = actor.sheet.form.querySelector(`[data-item-id="${actionId}"][${dataId}="${actionTypeId}"]`)
+          // formElement = actor.sheet.form.querySelector(`[data-item-id="${actionId}"][${dataId}="${actionTypeId}"]`)
           break;
       }
 
