@@ -23,7 +23,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      */
     async buildSystemActions(groupIds) {
       // Set actor and token variables
-      this.actors = !this.actor ? this._getActors() : [this.actor];
+      this.actors = !this.actor ? game.canvas.tokens.controlled : [this.actor];
       this.actorType = this.actor?.type;
 
       // Settings
@@ -109,7 +109,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      * @returns {object}
      */
-    #buildMultipleTokenActions() {}
+    async #buildMultipleTokenActions() {}
 
     async #buildCoreActions() {
       const groupData = { id: GROUP.utility.id, type: 'system' };
