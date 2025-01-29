@@ -1,4 +1,4 @@
-import { ACTION_TYPE, GROUP, ROLL_TYPES, SYSTEM_ITEM_TYPE } from './constants.js';
+import { ACTION_TYPE, GROUP, ROLL_TYPES, SYSTEM_ITEM_TYPE, WEAPON_ACTION_TYPES } from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
@@ -90,6 +90,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildInterfaceActions();
       this.#buildInventory();
       this.#buildStats();
+      this.#buildWeaponActions();
     }
 
     /**
@@ -186,7 +187,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const type = itemData.type;
         const { equipped, isWeapon, level } = itemData.system;
 
-        if (type === 'cyberware' && !isWeapon) continue;
+        if (type === 'cyberware' || type === 'weapon') continue;
+        // if (type === 'cyberware' && !isWeapon) continue;
         if (this.displayUnequipped === false && type === 'weapon' && equipped !== 'equipped') continue;
         if (this.actorType === 'mook' && this.displayMookSkillWithZeroMod === false && type === 'skill' && level === 0) continue;
         if (this.actorType === 'character' && this.displayCharacterSkillWithZeroMod === false && type === 'skill' && level === 0) continue;
@@ -427,6 +429,147 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         });
 
       this.addActions(actions, groupData);
+    }
+
+    async #buildWeaponActions() {
+      for (const [itemId, itemData] of this.items) {
+        // console.debug('*** itemData', itemData);
+        const type = itemData.type;
+        const { equipped, isWeapon, level } = itemData.system;
+
+        const isAimed = getProperty(this.actor, `flags.${game.system.id}.firetype-${itemId}`) === WEAPON_ACTION_TYPES.TOGGLE_AIMED;
+        const isAutofire = getProperty(this.actor, `flags.${game.system.id}.firetype-${itemId}`) === WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE;
+        const isSuppressive = getProperty(this.actor, `flags.${game.system.id}.firetype-${itemId}`) === WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE;
+
+        if (type === 'cyberware' && !isWeapon) continue;
+        // if (this.displayUnequipped === false && type === 'weapon' && equipped !== 'equipped') continue;
+
+        const group = {
+          id: itemId,
+          name: itemData.name,
+          nestId: `weapon_${itemData.id}`,
+          type: 'system',
+        };
+        const actions = [];
+
+        if (isWeapon || type === 'weapon') {
+          console.debug('***', {
+            itemId,
+            isAimed,
+            isAutofire,
+            isSuppressive,
+          });
+
+          this.addGroup(group, {id: 'weapon', type: 'system'});
+
+          // console.debug('***', {
+          //   itemId,
+          //   itemData,
+          //   group,
+          // });
+
+          actions.push(
+            // Base Weapon info
+            {
+              encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(this.delimiter),
+              id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
+              img: coreModule.api.Utils.getImage(itemData),
+              info1: { text: itemData.system.equipped },
+              // info2: { text: 'info2' },
+              // info3: { text: 'info3' },
+              name: itemData.name,
+              tooltip: itemData.system.description.value,
+            },
+          );
+
+          if(type === 'cyberware' || itemData.system.equipped === 'equipped') {
+            actions.push(...[
+              // Aimed Shot:
+              {
+                cssClass: 'toggle' + (isAimed ? ' active' : ''),
+                encodedValue: [WEAPON_ACTION_TYPES.TOGGLE_AIMED, itemId].join(this.delimiter),
+                id: WEAPON_ACTION_TYPES.TOGGLE_AIMED,
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.TOGGLE_AIMED),
+                info1: { text: 'Fire Mode' },
+                info2: { text: isAimed ? ' active' : undefined },
+                // info2: { text: 'info2' },
+                // info3: { text: 'info3' },
+                name: "Aimed Shot",
+              }
+            ]);
+
+            if (itemData.system.isRanged) {
+              actions.push(...[
+              // Autofire: itemData.system.fireModes.autoFire > 0
+              {
+                cssClass: 'toggle' + (isAutofire ? ' active' : ''),
+                encodedValue: [WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE, itemId].join(this.delimiter),
+                id: WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE,
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE),
+                info1: { text: 'Fire Mode' },
+                info2: { text: isAutofire ? ' active' : undefined },
+                name: "Autofire",
+                onClick: (event) => { console.debug('*** event', event)},
+                system: {
+                  id: itemId,
+                  enoki: 'bar',
+                },
+                },
+              // Suppressive Fire: itemData.system.fireModes.suppressive
+              {
+                cssClass: 'toggle' + (isSuppressive ? ' active' : ''),
+                encodedValue: [WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE, itemId].join(this.delimiter),
+                id: WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE,
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE),
+                info1: { text: 'Fire Mode' },
+                info2: { text: isSuppressive ? ' active' : undefined },
+                name: "Suppressive Fire",
+              },
+              // Measure DV:
+              {
+                encodedValue: [WEAPON_ACTION_TYPES.MEASURE_DV, itemId].join(this.delimiter),
+                id: WEAPON_ACTION_TYPES.MEASURE_DV,
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.MEASURE_DV),
+                name: "Measure DV",
+              },
+              // Change Ammo:
+              {
+                encodedValue: [WEAPON_ACTION_TYPES.CHANGE_AMMO, itemId].join(this.delimiter),
+                id: WEAPON_ACTION_TYPES.CHANGE_AMMO,
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.CHANGE_AMMO),
+                name: "Change Ammo",
+              },
+              // Reload:
+              {
+                encodedValue: [WEAPON_ACTION_TYPES.RELOAD, itemId].join(this.delimiter),
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.RELOAD),
+                id: WEAPON_ACTION_TYPES.RELOAD,
+                name: "Reload",
+              },
+            ]);
+            }
+
+            actions.push(...[
+              // Roll Attack
+              {
+                encodedValue: [WEAPON_ACTION_TYPES.ROLL_ATTACK, itemId].join(this.delimiter),
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.ROLL_ATTACK),
+                id: WEAPON_ACTION_TYPES.ROLL_ATTACK,
+                name: "Roll Attack",
+              },
+              // Roll Damage
+              {
+                encodedValue: [WEAPON_ACTION_TYPES.ROLL_DAMAGE, itemId].join(this.delimiter),
+                img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.ROLL_DAMAGE),
+                id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
+                name: "Roll Damage",
+              },
+            ]);
+          }
+
+          this.addActions(actions, { id: group.id, type: 'system'});
+        }
+      }
     }
   };
 });

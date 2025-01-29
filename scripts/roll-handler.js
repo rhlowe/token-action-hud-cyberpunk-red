@@ -1,4 +1,5 @@
-import { GROUP, ITEM_TYPES, ROLL_TYPES } from './constants.js';
+import { GROUP, ITEM_TYPES, ROLL_TYPES, WEAPON_ACTION_TYPES } from './constants.js';
+import { Utils } from './utils.js';
 import CPRChat from '../../../systems/cyberpunk-red-core/modules/chat/cpr-chat.js';
 import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
 
@@ -17,8 +18,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} encodedValue The encoded value
      */
     async handleActionClick(event, encodedValue) {
+      console.debug('*** handleActionClick', {event, encodedValue})
       const [actionTypeId, actionId] = encodedValue.split('|');
-
       const renderable = ['item'];
 
       if (renderable.includes(actionTypeId) && this.isRenderItem()) {
@@ -26,6 +27,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       const knownCharacters = ['character'];
+
+      if (Object.values(WEAPON_ACTION_TYPES).includes(actionTypeId)) {
+        return this.#handleWeaponAction(this.actor, this.token, actionTypeId, actionId)
+      }
 
       if (this.actor && actionTypeId === GROUP.utility.id) {
         await this.#handleUtilityAction(
@@ -268,6 +273,62 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }
           break;
       }
+    }
+
+    async #handleWeaponAction(actor, token, actionTypeId, actionId) {
+      const item = actor.items.get(actionId);
+      console.debug('*** #handleWeaponAction', {actor, token, actionTypeId, actionId, item});
+
+      let formElement;
+      let dataId;
+
+      switch(actionTypeId) {
+        case WEAPON_ACTION_TYPES.CYCLE_EQUIPPED:
+          if (item.type === ITEM_TYPES.WEAPON) {
+            Utils.cprCycleEquipState(actor, item);
+          }
+          break;
+
+        // data-fire-mode
+        case WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE:
+        case WEAPON_ACTION_TYPES.TOGGLE_AIMED:
+        case WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE:
+          dataId = 'data-fire-mode';
+          const flag = getProperty(
+            actor,
+            `flags.${game.system.id}.firetype-${actionId}`
+          );
+          console.debug('*** flag', {flag, actionId});
+          if (flag === actionTypeId) {
+            console.debug('*** delete', actionId)
+            await actor.unsetFlag(game.system.id, `firetype-${actionId}`);
+          } else {
+            await setProperty(
+              actor,
+              `flags.${game.system.id}.firetype-${actionId}`,
+              actionTypeId
+            );
+          }
+
+          break;
+
+        // data-action
+        case WEAPON_ACTION_TYPES.CHANGE_AMMO:
+        case WEAPON_ACTION_TYPES.MEASURE_DV:
+        case WEAPON_ACTION_TYPES.RELOAD:
+          dataId = 'data-action';
+          formElement = actor.sheet.form.querySelector(`[data-item-id="${actionId}"][${dataId}="${actionTypeId}"]`)
+          break;
+
+        // data-roll-type
+        case WEAPON_ACTION_TYPES.ROLL_ATTACK:
+        case WEAPON_ACTION_TYPES.ROLL_DAMAGE:
+          dataId = 'data-roll-type';
+          formElement = actor.sheet.form.querySelector(`[data-item-id="${actionId}"][${dataId}="${actionTypeId}"]`)
+          break;
+      }
+
+      Hooks.callAll('forceUpdateTokenActionHud');
     }
   };
 });

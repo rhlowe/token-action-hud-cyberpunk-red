@@ -106,3 +106,21 @@ export const ROLL_TYPES = {
   STAT: "stat",
   SUPPRESSIVE: "suppressive",
 };
+
+export const WEAPON_ACTION_TYPES = {
+  CYCLE_EQUIPPED: 'cycle_equipped',
+
+  // data-action
+  MEASURE_DV: 'measure-dv',
+  CHANGE_AMMO: 'select-ammo',
+  RELOAD: 'reload-ammo',
+
+  // data-fire-mode
+  SUPPRESSIVE_FIRE: 'suppressive',
+  TOGGLE_AIMED: 'aimed',
+  TOGGLE_AUTOFIRE: 'autofire',
+
+  // data-roll-type
+  ROLL_ATTACK: 'attack',
+  ROLL_DAMAGE: 'damage',
+};
