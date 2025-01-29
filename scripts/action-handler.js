@@ -518,6 +518,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         if (isWeapon || type === 'weapon') {
           this.addGroup(group, { id: 'weapon', type: 'system' });
 
+          const handsReq = itemData.system.handsReq ? `Hands: ${itemData.system.handsReq}` : undefined;
+
           actions.push(
             // Base Weapon info
             {
@@ -529,7 +531,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               img: coreModule.api.Utils.getImage(itemData),
               info1: { text: itemData.system.equipped },
               info2: { text: `ROF: ${itemData.system.rof}` },
-              info3: { text: `Hands: ${itemData.system.handsReq}` },
+              info3: { text: handsReq },
               name: itemData.name,
               tooltip: itemData.system.description.value,
             }
@@ -576,8 +578,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                   name: 'Autofire',
                 });
               }
-              // Suppressive Fire: itemData.system.fireModes.suppressive
-              if (itemData.system.fireModes.suppressive === true) {
+
+              // Suppressive Fire: itemData.system.fireModes.suppressiveFire
+              if (itemData.system.fireModes.suppressiveFire === true) {
                 actions.push({
                   cssClass: 'toggle' + (isSuppressive ? ' active' : ''),
                   encodedValue: [
@@ -593,6 +596,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                   name: 'Suppressive Fire',
                 });
               }
+
               actions.push(
                 ...[
                   // Measure DV:
@@ -634,33 +638,43 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               );
             }
 
-            actions.push(
-              ...[
-                // Roll Attack
-                {
-                  encodedValue: [WEAPON_ACTION_TYPES.ROLL_ATTACK, itemId].join(
-                    this.delimiter
-                  ),
-                  img: Utils.getWeaponActionIcon(
-                    WEAPON_ACTION_TYPES.ROLL_ATTACK
-                  ),
-                  id: WEAPON_ACTION_TYPES.ROLL_ATTACK,
-                  name: 'Roll Attack',
-                },
-                // Roll Damage
-                {
-                  encodedValue: [WEAPON_ACTION_TYPES.ROLL_DAMAGE, itemId].join(
-                    this.delimiter
-                  ),
-                  img: Utils.getWeaponActionIcon(
-                    WEAPON_ACTION_TYPES.ROLL_DAMAGE
-                  ),
-                  id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
-                  info2: { text: `${itemData.system.damage}` },
-                  name: 'Roll Damage',
-                },
-              ]
-            );
+            if (!itemData.system.isRanged || (itemData.system.isRanged && itemData.system.magazine.value)) {
+              const skillItem = Array.from(this.items.values()).find(skill => skill.name === itemData.system.weaponSkill);
+              const skillMod = skillItem.system.level ?? 0;
+              const statMod = this.actor.system.stats[skillItem.system.stat].value ?? 0;
+              const attackMod = itemData.system.attackMod ?? 0;
+              const totalMod = skillMod + statMod + attackMod;
+              const totalModString = totalMod > 0 ? `+${String(totalMod)}` : `-${String(totalMod)}`;
+
+              actions.push(
+                ...[
+                  // Roll Attack
+                  {
+                    encodedValue: [WEAPON_ACTION_TYPES.ROLL_ATTACK, itemId].join(
+                      this.delimiter
+                    ),
+                    info1: { text: totalModString },
+                    img: Utils.getWeaponActionIcon(
+                      WEAPON_ACTION_TYPES.ROLL_ATTACK
+                    ),
+                    id: WEAPON_ACTION_TYPES.ROLL_ATTACK,
+                    name: 'Roll Attack',
+                  },
+                  // Roll Damage
+                  {
+                    encodedValue: [WEAPON_ACTION_TYPES.ROLL_DAMAGE, itemId].join(
+                      this.delimiter
+                    ),
+                    img: Utils.getWeaponActionIcon(
+                      WEAPON_ACTION_TYPES.ROLL_DAMAGE
+                    ),
+                    id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
+                    info2: { text: `${itemData.system.damage}` },
+                    name: 'Roll Damage',
+                  },
+                ]
+              );
+            }
           }
 
           this.addActions(actions, { id: group.id, type: 'system' });

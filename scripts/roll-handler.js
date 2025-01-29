@@ -10,6 +10,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
    * Extends Token Action HUD Core's RollHandler class and handles action events triggered when an action is clicked
    */
   RollHandler = class RollHandler extends coreModule.api.RollHandler {
+    _getFireMode(id) {
+      const box = this.actor.getFlag(game.system.id, `firetype-${id}`);
+      if (box) {
+        return box;
+      }
+      return ROLL_TYPES.ATTACK;
+    }
+
     /**
      * Handle action click
      * Called by Token Action HUD Core when an action is left or right-clicked
@@ -18,7 +26,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} encodedValue The encoded value
      */
     async handleActionClick(event, encodedValue) {
-      console.debug('*** handleActionClick', {event, encodedValue})
+      // console.debug('*** handleActionClick', {event, encodedValue})
       const [actionTypeId, actionId] = encodedValue.split('|');
       const renderable = ['item'];
 
@@ -29,7 +37,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const knownCharacters = ['character'];
 
       if (Object.values(WEAPON_ACTION_TYPES).includes(actionTypeId)) {
-        return this.#handleWeaponAction(this.actor, this.token, actionTypeId, actionId)
+        return this.#handleWeaponAction(event, this.actor, this.token, actionTypeId, actionId)
       }
 
       if (this.actor && actionTypeId === GROUP.utility.id) {
@@ -104,8 +112,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       let tahCprRoll = null;
       let item = null;
 
-      if (actionTypeId === 'item') {
+      if (actionTypeId === 'attack' || actionTypeId === 'item') {
         item = actor.getOwnedItem(actionId);
+        console.debug('*** handleAction item', item);
 
         switch (item.type) {
           case ITEM_TYPES.SKILL:
@@ -114,7 +123,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           case ITEM_TYPES.CYBERWARE:
           case ITEM_TYPES.WEAPON:
             // @todo: Figure out autofire, suppressive, and aimed shots
-            tahCprRoll = item.createRoll(ROLL_TYPES.ATTACK, actor);
+
+            tahCprRoll = item.createRoll(this._getFireMode(actionId), actor);
             break;
           // case 'utility':
           //   this.#handleUtilityAction(token, actionId);
@@ -275,9 +285,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
     }
 
-    async #handleWeaponAction(actor, token, actionTypeId, actionId) {
+    async #handleWeaponAction(event, actor, token, actionTypeId, actionId) {
       const item = actor.items.get(actionId);
       console.debug('*** #handleWeaponAction', {
+        event,
         actionId,
         actionTypeId,
         actor,
@@ -351,6 +362,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         // data-roll-type
         case WEAPON_ACTION_TYPES.ROLL_ATTACK:
+          this.#handleAction(
+            event,
+            actor,
+            token,
+            actionTypeId,
+            actionId,
+            undefined
+          )
+          break;
         case WEAPON_ACTION_TYPES.ROLL_DAMAGE:
           dataId = 'data-roll-type';
           // formElement = actor.sheet.form.querySelector(`[data-item-id="${actionId}"][${dataId}="${actionTypeId}"]`)
