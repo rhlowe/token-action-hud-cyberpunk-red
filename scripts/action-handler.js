@@ -484,9 +484,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #buildWeaponActions() {
       for (const [itemId, itemData] of this.items) {
-        // console.debug('*** itemData', itemData);
         const type = itemData.type;
-        const { equipped, isWeapon, level } = itemData.system;
+        const { isWeapon } = itemData.system;
 
         const isAimed =
           getProperty(
@@ -505,7 +504,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           ) === WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE;
 
         if (type === 'cyberware' && !isWeapon) continue;
-        // if (this.displayUnequipped === false && type === 'weapon' && equipped !== 'equipped') continue;
 
         const group = {
           id: itemId,
@@ -516,6 +514,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const actions = [];
 
         if (isWeapon || type === 'weapon') {
+          // console.debug('*** itemData', itemData);
+
           this.addGroup(group, { id: 'weapon', type: 'system' });
 
           const handsReq = itemData.system.handsReq ? `Hands: ${itemData.system.handsReq}` : undefined;
@@ -530,7 +530,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
               img: coreModule.api.Utils.getImage(itemData),
               info1: { text: itemData.system.equipped },
-              info2: { text: `ROF: ${itemData.system.rof}` },
+              info2: { text: `ROF: ${(!isAimed && !isAutofire && !isSuppressive) ? itemData.system.rof : '1'}` },
               info3: { text: handsReq },
               name: itemData.name,
               tooltip: itemData.system.description.value,
@@ -643,22 +643,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               const skillMod = skillItem.system.level ?? 0;
               const statMod = this.actor.system.stats[skillItem.system.stat].value ?? 0;
               const attackMod = itemData.system.attackMod ?? 0;
-              const totalMod = skillMod + statMod + attackMod;
+              const totalMod = skillMod + statMod + attackMod - (isAimed ? 8 : 0);
 
               actions.push(
-                ...[
-                  // Roll Attack
-                  {
-                    encodedValue: [WEAPON_ACTION_TYPES.ROLL_ATTACK, itemId].join(
-                      this.delimiter
-                    ),
-                    info1: { text: String(totalMod) },
-                    img: Utils.getWeaponActionIcon(
-                      WEAPON_ACTION_TYPES.ROLL_ATTACK
-                    ),
-                    id: WEAPON_ACTION_TYPES.ROLL_ATTACK,
-                    name: 'Roll Attack',
-                  },
+                // Roll Attack
+                {
+                  encodedValue: [WEAPON_ACTION_TYPES.ROLL_ATTACK, itemId].join(
+                    this.delimiter
+                  ),
+                  info1: { text: String(totalMod) },
+                  img: Utils.getWeaponActionIcon(
+                    WEAPON_ACTION_TYPES.ROLL_ATTACK
+                  ),
+                  id: WEAPON_ACTION_TYPES.ROLL_ATTACK,
+                  name: 'Roll Attack',
+                }
+              );
+
+              if (!isSuppressive) {
+                actions.push(
                   // Roll Damage
                   {
                     encodedValue: [WEAPON_ACTION_TYPES.ROLL_DAMAGE, itemId].join(
@@ -668,11 +671,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                       WEAPON_ACTION_TYPES.ROLL_DAMAGE
                     ),
                     id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
-                    info2: { text: `${itemData.system.damage}` },
+                    info2: { text: isAutofire ? '2d6' : itemData.system.damage  },
                     name: 'Roll Damage',
-                  },
-                ]
-              );
+                  }
+                );
+              }
             }
           }
 

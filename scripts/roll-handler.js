@@ -112,19 +112,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       let tahCprRoll = null;
       let item = null;
 
-      if (actionTypeId === 'attack' || actionTypeId === 'item') {
+      if (actionTypeId === 'item') {
         item = actor.getOwnedItem(actionId);
-        console.debug('*** handleAction item', item);
+        // console.debug('*** handleAction item', item);
 
         switch (item.type) {
           case ITEM_TYPES.SKILL:
             tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
-            break;
-          case ITEM_TYPES.CYBERWARE:
-          case ITEM_TYPES.WEAPON:
-            // @todo: Figure out autofire, suppressive, and aimed shots
-
-            tahCprRoll = item.createRoll(this._getFireMode(actionId), actor);
             break;
           // case 'utility':
           //   this.#handleUtilityAction(token, actionId);
@@ -194,6 +188,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             sceneId
           );
           break;
+        case 'attack':
+          item = actor.getOwnedItem(actionId);
+          const fireMode = this._getFireMode(actionId);
+          tahCprRoll = item.createRoll(fireMode, actor);
+          break;
+        case 'damage':
+          item = actor.getOwnedItem(actionId);
+          const damageType = this._getFireMode(actionId);
+          tahCprRoll = item.createRoll(actionTypeId, actor, { damageType });
+
+          if (actionTypeId === ROLL_TYPES.AIMED) {
+            tahCprRoll.location =
+              actor.getFlag(game.system.id, "aimedLocation") || "body";
+          }
+          break;
         default:
           break;
       }
@@ -240,9 +249,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         token,
         tokens: targetedTokens,
       };
+
       if (item) {
         tahCprRoll.entityData.item = item.id;
       }
+
       CPRChat.RenderRollCard(tahCprRoll);
     }
 
@@ -339,13 +350,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           if (flag === actionTypeId) {
             await actor.unsetFlag(game.system.id, `firetype-${actionId}`);
           } else {
-            await setProperty(
-              actor,
-              `flags.${game.system.id}.firetype-${actionId}`,
+            await actor.setFlag(
+              game.system.id,
+              `firetype-${actionId}`,
               actionTypeId
             );
           }
-
           break;
 
         // data-action
@@ -362,18 +372,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         // data-roll-type
         case WEAPON_ACTION_TYPES.ROLL_ATTACK:
-          this.#handleAction(
+        case WEAPON_ACTION_TYPES.ROLL_DAMAGE:
+            this.#handleAction(
             event,
             actor,
             token,
             actionTypeId,
             actionId,
             undefined
-          )
-          break;
-        case WEAPON_ACTION_TYPES.ROLL_DAMAGE:
-          dataId = 'data-roll-type';
-          // formElement = actor.sheet.form.querySelector(`[data-item-id="${actionId}"][${dataId}="${actionTypeId}"]`)
+          );
           break;
       }
 
