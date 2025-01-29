@@ -287,14 +287,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #handleWeaponAction(event, actor, token, actionTypeId, actionId) {
       const item = actor.items.get(actionId);
-      console.debug('*** #handleWeaponAction', {
-        event,
-        actionId,
-        actionTypeId,
-        actor,
-        item,
-        token,
-      });
+      // console.debug('*** #handleWeaponAction', {
+      //   event,
+      //   actionId,
+      //   actionTypeId,
+      //   actor,
+      //   item,
+      //   token,
+      // });
 
       let dataId;
 

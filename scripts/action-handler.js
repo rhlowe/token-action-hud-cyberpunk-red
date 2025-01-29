@@ -644,7 +644,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               const statMod = this.actor.system.stats[skillItem.system.stat].value ?? 0;
               const attackMod = itemData.system.attackMod ?? 0;
               const totalMod = skillMod + statMod + attackMod;
-              const totalModString = totalMod > 0 ? `+${String(totalMod)}` : `-${String(totalMod)}`;
 
               actions.push(
                 ...[
@@ -653,7 +652,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     encodedValue: [WEAPON_ACTION_TYPES.ROLL_ATTACK, itemId].join(
                       this.delimiter
                     ),
-                    info1: { text: totalModString },
+                    info1: { text: String(totalMod) },
                     img: Utils.getWeaponActionIcon(
                       WEAPON_ACTION_TYPES.ROLL_ATTACK
                     ),
