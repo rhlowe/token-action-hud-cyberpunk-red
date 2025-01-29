@@ -298,6 +298,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             actor,
             `flags.${game.system.id}.firetype-${actionId}`
           );
+
+          if (token !== null && actionTypeId === "autofire") {
+            const weaponDvTable = actor.getOwnedItem(actionId).system.dvTable;
+            const currentDvTable =
+              weaponDvTable === ""
+                ? getProperty(token, "flags.cprDvTable")
+                : weaponDvTable;
+            if (typeof currentDvTable !== "undefined") {
+              const dvTable = currentDvTable.replace(" (Autofire)", "");
+              const dvTables = await CPRSystemUtils.GetDvTables();
+              const afTable = dvTables.filter(
+                (table) =>
+                  table.name.includes(dvTable) && table.name.includes("Autofire")
+              );
+              let newDvTable = currentDvTable;
+              if (afTable.length > 0) {
+                newDvTable = flag === actionTypeId ? dvTable : afTable[0];
+              }
+              token.flags = { "cprDvTable": newDvTable };
+            }
+          }
+
           if (flag === actionTypeId) {
             await actor.unsetFlag(game.system.id, `firetype-${actionId}`);
           } else {
