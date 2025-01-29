@@ -518,19 +518,29 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
           this.addGroup(group, { id: 'weapon', type: 'system' });
 
-          const handsReq = itemData.system.handsReq ? `Hands: ${itemData.system.handsReq}` : undefined;
+          const handsReq = itemData.system.handsReq
+            ? `Hands: ${itemData.system.handsReq}`
+            : undefined;
 
           actions.push(
             // Base Weapon info
             {
-              cssClass: 'toggle' + (itemData.system.equipped === 'equipped' ? ' active' : ''),
+              cssClass:
+                'toggle' +
+                (itemData.system.equipped === 'equipped' ? ' active' : ''),
               encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
                 this.delimiter
               ),
               id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
               img: coreModule.api.Utils.getImage(itemData),
               info1: { text: itemData.system.equipped },
-              info2: { text: `ROF: ${(!isAimed && !isAutofire && !isSuppressive) ? itemData.system.rof : '1'}` },
+              info2: {
+                text: `ROF: ${
+                  !isAimed && !isAutofire && !isSuppressive
+                    ? itemData.system.rof
+                    : '1'
+                }`,
+              },
               info3: { text: handsReq },
               name: itemData.name,
               tooltip: itemData.system.description.value,
@@ -601,7 +611,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 ...[
                   // Measure DV:
                   {
-                    cssClass: 'toggle' + (Utils.highlightDVRuler(itemData, this.token) ? ' active' : ''),
+                    cssClass:
+                      'toggle' +
+                      (Utils.highlightDVRuler(itemData, this.token)
+                        ? ' active'
+                        : ''),
                     encodedValue: [WEAPON_ACTION_TYPES.MEASURE_DV, itemId].join(
                       this.delimiter
                     ),
@@ -630,20 +644,33 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                     img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.RELOAD),
                     id: WEAPON_ACTION_TYPES.RELOAD,
-                    info1: { text: itemData.system.magazine.value ? `${itemData.system.magazine.ammoData.name}` : 'unloaded' },
-                    info2: { text: `${itemData.system.magazine.value}/${itemData.system.magazine.max}` },
+                    info1: {
+                      text: itemData.system.magazine.value
+                        ? `${itemData.system.magazine.ammoData.name}`
+                        : 'unloaded',
+                    },
+                    info2: {
+                      text: `${itemData.system.magazine.value}/${itemData.system.magazine.max}`,
+                    },
                     name: 'Reload',
                   },
                 ]
               );
             }
 
-            if (!itemData.system.isRanged || (itemData.system.isRanged && itemData.system.magazine.value)) {
-              const skillItem = Array.from(this.items.values()).find(skill => skill.name === itemData.system.weaponSkill);
+            if (
+              !itemData.system.isRanged ||
+              (itemData.system.isRanged && itemData.system.magazine.value)
+            ) {
+              const skillItem = Array.from(this.items.values()).find(
+                (skill) => skill.name === itemData.system.weaponSkill
+              );
               const skillMod = skillItem.system.level ?? 0;
-              const statMod = this.actor.system.stats[skillItem.system.stat].value ?? 0;
+              const statMod =
+                this.actor.system.stats[skillItem.system.stat].value ?? 0;
               const attackMod = itemData.system.attackMod ?? 0;
-              const totalMod = skillMod + statMod + attackMod - (isAimed ? 8 : 0);
+              const totalMod =
+                skillMod + statMod + attackMod - (isAimed ? 8 : 0);
 
               actions.push(
                 // Roll Attack
@@ -664,14 +691,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 actions.push(
                   // Roll Damage
                   {
-                    encodedValue: [WEAPON_ACTION_TYPES.ROLL_DAMAGE, itemId].join(
-                      this.delimiter
-                    ),
+                    encodedValue: [
+                      WEAPON_ACTION_TYPES.ROLL_DAMAGE,
+                      itemId,
+                    ].join(this.delimiter),
                     img: Utils.getWeaponActionIcon(
                       WEAPON_ACTION_TYPES.ROLL_DAMAGE
                     ),
                     id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
-                    info2: { text: isAutofire ? '2d6' : itemData.system.damage  },
+                    info2: {
+                      text: isAutofire ? '2d6' : itemData.system.damage,
+                    },
                     name: 'Roll Damage',
                   }
                 );

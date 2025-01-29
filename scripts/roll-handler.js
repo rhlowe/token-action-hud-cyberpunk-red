@@ -1,4 +1,9 @@
-import { GROUP, ITEM_TYPES, ROLL_TYPES, WEAPON_ACTION_TYPES } from './constants.js';
+import {
+  GROUP,
+  ITEM_TYPES,
+  ROLL_TYPES,
+  WEAPON_ACTION_TYPES,
+} from './constants.js';
 import { Utils } from './utils.js';
 import CPRChat from '../../../systems/cyberpunk-red-core/modules/chat/cpr-chat.js';
 import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
@@ -37,15 +42,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const knownCharacters = ['character'];
 
       if (Object.values(WEAPON_ACTION_TYPES).includes(actionTypeId)) {
-        return this.#handleWeaponAction(event, this.actor, this.token, actionTypeId, actionId)
+        return this.#handleWeaponAction(
+          event,
+          this.actor,
+          this.token,
+          actionTypeId,
+          actionId
+        );
       }
 
       if (this.actor && actionTypeId === GROUP.utility.id) {
-        await this.#handleUtilityAction(
-          this.actor,
-          this.token,
-          actionId,
-        );
+        await this.#handleUtilityAction(this.actor, this.token, actionId);
         return;
       }
 
@@ -200,7 +207,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
           if (actionTypeId === ROLL_TYPES.AIMED) {
             tahCprRoll.location =
-              actor.getFlag(game.system.id, "aimedLocation") || "body";
+              actor.getFlag(game.system.id, 'aimedLocation') || 'body';
           }
           break;
         default:
@@ -309,7 +316,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       let dataId;
 
-      switch(actionTypeId) {
+      switch (actionTypeId) {
         case WEAPON_ACTION_TYPES.CYCLE_EQUIPPED:
           if (item.type === ITEM_TYPES.WEAPON) {
             Utils.cprCycleEquipState(actor, item);
@@ -326,24 +333,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             `flags.${game.system.id}.firetype-${actionId}`
           );
 
-          if (token !== null && actionTypeId === "autofire") {
+          if (token !== null && actionTypeId === 'autofire') {
             const weaponDvTable = actor.getOwnedItem(actionId).system.dvTable;
             const currentDvTable =
-              weaponDvTable === ""
-                ? getProperty(token, "flags.cprDvTable")
+              weaponDvTable === ''
+                ? getProperty(token, 'flags.cprDvTable')
                 : weaponDvTable;
-            if (typeof currentDvTable !== "undefined") {
-              const dvTable = currentDvTable.replace(" (Autofire)", "");
+            if (typeof currentDvTable !== 'undefined') {
+              const dvTable = currentDvTable.replace(' (Autofire)', '');
               const dvTables = await CPRSystemUtils.GetDvTables();
               const afTable = dvTables.filter(
                 (table) =>
-                  table.name.includes(dvTable) && table.name.includes("Autofire")
+                  table.name.includes(dvTable) &&
+                  table.name.includes('Autofire')
               );
               let newDvTable = currentDvTable;
               if (afTable.length > 0) {
                 newDvTable = flag === actionTypeId ? dvTable : afTable[0];
               }
-              token.flags = { "cprDvTable": newDvTable };
+              token.flags = { cprDvTable: newDvTable };
             }
           }
 
@@ -373,7 +381,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         // data-roll-type
         case WEAPON_ACTION_TYPES.ROLL_ATTACK:
         case WEAPON_ACTION_TYPES.ROLL_DAMAGE:
-            this.#handleAction(
+          this.#handleAction(
             event,
             actor,
             token,

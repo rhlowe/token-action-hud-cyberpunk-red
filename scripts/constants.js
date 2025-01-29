@@ -34,77 +34,108 @@ export const ACTION_TYPE = {
  */
 export const GROUP = {
   // character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' ...collapsedByDefault, },
-  cyberdeck: { id: 'cyberdeck', name: 'tokenActionHud.template.cyberdeck', type: 'system' },
-  cyberware: { id: 'cyberware', name: 'tokenActionHud.template.cyberware', type: 'system' },
-  deathsave: { id: 'deathsave', name: 'tokenActionHud.template.deathsave', type: 'system' },
-  effects: { id: 'effects', name: 'tokenActionHud.template.effects', type: 'system' },
-  facedown: { id: 'facedown', name: 'tokenActionHud.template.facedown', type: 'system' },
+  cyberdeck: {
+    id: 'cyberdeck',
+    name: 'tokenActionHud.template.cyberdeck',
+    type: 'system',
+  },
+  cyberware: {
+    id: 'cyberware',
+    name: 'tokenActionHud.template.cyberware',
+    type: 'system',
+  },
+  deathsave: {
+    id: 'deathsave',
+    name: 'tokenActionHud.template.deathsave',
+    type: 'system',
+  },
+  effects: {
+    id: 'effects',
+    name: 'tokenActionHud.template.effects',
+    type: 'system',
+  },
+  facedown: {
+    id: 'facedown',
+    name: 'tokenActionHud.template.facedown',
+    type: 'system',
+  },
   gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
-  interface: { id: 'interface', name: 'tokenActionHud.template.interface', type: 'system' },
-  program: { id: 'program', name: 'tokenActionHud.template.programs', type: 'system' },
+  interface: {
+    id: 'interface',
+    name: 'tokenActionHud.template.interface',
+    type: 'system',
+  },
+  program: {
+    id: 'program',
+    name: 'tokenActionHud.template.programs',
+    type: 'system',
+  },
   role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
   skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
   stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
-  utility: { id: 'utility', name: 'tokenActionHud.template.utility', type: 'system' },
-  weapon: { id: 'weapon', name: 'tokenActionHud.template.weapon', type: 'system' },
+  utility: {
+    id: 'utility',
+    name: 'tokenActionHud.template.utility',
+    type: 'system',
+  },
+  weapon: {
+    id: 'weapon',
+    name: 'tokenActionHud.template.weapon',
+    type: 'system',
+  },
 };
 
 /**
  * Item types
  */
 export const SYSTEM_ITEM_TYPE = {
-  activeEffects: { groupId: 'activeEffects'},
-  ammo: { groupId: 'ammo'},
-  armor: { groupId: 'armor'},
-  clothing: { groupId: 'clothing'},
-  criticalInjury: { groupId: 'criticalInjury'},
-  cyberdeck: { groupId: 'cyberdeck'},
-  cyberware: { groupId: 'cyberware'},
-  drug: { groupId: 'drug'},
-  gear: { groupId: 'gear'},
-  interface: { groupId: 'interface'},
-  upgrade: { groupId: 'upgrade'},
-  netArchitecture: { groupId: 'netArchitecture'},
-  program: { groupId: 'program'},
-  role: { groupId: 'role'},
-  skill: { groupId: 'skill'},
-  vehicle: { groupId: 'vehicle'},
-  weapon: { groupId: 'weapon'},
+  activeEffects: { groupId: 'activeEffects' },
+  ammo: { groupId: 'ammo' },
+  armor: { groupId: 'armor' },
+  clothing: { groupId: 'clothing' },
+  criticalInjury: { groupId: 'criticalInjury' },
+  cyberdeck: { groupId: 'cyberdeck' },
+  cyberware: { groupId: 'cyberware' },
+  drug: { groupId: 'drug' },
+  gear: { groupId: 'gear' },
+  interface: { groupId: 'interface' },
+  upgrade: { groupId: 'upgrade' },
+  netArchitecture: { groupId: 'netArchitecture' },
+  program: { groupId: 'program' },
+  role: { groupId: 'role' },
+  skill: { groupId: 'skill' },
+  vehicle: { groupId: 'vehicle' },
+  weapon: { groupId: 'weapon' },
 };
 
 /**
  * RED Core Actor types
  */
-export const ACTOR_TYPES = [
-  'blackIce',
-  'character',
-  'demon',
-  'mook',
-];
+export const ACTOR_TYPES = ['blackIce', 'character', 'demon', 'mook'];
 
 export const ITEM_TYPES = {
-  CYBERWARE: "cyberware",
-  SKILL: "skill",
-  STAT: "stat",
-  WEAPON: "weapon",
+  CYBERWARE: 'cyberware',
+  SKILL: 'skill',
+  STAT: 'stat',
+  WEAPON: 'weapon',
 };
 
 export const ROLL_TYPES = {
-  AIMED: "aimed",
-  ATTACK: "attack",
-  AUTOFIRE: "autofire",
-  BASE: "base",
-  CYBERDECKPROGRAM: "cyberdeckProgram",
-  DAMAGE: "damage",
-  DEATHSAVE: "deathsave",
-  FACEDOWN: "facedown",
-  HUMANITY: "humanity",
-  INTERFACEABILITY: "interface",
-  NET: "net",
-  ROLEABILITY: "roleAbility",
-  SKILL: "skill",
-  STAT: "stat",
-  SUPPRESSIVE: "suppressive",
+  AIMED: 'aimed',
+  ATTACK: 'attack',
+  AUTOFIRE: 'autofire',
+  BASE: 'base',
+  CYBERDECKPROGRAM: 'cyberdeckProgram',
+  DAMAGE: 'damage',
+  DEATHSAVE: 'deathsave',
+  FACEDOWN: 'facedown',
+  HUMANITY: 'humanity',
+  INTERFACEABILITY: 'interface',
+  NET: 'net',
+  ROLEABILITY: 'roleAbility',
+  SKILL: 'skill',
+  STAT: 'stat',
+  SUPPRESSIVE: 'suppressive',
 };
 
 export const WEAPON_ACTION_TYPES = {

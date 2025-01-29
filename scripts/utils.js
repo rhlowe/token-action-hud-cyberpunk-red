@@ -50,34 +50,34 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     static cprCycleEquipState(actor, item) {
       if (item.type === ITEM_TYPES.CYBERWARE) return;
 
-      let newValue = "owned";
+      let newValue = 'owned';
       switch (item.system.equipped) {
-        case "owned": {
-          newValue = "carried";
+        case 'owned': {
+          newValue = 'carried';
           break;
         }
-        case "carried": {
-          if (item.type === "weapon") {
+        case 'carried': {
+          if (item.type === 'weapon') {
             CPRRules.lawyer(
               actor.canHoldWeapon(item),
-              "CPR.messages.warningTooManyHands"
+              'CPR.messages.warningTooManyHands'
             );
           }
-          newValue = "equipped";
-          if (item.type === "cyberdeck") {
+          newValue = 'equipped';
+          if (item.type === 'cyberdeck') {
             if (actor.hasItemTypeEquipped(item.type)) {
-              CPRRules.lawyer(false, "CPR.messages.errorTooManyCyberdecks");
-              newValue = "owned";
+              CPRRules.lawyer(false, 'CPR.messages.errorTooManyCyberdecks');
+              newValue = 'owned';
             }
           }
           break;
         }
-        case "equipped": {
-          newValue = "owned";
+        case 'equipped': {
+          newValue = 'owned';
           break;
         }
         default: {
-          newValue = "carried";
+          newValue = 'carried';
           break;
         }
       }
@@ -86,7 +86,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     static getWeaponActionIcon(type) {
       let icon = null;
-      const imgPath = 'modules/token-action-hud-cyberpunk-red/static/'
+      const imgPath = 'modules/token-action-hud-cyberpunk-red/static/';
       switch (type) {
         case WEAPON_ACTION_TYPES.CYCLE_EQUIPPED:
           icon = imgPath + 'cowboy-holster.svg';
@@ -121,16 +121,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     static highlightDVRuler(item, token) {
       let itemDvTable = item.system?.dvTable;
-      if (token !== null && itemDvTable !== null && itemDvTable !== "") {
-        const tokenDv = token.document.getFlag(
-          game.system.id,
-          "cprDvTable"
-        );
+      if (token !== null && itemDvTable !== null && itemDvTable !== '') {
+        const tokenDv = token.document.getFlag(game.system.id, 'cprDvTable');
         const firetype = token.actor.getFlag(
           game.system.id,
           `firetype-${item.id}`
         );
-        if (firetype === "autofire") {
+        if (firetype === 'autofire') {
           itemDvTable = `${itemDvTable} (Autofire)`;
         }
         if (tokenDv?.name === itemDvTable) {

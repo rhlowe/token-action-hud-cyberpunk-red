@@ -21,10 +21,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         id: 'character',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.character'),
         groups: [
-            { ...groups.stat, nestId: 'character_stat' },
-            { ...groups.role, nestId: 'character_role' },
-            { ...groups.facedown, nestId: 'character_facedown' },
-            { ...groups.deathsave, nestId: 'character_deathsave' },
+          { ...groups.stat, nestId: 'character_stat' },
+          { ...groups.role, nestId: 'character_role' },
+          { ...groups.facedown, nestId: 'character_facedown' },
+          { ...groups.deathsave, nestId: 'character_deathsave' },
         ],
       },
 
@@ -44,7 +44,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           { ...groups.cyberware, nestId: 'weapon_cyberware' },
         ],
       },
-
 
       {
         nestId: 'netrunning',
@@ -77,9 +76,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         nestId: 'utility',
         id: 'utility',
         name: coreModule.api.Utils.i18n('tokenActionHud.template.utility'),
-        groups: [
-          { ...groups.utility, nestId: 'utility_utility' }
-        ]
+        groups: [{ ...groups.utility, nestId: 'utility_utility' }],
       },
     ],
     groups: groupsArray,
