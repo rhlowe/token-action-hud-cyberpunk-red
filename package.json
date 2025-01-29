@@ -5,10 +5,12 @@
     "type": "git",
     "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red.git"
   },
-  "version": "1.0.0-beta.14",
+  "version": "1.0.0-beta.16",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -wcm"
+    "dev": "rollup -wcm",
+    "copyVersion": "node ./shell/copyVersion.js",
+    "postversion": "npm run copyVersion"
   },
   "devDependencies": {
     "@rollup/plugin-multi-entry": "^6.0.0",
@@ -20,5 +22,7 @@
     "rollup": "^2.56.3",
     "rollup-plugin-terser": "^7.0.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "shelljs": "^0.8.5"
+  }
 }

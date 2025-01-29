@@ -1,4 +1,10 @@
-import { ITEM_TYPES, ROLL_TYPES } from './constants.js';
+import {
+  GROUP,
+  ITEM_TYPES,
+  ROLL_TYPES,
+  WEAPON_ACTION_TYPES,
+} from './constants.js';
+import { Utils } from './utils.js';
 import CPRChat from '../../../systems/cyberpunk-red-core/modules/chat/cpr-chat.js';
 import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
 
@@ -9,6 +15,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
    * Extends Token Action HUD Core's RollHandler class and handles action events triggered when an action is clicked
    */
   RollHandler = class RollHandler extends coreModule.api.RollHandler {
+    _getFireMode(id) {
+      const box = this.actor.getFlag(game.system.id, `firetype-${id}`);
+      if (box) {
+        return box;
+      }
+      return ROLL_TYPES.ATTACK;
+    }
+
     /**
      * Handle action click
      * Called by Token Action HUD Core when an action is left or right-clicked
@@ -17,8 +31,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} encodedValue The encoded value
      */
     async handleActionClick(event, encodedValue) {
+      // console.debug('*** handleActionClick', {event, encodedValue})
       const [actionTypeId, actionId] = encodedValue.split('|');
-
       const renderable = ['item'];
 
       if (renderable.includes(actionTypeId) && this.isRenderItem()) {
@@ -26,6 +40,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       const knownCharacters = ['character'];
+
+      if (Object.values(WEAPON_ACTION_TYPES).includes(actionTypeId)) {
+        return this.#handleWeaponAction(
+          event,
+          this.actor,
+          this.token,
+          actionTypeId,
+          actionId
+        );
+      }
+
+      if (this.actor && actionTypeId === GROUP.utility.id) {
+        await this.#handleUtilityAction(this.actor, this.token, actionId);
+        return;
+      }
 
       // If single actor is selected
       if (this.actor) {
@@ -78,22 +107,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} actionTypeId The action type id
      * @param {string} actionId     The actionId
      */
-    async #handleAction(event, actor, token, actionTypeId, actionId, encodedValue) {
+    async #handleAction(
+      event,
+      actor,
+      token,
+      actionTypeId,
+      actionId,
+      encodedValue
+    ) {
       // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
       let tahCprRoll = null;
       let item = null;
 
       if (actionTypeId === 'item') {
         item = actor.getOwnedItem(actionId);
+        // console.debug('*** handleAction item', item);
 
         switch (item.type) {
           case ITEM_TYPES.SKILL:
             tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
-            break;
-          case ITEM_TYPES.CYBERWARE:
-          case ITEM_TYPES.WEAPON:
-            // @todo: Figure out autofire, suppressive, and aimed shots
-            tahCprRoll = item.createRoll(ROLL_TYPES.ATTACK, actor);
             break;
           // case 'utility':
           //   this.#handleUtilityAction(token, actionId);
@@ -102,7 +134,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
       }
 
-      if (actionTypeId === 'role' && encodedValue && actor.system.externalData.secretItems.size) {
+      if (
+        actionTypeId === 'role' &&
+        encodedValue &&
+        actor.system.externalData.secretItems.size
+      ) {
         const searchTerm = encodedValue.replace('role|', '');
         item = actor.system.externalData.secretItems.get(searchTerm);
 
@@ -125,8 +161,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }
           break;
         case ROLL_TYPES.INTERFACEABILITY:
-          const activeCyberdeck = Array.from(actor.items).find((itemData) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
-          const netRoleItem = actor.itemTypes.role.find((r) => r.id === actor.system.roleInfo.activeNetRole);
+          const activeCyberdeck = Array.from(actor.items).find(
+            (itemData) =>
+              itemData.type === 'cyberdeck' &&
+              itemData.system.equipped === 'equipped'
+          );
+          const netRoleItem = actor.itemTypes.role.find(
+            (r) => r.id === actor.system.roleInfo.activeNetRole
+          );
 
           // if (!netRoleItem) {
           //   const error = SystemUtils.Localize(
@@ -143,7 +185,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           });
           break;
         case ROLL_TYPES.NET:
-          const programUUID = actor.token.flags['cyberpunk-red-core'].programUUID;
+          const programUUID =
+            actor.token.flags['cyberpunk-red-core'].programUUID;
           const netrunnerTokenId = undefined;
           const sceneId = token.scene.uuid;
           tahCprRoll = actor.createDamageRoll(
@@ -151,6 +194,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             netrunnerTokenId,
             sceneId
           );
+          break;
+        case 'attack':
+          item = actor.getOwnedItem(actionId);
+          const fireMode = this._getFireMode(actionId);
+          tahCprRoll = item.createRoll(fireMode, actor);
+          break;
+        case 'damage':
+          item = actor.getOwnedItem(actionId);
+          const damageType = this._getFireMode(actionId);
+          tahCprRoll = item.createRoll(actionTypeId, actor, { damageType });
+
+          if (actionTypeId === ROLL_TYPES.AIMED) {
+            tahCprRoll.location =
+              actor.getFlag(game.system.id, 'aimedLocation') || 'body';
+          }
           break;
         default:
           break;
@@ -175,7 +233,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       await tahCprRoll.roll();
 
       // Post roll tasks
-      if (tahCprRoll.rollTitle === "Death Save") {
+      if (tahCprRoll.rollTitle === 'Death Save') {
         tahCprRoll.saveResult = this.actor.processDeathSave(tahCprRoll);
       }
 
@@ -183,22 +241,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       if (Number.isInteger(tahCprRoll.luck) && tahCprRoll.luck > 0) {
         const luckStat = actor.system.stats.luck.value;
         actor.update({
-          "system.stats.luck.value":
-            luckStat - (tahCprRoll.luck > luckStat ? luckStat : tahCprRoll.luck),
+          'system.stats.luck.value':
+            luckStat -
+            (tahCprRoll.luck > luckStat ? luckStat : tahCprRoll.luck),
         });
       }
 
       token = token === null ? null : token.data._id;
-      const targetedTokens = CPRSystemUtils.getUserTargetedOrSelected("targeted"); // get user targeted tokens for output to chat
+      const targetedTokens =
+        CPRSystemUtils.getUserTargetedOrSelected('targeted'); // get user targeted tokens for output to chat
 
       tahCprRoll.entityData = {
         actor: actor.id,
         token,
         tokens: targetedTokens,
       };
+
       if (item) {
         tahCprRoll.entityData.item = item.id;
       }
+
       CPRChat.RenderRollCard(tahCprRoll);
     }
 
@@ -217,17 +279,120 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     /**
      * Handle utility action
      * @private
+     * @param {object} actor    The actor
      * @param {object} token    The token
      * @param {string} actionId The action id
      */
-    async #handleUtilityAction(token, actionId) {
+    async #handleUtilityAction(actor, token, actionId) {
       switch (actionId) {
         case 'endTurn':
           if (game.combat?.current?.tokenId === token.id) {
             await game.combat?.nextTurn();
           }
           break;
+        case 'initiative':
+          let combatant = game.combat?.combatants.find(
+            (c) => c.tokenId == token.id
+          );
+          if (combatant) {
+            game.combat.rollInitiative([combatant.id]);
+          } else {
+            actor.rollInitiative({ createCombatants: true });
+          }
+          break;
       }
+    }
+
+    async #handleWeaponAction(event, actor, token, actionTypeId, actionId) {
+      const item = actor.items.get(actionId);
+      // console.debug('*** #handleWeaponAction', {
+      //   event,
+      //   actionId,
+      //   actionTypeId,
+      //   actor,
+      //   item,
+      //   token,
+      // });
+
+      let dataId;
+
+      switch (actionTypeId) {
+        case WEAPON_ACTION_TYPES.CYCLE_EQUIPPED:
+          if (item.type === ITEM_TYPES.WEAPON) {
+            Utils.cprCycleEquipState(actor, item);
+          }
+          break;
+
+        // data-fire-mode
+        case WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE:
+        case WEAPON_ACTION_TYPES.TOGGLE_AIMED:
+        case WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE:
+          dataId = 'data-fire-mode';
+          const flag = getProperty(
+            actor,
+            `flags.${game.system.id}.firetype-${actionId}`
+          );
+
+          if (token !== null && actionTypeId === 'autofire') {
+            const weaponDvTable = actor.getOwnedItem(actionId).system.dvTable;
+            const currentDvTable =
+              weaponDvTable === ''
+                ? getProperty(token, 'flags.cprDvTable')
+                : weaponDvTable;
+            if (typeof currentDvTable !== 'undefined') {
+              const dvTable = currentDvTable.replace(' (Autofire)', '');
+              const dvTables = await CPRSystemUtils.GetDvTables();
+              const afTable = dvTables.filter(
+                (table) =>
+                  table.name.includes(dvTable) &&
+                  table.name.includes('Autofire')
+              );
+              let newDvTable = currentDvTable;
+              if (afTable.length > 0) {
+                newDvTable = flag === actionTypeId ? dvTable : afTable[0];
+              }
+              token.flags = { cprDvTable: newDvTable };
+            }
+          }
+
+          if (flag === actionTypeId) {
+            await actor.unsetFlag(game.system.id, `firetype-${actionId}`);
+          } else {
+            await actor.setFlag(
+              game.system.id,
+              `firetype-${actionId}`,
+              actionTypeId
+            );
+          }
+          break;
+
+        // data-action
+        case WEAPON_ACTION_TYPES.CHANGE_AMMO:
+          await item._loadItem();
+          break;
+        case WEAPON_ACTION_TYPES.MEASURE_DV:
+          // return item._setDvTable(actor, this.system.dvTable);
+          await item._setDvTable(actor, item.system.dvTable);
+          break;
+        case WEAPON_ACTION_TYPES.RELOAD:
+          await item._loadItem(item.system.magazine.ammoData.uuid);
+          break;
+
+        // data-roll-type
+        case WEAPON_ACTION_TYPES.ROLL_ATTACK:
+        case WEAPON_ACTION_TYPES.ROLL_DAMAGE:
+          this.#handleAction(
+            event,
+            actor,
+            token,
+            actionTypeId,
+            actionId,
+            undefined
+          );
+          break;
+      }
+
+      Hooks.callAll('forceUpdateTokenActionHud');
     }
   };
 });

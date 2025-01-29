@@ -1,4 +1,10 @@
-import { ACTION_TYPE, ROLL_TYPES, SYSTEM_ITEM_TYPE } from './constants.js';
+import {
+  ACTION_TYPE,
+  GROUP,
+  ROLL_TYPES,
+  SYSTEM_ITEM_TYPE,
+  WEAPON_ACTION_TYPES,
+} from './constants.js';
 import { Utils } from './utils.js';
 
 export let ActionHandler = null;
@@ -21,8 +27,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.actorType = this.actor?.type;
 
       // Settings
-      this.displayMookSkillWithZeroMod = Utils.getSetting('displayMookSkillWithZeroMod');
-      this.displayCharacterSkillWithZeroMod = Utils.getSetting('displayCharacterSkillWithZeroMod');
+      this.displayMookSkillWithZeroMod = Utils.getSetting(
+        'displayMookSkillWithZeroMod'
+      );
+      this.displayCharacterSkillWithZeroMod = Utils.getSetting(
+        'displayCharacterSkillWithZeroMod'
+      );
       this.displayUnequipped = Utils.getSetting('displayUnequipped');
 
       // Set items variable
@@ -53,7 +63,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const groupData = { id: 'weapon', type: 'system' };
       const programUUID =
         this.actor.token.flags['cyberpunk-red-core'].programUUID.split('.');
-      const {standard, blackIce} = game.items.get(programUUID[1]).system.damage;
+      const { standard, blackIce } = game.items.get(programUUID[1]).system
+        .damage;
       const actions = [];
 
       if (Number.isNumeric(Number.parseInt(standard))) {
@@ -72,7 +83,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           id: programUUID,
           info1: { text: blackIce },
           // listName: stat[0],
-          name: coreModule.api.Utils.i18n(`tokenActionHud.template.blackIce`),
+          name: coreModule.api.Utils.i18n(`TYPES.Actor.blackIce`),
         });
       }
       this.addActions(actions, groupData);
@@ -83,12 +94,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     #buildCharacterActions() {
+      // this.#buildProgramActions();
+      this.#buildCoreActions();
       this.#buildDeathSave();
       this.#buildFacedown();
       this.#buildInterfaceActions();
       this.#buildInventory();
-      // this.#buildProgramActions();
       this.#buildStats();
+      this.#buildWeaponActions();
     }
 
     /**
@@ -98,10 +111,50 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      */
     #buildMultipleTokenActions() {}
 
+    async #buildCoreActions() {
+      const groupData = { id: GROUP.utility.id, type: 'system' };
+      const actionType = 'initiative';
+      const name = coreModule.api.Utils.i18n(`CPR.chat.initiative`);
+      let visibiltyString = `tokenActionHud.template.visibility.${
+        this.token.data.hidden ? 'makeVisible' : 'makeInvisible'
+      }`;
+      const endCombatTurnAction =
+        game.combat?.current?.tokenId === this.token?.id
+          ? {
+              encodedValue: [groupData.id, 'endTurn'].join(this.delimiter),
+              id: 'endTurn',
+              name: coreModule.api.Utils.i18n(
+                'tokenActionHud.template.endTurn'
+              ),
+            }
+          : false;
+
+      const actions = [
+        {
+          encodedValue: [groupData.id, actionType].join(this.delimiter),
+          id: groupData.id,
+          listName: groupData.id,
+          name,
+        },
+        endCombatTurnAction,
+        /**
+         * toggleVisibility doesn't require anything in roll-handler.js
+         * either it is handled in TAH Core or via magic in FVTT.
+         */
+        {
+          encodedValue: [groupData.id, 'toggleVisibility'].join(this.delimiter),
+          id: 'toggleVisibility',
+          name: coreModule.api.Utils.i18n(visibiltyString),
+        },
+      ].filter(Boolean);
+
+      this.addActions(actions, groupData);
+    }
+
     async #buildDeathSave() {
       const groupData = { id: ROLL_TYPES.DEATHSAVE, type: 'system' };
       const name = coreModule.api.Utils.i18n(
-        `tokenActionHud.template.deathsave`
+        `CPR.rolls.deathSave.title`
       );
       const actions = [
         {
@@ -118,7 +171,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildFacedown() {
       const groupData = { id: ROLL_TYPES.FACEDOWN, type: 'system' };
       const name = coreModule.api.Utils.i18n(
-        `tokenActionHud.template.facedown`
+        `CPR.global.generic.facedown`
       );
       const actions = [
         {
@@ -147,10 +200,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const type = itemData.type;
         const { equipped, isWeapon, level } = itemData.system;
 
-        if (type === 'cyberware' && !isWeapon) continue;
-        if (this.displayUnequipped === false && type === 'weapon' && equipped !== 'equipped') continue;
-        if (this.actorType === 'mook' && this.displayMookSkillWithZeroMod === false && type === 'skill' && level === 0) continue;
-        if (this.actorType === 'character' && this.displayCharacterSkillWithZeroMod === false && type === 'skill' && level === 0) continue;
+        if (type === 'cyberware' || type === 'weapon') continue;
+        // if (type === 'cyberware' && !isWeapon) continue;
+        if (
+          this.displayUnequipped === false &&
+          type === 'weapon' &&
+          equipped !== 'equipped'
+        )
+          continue;
+        if (
+          this.actorType === 'mook' &&
+          this.displayMookSkillWithZeroMod === false &&
+          type === 'skill' &&
+          level === 0
+        )
+          continue;
+        if (
+          this.actorType === 'character' &&
+          this.displayCharacterSkillWithZeroMod === false &&
+          type === 'skill' &&
+          level === 0
+        )
+          continue;
 
         const typeMap = inventoryMap.get(type) ?? new Map();
         typeMap.set(itemId, itemData);
@@ -176,14 +247,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           let name = itemData.name;
 
           const id = itemId;
-          const actionTypeName = coreModule.api.Utils.i18n(ACTION_TYPE[actionTypeId]);
-          const listName = `${actionTypeName ? `${actionTypeName}: ` : ''}${name}`;
+          const actionTypeName = coreModule.api.Utils.i18n(
+            ACTION_TYPE[actionTypeId]
+          );
+          const listName = `${
+            actionTypeName ? `${actionTypeName}: ` : ''
+          }${name}`;
           const encodedValue = [actionTypeId, id].join(this.delimiter);
 
           let img;
           let tooltip;
 
-          switch(itemData.type) {
+          switch (itemData.type) {
             case 'cyberware':
             case 'cyberdeck':
             case 'gear':
@@ -195,7 +270,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               img = undefined;
               break;
           }
-          let info1;
+          let info1, info2;
 
           if (itemData.type === 'skill') {
             const camelSkill = Utils.cprCamelCase(itemData.name);
@@ -208,12 +283,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // img = itemData.img;
-            name = [name, `[${itemData.system.stat}]`.toUpperCase()].join(' ');
             // tooltip = itemData.system?.description?.value ? itemData.system.description.value : game.i18n.localize(tooltipPath);
-            tooltip = itemData.system?.description?.value ? itemData.system.description.value : '';
+            tooltip = itemData.system?.description?.value
+              ? itemData.system.description.value
+              : '';
 
             let totalMod = level + stat;
-            info1 = { text: totalMod.toString() };
+
+            info1 = { text: itemData.system.stat.toUpperCase() };
+            info2 = { text: totalMod.toString() };
           }
 
           return {
@@ -221,6 +299,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             id,
             img,
             info1,
+            info2,
             listName,
             name,
             tooltip,
@@ -238,7 +317,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       // const activeCyberdeck = Array.from(this.items).find(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
       let activeCyberdeckId;
       for (const [itemId, itemData] of this.items) {
-        if (itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped') {
+        if (
+          itemData.type === 'cyberdeck' &&
+          itemData.system.equipped === 'equipped'
+        ) {
           activeCyberdeckId = itemId;
         }
       }
@@ -248,23 +330,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const groupData = { id: 'interface', type: 'system' };
       const actions = [];
       [
-        "backdoor",
-        "cloak",
-        "control",
-        "eyedee",
-        "pathfinder",
-        "scanner",
-        "slide",
-        "virus",
-        "zap",
-      ].forEach(id => {
+        'backdoor',
+        'cloak',
+        'control',
+        'eyedee',
+        'pathfinder',
+        'scanner',
+        'slide',
+        'virus',
+        'zap',
+      ].forEach((id) => {
         actions.push({
           encodedValue: ['interface', id].join(this.delimiter),
           id,
           // info1,
           listName: id,
-          name: game.i18n.localize(`CPR.global.role.netrunner.interfaceAbility.${id}`),
-        })
+          name: game.i18n.localize(
+            `CPR.global.role.netrunner.interfaceAbility.${id}`
+          ),
+        });
       });
 
       this.addActions(actions, groupData);
@@ -273,8 +357,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildProgramActions() {
       if (this.items.size === 0) return;
 
-      const activeCyberdeck = Array.from(this.items).find(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
-      const installedProgramItems = Array.from(this.items).filter(([itemId, itemData]) => itemData.type === 'program' && itemData.system.installedIn.includes(activeCyberdeck[1].id));
+      const activeCyberdeck = Array.from(this.items).find(
+        ([itemId, itemData]) =>
+          itemData.type === 'cyberdeck' &&
+          itemData.system.equipped === 'equipped'
+      );
+      const installedProgramItems = Array.from(this.items).filter(
+        ([itemId, itemData]) =>
+          itemData.type === 'program' &&
+          itemData.system.installedIn.includes(activeCyberdeck[1].id)
+      );
 
       // console.debug('*** buildProgramActions', {
       //   actor: this.actor,
@@ -356,7 +448,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         .map((stat) => {
           // console.debug('*** stat', stat);
           let tooltip = '';
-          let name = coreModule.api.Utils.i18n(`tokenActionHud.template.stats.${stat[0]}`);
+          let name = coreModule.api.Utils.i18n(
+            `CPR.global.stats.${stat[0]}`
+          );
           let modifier;
 
           switch (this.actorType) {
@@ -371,9 +465,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
               break;
             case 'blackIce':
-              // "CPR.global.blackIce.stats.atk": "ATK",
+              name = game.i18n.localize(`CPR.global.blackIce.stats.${stat[0]}`);
             case 'demon':
               modifier = this.actor.system.stats[stat[0]];
+              if (stat[0] === 'combatNumber') {
+                name = game.i18n.localize(`CPR.global.demon.combatNumber`);
+              }
+              if (stat[0] === 'interface') {
+                name = game.i18n.localize(`CPR.global.role.netrunner.ability.interface`);
+              }
               break;
           }
 
@@ -388,6 +488,238 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         });
 
       this.addActions(actions, groupData);
+    }
+
+    async #buildWeaponActions() {
+      for (const [itemId, itemData] of this.items) {
+        const type = itemData.type;
+        const { isWeapon } = itemData.system;
+
+        const isAimed =
+          getProperty(
+            this.actor,
+            `flags.${game.system.id}.firetype-${itemId}`
+          ) === WEAPON_ACTION_TYPES.TOGGLE_AIMED;
+        const isAutofire =
+          getProperty(
+            this.actor,
+            `flags.${game.system.id}.firetype-${itemId}`
+          ) === WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE;
+        const isSuppressive =
+          getProperty(
+            this.actor,
+            `flags.${game.system.id}.firetype-${itemId}`
+          ) === WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE;
+
+        if (type === 'cyberware' && !isWeapon) continue;
+
+        const group = {
+          id: itemId,
+          name: itemData.name,
+          nestId: `weapon_${itemData.id}`,
+          type: 'system',
+        };
+        const actions = [];
+
+        if (isWeapon || type === 'weapon') {
+          // console.debug('*** itemData', itemData);
+
+          this.addGroup(group, { id: 'weapon', type: 'system' });
+
+          const handsReq = itemData.system.handsReq
+            ? `Hands: ${itemData.system.handsReq}`
+            : undefined;
+
+          actions.push(
+            // Base Weapon info
+            {
+              cssClass:
+                'toggle' +
+                (itemData.system.equipped === 'equipped' ? ' active' : ''),
+              encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
+                this.delimiter
+              ),
+              id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
+              img: coreModule.api.Utils.getImage(itemData),
+              info1: { text: itemData.system.equipped },
+              info2: {
+                text: `ROF: ${
+                  !isAimed && !isAutofire && !isSuppressive
+                    ? itemData.system.rof
+                    : '1'
+                }`,
+              },
+              info3: { text: handsReq },
+              name: itemData.name,
+              tooltip: itemData.system.description.value,
+            }
+          );
+
+          if (type === 'cyberware' || itemData.system.equipped === 'equipped') {
+            actions.push(
+              ...[
+                // Aimed Shot:
+                {
+                  cssClass: 'toggle' + (isAimed ? ' active' : ''),
+                  encodedValue: [WEAPON_ACTION_TYPES.TOGGLE_AIMED, itemId].join(
+                    this.delimiter
+                  ),
+                  id: WEAPON_ACTION_TYPES.TOGGLE_AIMED,
+                  img: Utils.getWeaponActionIcon(
+                    WEAPON_ACTION_TYPES.TOGGLE_AIMED
+                  ),
+                  info1: { text: 'Fire Mode' },
+                  info2: { text: isAimed ? ' active' : undefined },
+                  // info2: { text: 'info2' },
+                  // info3: { text: 'info3' },
+                  name: 'Aimed Shot',
+                },
+              ]
+            );
+
+            if (itemData.system.isRanged) {
+              // Autofire: itemData.system.fireModes.autoFire > 0
+              if (itemData.system.fireModes.autoFire > 0) {
+                actions.push({
+                  cssClass: 'toggle' + (isAutofire ? ' active' : ''),
+                  encodedValue: [
+                    WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE,
+                    itemId,
+                  ].join(this.delimiter),
+                  id: WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE,
+                  img: Utils.getWeaponActionIcon(
+                    WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE
+                  ),
+                  info1: { text: 'Fire Mode' },
+                  info2: { text: `x${itemData.system.fireModes.autoFire}` },
+                  info3: { text: isAutofire ? ' active' : undefined },
+                  name: 'Autofire',
+                });
+              }
+
+              // Suppressive Fire: itemData.system.fireModes.suppressiveFire
+              if (itemData.system.fireModes.suppressiveFire === true) {
+                actions.push({
+                  cssClass: 'toggle' + (isSuppressive ? ' active' : ''),
+                  encodedValue: [
+                    WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE,
+                    itemId,
+                  ].join(this.delimiter),
+                  id: WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE,
+                  img: Utils.getWeaponActionIcon(
+                    WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE
+                  ),
+                  info1: { text: 'Fire Mode' },
+                  info2: { text: isSuppressive ? ' active' : undefined },
+                  name: 'Suppressive Fire',
+                });
+              }
+
+              actions.push(
+                ...[
+                  // Measure DV:
+                  {
+                    cssClass:
+                      'toggle' +
+                      (Utils.highlightDVRuler(itemData, this.token)
+                        ? ' active'
+                        : ''),
+                    encodedValue: [WEAPON_ACTION_TYPES.MEASURE_DV, itemId].join(
+                      this.delimiter
+                    ),
+                    id: WEAPON_ACTION_TYPES.MEASURE_DV,
+                    img: Utils.getWeaponActionIcon(
+                      WEAPON_ACTION_TYPES.MEASURE_DV
+                    ),
+                    name: 'Measure DV',
+                  },
+                  // Change Ammo:
+                  {
+                    encodedValue: [
+                      WEAPON_ACTION_TYPES.CHANGE_AMMO,
+                      itemId,
+                    ].join(this.delimiter),
+                    id: WEAPON_ACTION_TYPES.CHANGE_AMMO,
+                    img: Utils.getWeaponActionIcon(
+                      WEAPON_ACTION_TYPES.CHANGE_AMMO
+                    ),
+                    name: 'Change Ammo',
+                  },
+                  // Reload:
+                  {
+                    encodedValue: [WEAPON_ACTION_TYPES.RELOAD, itemId].join(
+                      this.delimiter
+                    ),
+                    img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.RELOAD),
+                    id: WEAPON_ACTION_TYPES.RELOAD,
+                    info1: {
+                      text: itemData.system.magazine.value
+                        ? `${itemData.system.magazine.ammoData.name}`
+                        : 'unloaded',
+                    },
+                    info2: {
+                      text: `${itemData.system.magazine.value}/${itemData.system.magazine.max}`,
+                    },
+                    name: 'Reload',
+                  },
+                ]
+              );
+            }
+
+            if (
+              !itemData.system.isRanged ||
+              (itemData.system.isRanged && itemData.system.magazine.value)
+            ) {
+              const skillItem = Array.from(this.items.values()).find(
+                (skill) => skill.name === itemData.system.weaponSkill
+              );
+              const skillMod = skillItem.system.level ?? 0;
+              const statMod =
+                this.actor.system.stats[skillItem.system.stat].value ?? 0;
+              const attackMod = itemData.system.attackMod ?? 0;
+              const totalMod =
+                skillMod + statMod + attackMod - (isAimed ? 8 : 0);
+
+              actions.push(
+                // Roll Attack
+                {
+                  encodedValue: [WEAPON_ACTION_TYPES.ROLL_ATTACK, itemId].join(
+                    this.delimiter
+                  ),
+                  info1: { text: String(totalMod) },
+                  img: Utils.getWeaponActionIcon(
+                    WEAPON_ACTION_TYPES.ROLL_ATTACK
+                  ),
+                  id: WEAPON_ACTION_TYPES.ROLL_ATTACK,
+                  name: 'Roll Attack',
+                }
+              );
+
+              if (!isSuppressive) {
+                actions.push(
+                  // Roll Damage
+                  {
+                    encodedValue: [
+                      WEAPON_ACTION_TYPES.ROLL_DAMAGE,
+                      itemId,
+                    ].join(this.delimiter),
+                    img: Utils.getWeaponActionIcon(
+                      WEAPON_ACTION_TYPES.ROLL_DAMAGE
+                    ),
+                    id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
+                    info2: {
+                      text: isAutofire ? '2d6' : itemData.system.damage,
+                    },
+                    name: 'Roll Damage',
+                  }
+                );
+              }
+            }
+          }
+
+          this.addActions(actions, { id: group.id, type: 'system' });
+        }
+      }
     }
   };
 });
