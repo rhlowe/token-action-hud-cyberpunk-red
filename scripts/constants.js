@@ -21,11 +21,11 @@ export const REQUIRED_CORE_MODULE_VERSION = '1.5';
  * Action types
  */
 export const ACTION_TYPE = {
-  // item: 'tokenActionHud.template.item',
-  interface: 'tokenActionHud.template.interface',
-  skill: 'tokenActionHud.template.skill',
-  attack: 'tokenActionHud.template.attack',
-  stat: 'tokenActionHud.template.stat',
+  // item: 'CPR.global.generic.item',
+  interface: 'CPR.global.role.netrunner.ability.interface',
+  skill: 'CPR.global.generic.skill',
+  attack: 'CPR.rolls.attack',
+  stat: 'CPR.global.generic.stat',
   utility: 'tokenActionHud.utility',
 };
 
@@ -33,20 +33,20 @@ export const ACTION_TYPE = {
  * Groups
  */
 export const GROUP = {
-  // character: { id: 'character', name: 'tokenActionHud.template.character', type: 'system' ...collapsedByDefault, },
+  // character: { id: 'character', name: 'TYPES.Actor.character', type: 'system' ...collapsedByDefault, },
   cyberdeck: {
     id: 'cyberdeck',
-    name: 'tokenActionHud.template.cyberdeck',
+    name: 'TYPES.Item.cyberdeck',
     type: 'system',
   },
   cyberware: {
     id: 'cyberware',
-    name: 'tokenActionHud.template.cyberware',
+    name: 'TYPES.Item.cyberware',
     type: 'system',
   },
   deathsave: {
     id: 'deathsave',
-    name: 'tokenActionHud.template.deathsave',
+    name: 'CPR.rolls.deathSave.title',
     type: 'system',
   },
   effects: {
@@ -56,23 +56,23 @@ export const GROUP = {
   },
   facedown: {
     id: 'facedown',
-    name: 'tokenActionHud.template.facedown',
+    name: 'CPR.global.generic.facedown',
     type: 'system',
   },
-  gear: { id: 'gear', name: 'tokenActionHud.template.gear', type: 'system' },
+  gear: { id: 'gear', name: 'TYPES.Item.gear', type: 'system' },
   interface: {
     id: 'interface',
-    name: 'tokenActionHud.template.interface',
+    name: 'CPR.global.role.netrunner.ability.interface',
     type: 'system',
   },
   program: {
     id: 'program',
-    name: 'tokenActionHud.template.programs',
+    name: 'CPR.global.itemTypes.program',
     type: 'system',
   },
-  role: { id: 'role', name: 'tokenActionHud.template.role', type: 'system' },
-  skill: { id: 'skill', name: 'tokenActionHud.template.skill', type: 'system' },
-  stat: { id: 'stat', name: 'tokenActionHud.template.stat', type: 'system' },
+  role: { id: 'role', name: 'CPR.global.generic.role', type: 'system' },
+  skill: { id: 'skill', name: 'CPR.global.generic.skill', type: 'system' },
+  stat: { id: 'stat', name: 'CPR.global.generic.stat', type: 'system' },
   utility: {
     id: 'utility',
     name: 'tokenActionHud.template.utility',
@@ -80,7 +80,7 @@ export const GROUP = {
   },
   weapon: {
     id: 'weapon',
-    name: 'tokenActionHud.template.weapon',
+    name: 'CPR.global.itemTypes.weapon',
     type: 'system',
   },
 };

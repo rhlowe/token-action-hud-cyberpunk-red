@@ -83,7 +83,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           id: programUUID,
           info1: { text: blackIce },
           // listName: stat[0],
-          name: coreModule.api.Utils.i18n(`tokenActionHud.template.blackIce`),
+          name: coreModule.api.Utils.i18n(`TYPES.Actor.blackIce`),
         });
       }
       this.addActions(actions, groupData);
@@ -154,7 +154,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildDeathSave() {
       const groupData = { id: ROLL_TYPES.DEATHSAVE, type: 'system' };
       const name = coreModule.api.Utils.i18n(
-        `tokenActionHud.template.deathsave`
+        `CPR.rolls.deathSave.title`
       );
       const actions = [
         {
@@ -171,7 +171,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildFacedown() {
       const groupData = { id: ROLL_TYPES.FACEDOWN, type: 'system' };
       const name = coreModule.api.Utils.i18n(
-        `tokenActionHud.template.facedown`
+        `CPR.global.generic.facedown`
       );
       const actions = [
         {
@@ -270,7 +270,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               img = undefined;
               break;
           }
-          let info1;
+          let info1, info2;
 
           if (itemData.type === 'skill') {
             const camelSkill = Utils.cprCamelCase(itemData.name);
@@ -283,14 +283,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // img = itemData.img;
-            name = [name, `[${itemData.system.stat}]`.toUpperCase()].join(' ');
             // tooltip = itemData.system?.description?.value ? itemData.system.description.value : game.i18n.localize(tooltipPath);
             tooltip = itemData.system?.description?.value
               ? itemData.system.description.value
               : '';
 
             let totalMod = level + stat;
-            info1 = { text: totalMod.toString() };
+
+            info1 = { text: itemData.system.stat.toUpperCase() };
+            info2 = { text: totalMod.toString() };
           }
 
           return {
@@ -298,6 +299,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             id,
             img,
             info1,
+            info2,
             listName,
             name,
             tooltip,
@@ -447,7 +449,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           // console.debug('*** stat', stat);
           let tooltip = '';
           let name = coreModule.api.Utils.i18n(
-            `tokenActionHud.template.stats.${stat[0]}`
+            `CPR.global.stats.${stat[0]}`
           );
           let modifier;
 
@@ -463,9 +465,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
               break;
             case 'blackIce':
-            // "CPR.global.blackIce.stats.atk": "ATK",
+              name = game.i18n.localize(`CPR.global.blackIce.stats.${stat[0]}`);
             case 'demon':
               modifier = this.actor.system.stats[stat[0]];
+              if (stat[0] === 'combatNumber') {
+                name = game.i18n.localize(`CPR.global.demon.combatNumber`);
+              }
+              if (stat[0] === 'interface') {
+                name = game.i18n.localize(`CPR.global.role.netrunner.ability.interface`);
+              }
               break;
           }
 

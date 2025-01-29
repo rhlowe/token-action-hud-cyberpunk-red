@@ -1,29 +1,9 @@
 {
   "tokenActionHud": {
     "template": {
-      "activeEffects": "Active Effects",
-      "ammo": "Ammo",
-      "armor": "Armor",
-      "blackIce": "Black Ice",
       "standard": "Standard",
-      "character": "Character",
-      "characterSkills": {},
-      "clothing": "Clothing",
-      "criticalInjuries": "Critical Injuries",
-      "cyber": "Cyberware",
-      "cyberdeck": "Cyberdeck",
-      "cyberware": "Cyberware",
-      "deathsave": "Death Save",
-      "drugs": "Drugs",
       "effects": "Effects",
       "endTurn": "End Turn",
-      "facedown": "Facedown",
-      "gear": "Gear",
-      "interface": "Interface",
-      "netArchitecture": "Net Architecture",
-      "programs": "Programs",
-      "role": "Role",
-      "roles": "Roles",
       "settings": {
         "displayUnequipped": {
           "hint": "Choose whether to display unequipped items on the HUD",
@@ -37,37 +17,11 @@
         },
         "": {}
       },
-      "skill": "Skill",
-      "skills": "Skills",
-      "stat": "Stat",
-      "statsLabel": "Stats",
-      "stats": {
-        "atk": "Attack [ATK]",
-        "body": "Body [BODY]",
-        "combatNumber": "Combat Number",
-        "cool": "Cool [COOL]",
-        "def": "Defense [DEF]",
-        "dex": "Dexterity [DEX]",
-        "emp": "Empathy [EMP]",
-        "int": "Intelligence [INT]",
-        "interface": "Interface",
-        "luck": "Luck [LUCK]",
-        "move": "Movement [MOVE]",
-        "per": "Perception [PER]",
-        "ref": "Reflexes [REF]",
-        "spd": "Speed [SPD]",
-        "tech": "Technique [TECH]",
-        "will": "Willpower [WILL]"
-      },
       "utility": "Utility",
-      "upgrades": "Upgrades",
       "visibility": {
         "makeInvisible": "Make Invisible",
         "makeVisible": "Make Visible"
-      },
-      "vehicles": "Vehicles",
-      "weapon": "Weapon",
-      "weapons": "Weapons"
+      }
     }
   }
 }
