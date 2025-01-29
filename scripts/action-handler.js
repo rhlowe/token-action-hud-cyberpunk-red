@@ -453,20 +453,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const actions = [];
 
         if (isWeapon || type === 'weapon') {
-          console.debug('***', {
-            itemId,
-            isAimed,
-            isAutofire,
-            isSuppressive,
-          });
-
           this.addGroup(group, {id: 'weapon', type: 'system'});
-
-          // console.debug('***', {
-          //   itemId,
-          //   itemData,
-          //   group,
-          // });
 
           actions.push(
             // Base Weapon info
