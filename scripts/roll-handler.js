@@ -298,9 +298,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             actor,
             `flags.${game.system.id}.firetype-${actionId}`
           );
-          console.debug('*** flag', {flag, actionId});
           if (flag === actionTypeId) {
-            console.debug('*** delete', actionId)
             await actor.unsetFlag(game.system.id, `firetype-${actionId}`);
           } else {
             await setProperty(
