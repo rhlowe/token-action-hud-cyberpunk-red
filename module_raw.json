@@ -14,8 +14,8 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "maximum": "1",
-          "minimum": "1",
+          "maximum": "1.5.7",
+          "minimum": "1.5.1",
           "verified": "1.5.4"
         }
       }
@@ -37,7 +37,7 @@
         "type": "module",
         "compatibility": {
           "maximum": "1.4",
-          "minimum": "1",
+          "minimum": "1.4",
           "verified": "1.4"
         }
       }
