@@ -101,7 +101,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildInterfaceActions();
       this.#buildInventory();
       this.#buildStats();
-      this.#buildWeaponActions();
+
+      this.#buildWeaponItemActions();
     }
 
     /**
@@ -153,9 +154,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #buildDeathSave() {
       const groupData = { id: ROLL_TYPES.DEATHSAVE, type: 'system' };
-      const name = coreModule.api.Utils.i18n(
-        `CPR.rolls.deathSave.title`
-      );
+      const name = coreModule.api.Utils.i18n(`CPR.rolls.deathSave.title`);
       const actions = [
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
@@ -170,9 +169,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #buildFacedown() {
       const groupData = { id: ROLL_TYPES.FACEDOWN, type: 'system' };
-      const name = coreModule.api.Utils.i18n(
-        `CPR.global.generic.facedown`
-      );
+      const name = coreModule.api.Utils.i18n(`CPR.global.generic.facedown`);
       const actions = [
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
@@ -448,9 +445,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         .map((stat) => {
           // console.debug('*** stat', stat);
           let tooltip = '';
-          let name = coreModule.api.Utils.i18n(
-            `CPR.global.stats.${stat[0]}`
-          );
+          let name = coreModule.api.Utils.i18n(`CPR.global.stats.${stat[0]}`);
           let modifier;
 
           switch (this.actorType) {
@@ -472,7 +467,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name = game.i18n.localize(`CPR.global.demon.combatNumber`);
               }
               if (stat[0] === 'interface') {
-                name = game.i18n.localize(`CPR.global.role.netrunner.ability.interface`);
+                name = game.i18n.localize(
+                  `CPR.global.role.netrunner.ability.interface`
+                );
               }
               break;
           }
@@ -490,10 +487,88 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.addActions(actions, groupData);
     }
 
-    async #buildWeaponActions() {
-      for (const [itemId, itemData] of this.items) {
-        const type = itemData.type;
-        const { isWeapon } = itemData.system;
+    // token.actor.itemTypes
+
+    // ammo
+    async #buildAmmoItemActions() {}
+
+    // armor
+    async #buildArmorItemActions() {}
+
+    // base
+    async #buildBaseItemActions() {}
+
+    // clothing
+    async #buildClothingItemActions() {}
+
+    // criticalInjury
+    async #buildCriticalInjuryItemActions() {}
+
+    // cyberdeck
+    async #buildCyberdeckItemActions() {}
+
+    // cyberware
+    async #buildCyberwareItemActions() {}
+
+    // drug
+    async #buildDrugItemActions() {}
+
+    // gear
+    async #buildGearItemActions() {}
+
+    // itemUpgrade
+    async #buildItemUpgradeItemActions() {}
+
+    // netarch
+    async #buildNetarchItemActions() {}
+
+    // program
+    async #buildProgramItemActions() {}
+
+    // role
+    async #buildRoleItemActions() {}
+
+    // skill
+    async #buildSkillItemActions() {}
+
+    // vehicle
+    async #buildVehicleItemActions() {}
+
+    // weapon
+    async #buildWeaponItemActions() {
+      const meleeWeaponTypes = [
+        'heavyMeleeWeapon',
+        'lightMeleeWeapon',
+        'mediumMeleeWeapon',
+        'veryHeavyMeleeWeapon',
+      ]
+      // Core weapon items
+      const weapons = [
+        ...this.actor.itemTypes.weapon,
+        ...this.actor.itemTypes.cyberware,
+      ];
+      // // Is ATTACHED to a weapon, like an extended magazine, will be listed as part of the weapon it is attached to.
+      // const weaponAttachment = undefined;
+
+      // console.debug('***', this.actor.itemTypes.itemUpgrade);
+      // console.debug('*** weapons', weapons);
+      // console.debug('***', { attachmentWeapons, weaponAttachment });
+
+      for (const weapon of weapons) {
+        const itemId = weapon.id;
+        const { type } = weapon;
+
+        const { isWeapon } = weapon.system;
+        const { isUpgraded, upgrades } = weapon.system;
+
+        if (isUpgraded) {
+          upgrades.forEach((upgrade) => {
+            if (upgrade.system.modifiers.secondaryWeapon.configured) {
+              const upgradeWeapon = this.actor.itemTypes.itemUpgrade.find(t => t.id === upgrade._id);
+              weapons.push(upgradeWeapon);
+            }
+          });
+        }
 
         const isAimed =
           getProperty(
@@ -515,19 +590,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         const group = {
           id: itemId,
-          name: itemData.name,
-          nestId: `weapon_${itemData.id}`,
+          name: weapon.name,
+          nestId: `weapon_${weapon.id}`,
           type: 'system',
         };
         const actions = [];
 
-        if (isWeapon || type === 'weapon') {
-          // console.debug('*** itemData', itemData);
-
+        if (isWeapon || type === 'weapon' || type === 'itemUpgrade') {
           this.addGroup(group, { id: 'weapon', type: 'system' });
 
-          const handsReq = itemData.system.handsReq
-            ? `Hands: ${itemData.system.handsReq}`
+          const handsReq = weapon.system.handsReq
+            ? `Hands: ${weapon.system.handsReq}`
             : undefined;
 
           actions.push(
@@ -535,27 +608,27 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             {
               cssClass:
                 'toggle' +
-                (itemData.system.equipped === 'equipped' ? ' active' : ''),
+                (weapon.system.equipped === 'equipped' ? ' active' : ''),
               encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
                 this.delimiter
               ),
               id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
-              img: coreModule.api.Utils.getImage(itemData),
-              info1: { text: itemData.system.equipped },
+              img: coreModule.api.Utils.getImage(weapon),
+              info1: { text: weapon.system.equipped },
               info2: {
                 text: `ROF: ${
                   !isAimed && !isAutofire && !isSuppressive
-                    ? itemData.system.rof
+                    ? weapon.system.rof
                     : '1'
                 }`,
               },
               info3: { text: handsReq },
-              name: itemData.name,
-              tooltip: itemData.system.description.value,
+              name: weapon.name,
+              tooltip: weapon.system.description.value,
             }
           );
 
-          if (type === 'cyberware' || itemData.system.equipped === 'equipped') {
+          if (type === 'cyberware' || weapon.system.equipped === 'equipped') {
             actions.push(
               ...[
                 // Aimed Shot:
@@ -577,9 +650,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               ]
             );
 
-            if (itemData.system.isRanged) {
-              // Autofire: itemData.system.fireModes.autoFire > 0
-              if (itemData.system.fireModes.autoFire > 0) {
+            if (weapon.system.isRanged) {
+              // Autofire: weapon.system.fireModes.autoFire > 0
+              if (weapon.system.fireModes.autoFire > 0) {
                 actions.push({
                   cssClass: 'toggle' + (isAutofire ? ' active' : ''),
                   encodedValue: [
@@ -591,14 +664,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE
                   ),
                   info1: { text: 'Fire Mode' },
-                  info2: { text: `x${itemData.system.fireModes.autoFire}` },
+                  info2: { text: `x${weapon.system.fireModes.autoFire}` },
                   info3: { text: isAutofire ? ' active' : undefined },
                   name: 'Autofire',
                 });
               }
 
-              // Suppressive Fire: itemData.system.fireModes.suppressiveFire
-              if (itemData.system.fireModes.suppressiveFire === true) {
+              // Suppressive Fire: weapon.system.fireModes.suppressiveFire
+              if (weapon.system.fireModes.suppressiveFire === true) {
                 actions.push({
                   cssClass: 'toggle' + (isSuppressive ? ' active' : ''),
                   encodedValue: [
@@ -621,7 +694,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                   {
                     cssClass:
                       'toggle' +
-                      (Utils.highlightDVRuler(itemData, this.token)
+                      (Utils.highlightDVRuler(weapon, this.token)
                         ? ' active'
                         : ''),
                     encodedValue: [WEAPON_ACTION_TYPES.MEASURE_DV, itemId].join(
@@ -653,12 +726,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     img: Utils.getWeaponActionIcon(WEAPON_ACTION_TYPES.RELOAD),
                     id: WEAPON_ACTION_TYPES.RELOAD,
                     info1: {
-                      text: itemData.system.magazine.value
-                        ? `${itemData.system.magazine.ammoData.name}`
+                      text: weapon.system.magazine.value
+                        ? `${weapon.system.magazine.ammoData.name}`
                         : 'unloaded',
                     },
                     info2: {
-                      text: `${itemData.system.magazine.value}/${itemData.system.magazine.max}`,
+                      text: `${weapon.system.magazine.value}/${weapon.system.magazine.max}`,
                     },
                     name: 'Reload',
                   },
@@ -667,16 +740,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             if (
-              !itemData.system.isRanged ||
-              (itemData.system.isRanged && itemData.system.magazine.value)
+              !weapon.system.isRanged ||
+              (weapon.system.isRanged && weapon.system.magazine.value)
             ) {
               const skillItem = Array.from(this.items.values()).find(
-                (skill) => skill.name === itemData.system.weaponSkill
+                (skill) => skill.name === weapon.system.weaponSkill
               );
               const skillMod = skillItem.system.level ?? 0;
               const statMod =
                 this.actor.system.stats[skillItem.system.stat].value ?? 0;
-              const attackMod = itemData.system.attackMod ?? 0;
+              const attackMod = weapon.system.attackMod ?? 0;
               const totalMod =
                 skillMod + statMod + attackMod - (isAimed ? 8 : 0);
 
@@ -708,7 +781,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                     id: WEAPON_ACTION_TYPES.ROLL_DAMAGE,
                     info2: {
-                      text: isAutofire ? '2d6' : itemData.system.damage,
+                      text: isAutofire ? '2d6' : weapon.system.damage,
                     },
                     name: 'Roll Damage',
                   }
