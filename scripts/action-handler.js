@@ -102,11 +102,94 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildInventory();
       this.#buildStats();
 
+      this.#buildActiveEffectsToggleActions();
+      this.#buildConditionLabToggleActions();
       this.#buildWeaponItemActions();
     }
 
-    // game.clt
-    #buildConditionToggleActions() {}
+    #buildActiveEffectsToggleActions() {
+      const groupData = { id: GROUP.activeEffects.id, type: 'system' };
+
+      const actions = this.actor.data.effects.map((effect) => {
+        const { disabled, icon, id, name } = effect;
+
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = 'toggle' + (!disabled ? ' active' : '');
+        const img = icon;
+        const info1 = '';
+        const info2 = '';
+        const info3 = '';
+        const selected = !disabled;
+        const system = 'system';
+        const tooltip = ''; // '<ul><li>foo</li><li>bars</li></ul>'?
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
+
+    #buildConditionLabToggleActions() {
+      if (!game.clt) {
+        return;
+      }
+
+      const groupData = { id: GROUP.injury.id, type: 'system' };
+      const cltActiveEffects = this.actor.data.effects
+        .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
+        .filter(Boolean);
+
+      const actions = game.clt.conditions.map((condition) => {
+        const { icon, id, name } = condition;
+        const effectIsActive = cltActiveEffects.includes(id);
+
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = 'toggle' + (effectIsActive ? ' active' : '');
+        const img = icon;
+        const info1 = '';
+        const info2 = '';
+        const info3 = '';
+        const selected = effectIsActive;
+        const system = 'system';
+        const tooltip = '';
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     /**
      * Build multiple token actions
@@ -547,7 +630,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         'lightMeleeWeapon',
         'mediumMeleeWeapon',
         'veryHeavyMeleeWeapon',
-      ]
+      ];
       // Core weapon items & cyberware
       const weapons = [
         ...this.actor.itemTypes.weapon,
@@ -572,7 +655,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         if (isUpgraded) {
           upgrades.forEach((upgrade) => {
             if (upgrade.system.modifiers.secondaryWeapon.configured) {
-              const upgradeWeapon = this.actor.itemTypes.itemUpgrade.find(t => t.id === upgrade._id);
+              const upgradeWeapon = this.actor.itemTypes.itemUpgrade.find(
+                (t) => t.id === upgrade._id
+              );
               weapons.push(upgradeWeapon);
             }
           });

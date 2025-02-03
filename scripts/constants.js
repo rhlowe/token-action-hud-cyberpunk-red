@@ -49,9 +49,9 @@ export const GROUP = {
     name: 'CPR.rolls.deathSave.title',
     type: 'system',
   },
-  effects: {
-    id: 'effects',
-    name: 'tokenActionHud.template.effects',
+  activeEffects: {
+    id: 'activeEffects',
+    name: 'tokenActionHud.template.activeEffects',
     type: 'system',
   },
   facedown: {
@@ -60,6 +60,11 @@ export const GROUP = {
     type: 'system',
   },
   gear: { id: 'gear', name: 'TYPES.Item.gear', type: 'system' },
+  injury: {
+    id: 'injury',
+    name: 'tokenActionHud.template.injury',
+    type: 'system',
+  },
   interface: {
     id: 'interface',
     name: 'CPR.global.role.netrunner.ability.interface',
