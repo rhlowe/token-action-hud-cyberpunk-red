@@ -452,6 +452,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'character':
             case 'mook':
               modifier = this.actor.system.stats[stat[0]].value ?? 0;
+              if (this.actor.system.stats[stat[0]].max) {
+                modifier += ` / ${this.actor.system.stats[stat[0]].max}`;
+              }
               const namePath = `CPR.global.stats.${stat[0]}`;
               const tooltipPath = `CPR.global.stats.${stat[0]}ToolTip`;
               name = game.i18n.localize(namePath);
