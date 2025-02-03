@@ -105,6 +105,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildWeaponItemActions();
     }
 
+    // game.clt
+    #buildConditionToggleActions() {}
+
     /**
      * Build multiple token actions
      * @private
@@ -545,12 +548,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         'mediumMeleeWeapon',
         'veryHeavyMeleeWeapon',
       ]
-      // Core weapon items
+      // Core weapon items & cyberware
       const weapons = [
         ...this.actor.itemTypes.weapon,
         ...this.actor.itemTypes.cyberware,
       ];
-      // // Is ATTACHED to a weapon, like an extended magazine, will be listed as part of the weapon it is attached to.
+
+      //  Is ATTACHED to a weapon, like an extended magazine, will be listed as part of the weapon it is attached to.
+      // #40
       // const weaponAttachment = undefined;
 
       // console.debug('***', this.actor.itemTypes.itemUpgrade);
