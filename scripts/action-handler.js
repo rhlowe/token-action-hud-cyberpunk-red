@@ -107,6 +107,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildAmmoItemActions();
       this.#buildConditionLabToggleActions();
       this.#buildCyberwareItemActions();
+      this.#buildGearItemActions()
       this.#buildWeaponAttackActions();
       this.#buildWeaponItemActions();
     }
@@ -707,7 +708,42 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildDrugItemActions() {}
 
     // gear
-    async #buildGearItemActions() {}
+    async #buildGearItemActions() {
+      const gears = this.actor.itemTypes.gear;
+      const groupData = { id: GROUP.gear.id, type: 'system' };
+
+      const actions = gears.map((gear) => {
+        const { id, img, name } = gear;
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = undefined;
+        const info2 = undefined;
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = gear.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // itemUpgrade
     async #buildItemUpgradeItemActions() {}
@@ -1003,7 +1039,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const info3 = undefined;
         const selected = undefined;
         const system = 'system';
-        const tooltip = undefined;
+        const tooltip = weapon.system.description.value;
         const onClick = undefined;
         const onHover = undefined;
 
