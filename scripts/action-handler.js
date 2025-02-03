@@ -97,7 +97,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       await this.#buildInventory();
 
       // this.#buildProgramActions();
-      this.#buildCoreActions();
+      this.#buildFVTTCoreActions();
       this.#buildDeathSave();
       this.#buildFacedown();
       this.#buildInterfaceActions();
@@ -203,7 +203,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      */
     async #buildMultipleTokenActions() {}
 
-    async #buildCoreActions() {
+    async #buildFVTTCoreActions() {
       const groupData = { id: GROUP.utility.id, type: 'system' };
       const actionType = 'initiative';
       const name = coreModule.api.Utils.i18n(`CPR.chat.initiative`);
