@@ -25,22 +25,23 @@ Token Action HUD is a repositionable HUD of actions for a selected token.
 
 1. On Foundry VTT's **Configuration and Setup** screen, go to **Add-on Modules**
 2. Click **Install Module**
-3. In the Manifest URL field, paste: `https://github.com/Larkinabout/fvtt-token-action-hud-template/releases/latest/download/module.json`
+3. In the Manifest URL field, paste: `https://github.com/rhlowe/token-action-hud-cyberpunk-red/releases/latest/download/module.json`
 4. Click **Install** next to the pasted Manifest URL
 
 ## Required Modules
 
-**IMPORTANT** - Token Action HUD Template requires the [Token Action HUD Core](https://foundryvtt.com/packages/token-action-hud-core) module to be installed.
+**IMPORTANT** - Token Action HUD for Cyberpunk RED requires the [Token Action HUD Core](https://foundryvtt.com/packages/token-action-hud-core) and [socketlib](https://foundryvtt.com/packages/socketlib) modules to be installed.
 
 ## Recommended Modules
 
-Token Action HUD uses the [Color Picker](https://foundryvtt.com/packages/color-picker) library module for its color picker settings.
+- Token Action HUD uses the [Color Picker](https://foundryvtt.com/packages/color-picker) library module for its color picker settings
+- Token Action HUD for Cyberpunk RED recommends [Condition Lab & Triggler](https://foundryvtt.com/packages/condition-lab-triggler) to manage Cyberpunk Red statuses in Foundry VTT
 
 # Support
 
 For a guide on using Token Action HUD, go to: [How to Use Token Action HUD](https://github.com/Larkinabout/fvtt-token-action-hud-core/wiki/How-to-Use-Token-Action-HUD)
 
-For questions, feature requests or bug reports, please open an issue [here](https://github.com/Larkinabout/fvtt-token-action-hud-core/issues).
+For questions, feature requests or bug reports, [please open an issue here](https://github.com/rhlowe/token-action-hud-cyberpunk-red/issues).
 
 Pull requests are welcome. Please include a reason for the request or create an issue before starting one.
 

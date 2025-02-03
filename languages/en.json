@@ -1,9 +1,14 @@
 {
   "tokenActionHud": {
     "template": {
-      "standard": "Standard",
+      "active": "Active",
+      "activeEffects": "Active Effects",
       "effects": "Effects",
       "endTurn": "End Turn",
+      "fireMode": "Fire Mode",
+      "inactive": "Inactive",
+      "injury": "Critical Injuries / Status Effects",
+      "permanent": "Permanent",
       "settings": {
         "displayUnequipped": {
           "hint": "Choose whether to display unequipped items on the HUD",
@@ -17,6 +22,8 @@
         },
         "": {}
       },
+      "situational": "Situational",
+      "standard": "Standard",
       "utility": "Utility",
       "visibility": {
         "makeInvisible": "Make Invisible",

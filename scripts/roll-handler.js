@@ -119,6 +119,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       let tahCprRoll = null;
       let item = null;
 
+      if (actionTypeId === 'activeEffects') {
+        await this.#handleActiveEffectToggle(actionId, actor);
+        return;
+      }
+
+      if (actionTypeId === 'injury') {
+        await this.#handleStatusEffectToggle(actionId, actor);
+        return;
+      }
+
       if (actionTypeId === 'item') {
         item = actor.getOwnedItem(actionId);
         // console.debug('*** handleAction item', item);
@@ -301,6 +311,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }
           break;
       }
+    }
+
+    async #handleActiveEffectToggle(actionId, actor) {
+      const effect = actor.data.effects.get(actionId);
+      await effect.update({ disabled: !effect.disabled });
+      Hooks.callAll('forceUpdateTokenActionHud');
+    }
+
+    async #handleStatusEffectToggle(actionId, actor) {
+      const condition = game.clt.conditions.find(
+        (condition) => actionId === condition.id
+      );
+
+      if (game.clt.hasCondition(condition.name, actor)) {
+        game.clt.removeCondition(condition.name, actor);
+      } else {
+        game.clt.addCondition(condition.name, actor);
+      }
+
+      Hooks.callAll('forceUpdateTokenActionHud');
     }
 
     async #handleWeaponAction(event, actor, token, actionTypeId, actionId) {

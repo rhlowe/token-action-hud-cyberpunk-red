@@ -14,9 +14,16 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "maximum": "1.5.7",
           "minimum": "1.5.1",
-          "verified": "1.5.4"
+          "verified": "1.5.4",
+          "maximum": "1.5.7"
+        }
+      },
+      {
+        "id": "socketlib",
+        "type": "module",
+        "compatibility": {
+          "verified": "1.4"
         }
       }
     ],
@@ -36,9 +43,16 @@
         "id": "color-picker",
         "type": "module",
         "compatibility": {
-          "maximum": "1.4",
           "minimum": "1.4",
-          "verified": "1.4"
+          "verified": "1.4",
+          "maximum": "1.4"
+        }
+      },
+      {
+        "id": "condition-lab-triggler",
+        "type": "module",
+        "compatibility": {
+          "verified": "1.5.7"
         }
       }
     ]
