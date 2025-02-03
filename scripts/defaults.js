@@ -43,7 +43,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         ),
         groups: [
           { ...groups.weapon, nestId: 'weapon_weapon' },
-          { ...groups.cyberware, nestId: 'weapon_cyberware' },
         ],
       },
 
@@ -64,6 +63,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         groups: [
           // { ...groups.cyberdeck, nestId: 'gear_cyberdeck' },
           { ...groups.ammo, nestId: 'gear_ammo' },
+          { ...groups.cyberware, nestId: 'gear_cyberware' },
           { ...groups.gear, nestId: 'gear_gear' },
         ],
       },

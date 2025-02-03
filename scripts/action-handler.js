@@ -104,8 +104,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildStats();
 
       this.#buildActiveEffectsToggleActions();
-      this.#buildConditionLabToggleActions();
       this.#buildAmmoItemActions();
+      this.#buildConditionLabToggleActions();
+      this.#buildCyberwareItemActions();
       this.#buildWeaponItemActions();
     }
 
@@ -635,7 +636,72 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildCyberdeckItemActions() {}
 
     // cyberware
-    async #buildCyberwareItemActions() {}
+    async #buildCyberwareItemActions() {
+      /**
+       * Only display all foundational, all non-weapon, and uninstalled weapon Cyberwares.
+       */
+      const cyberwares = this.actor.itemTypes.cyberware
+        .sort((a, b) => a.name - b.name)
+        .filter((c) => {
+          return (
+            c.system.isFoundational ||
+            !c.system.isWeapon ||
+            (c.system.isWeapon && !c.system.isInstalled)
+          );
+        });
+      const groupData = { id: GROUP.cyberware.id, type: 'system' };
+
+      const actions = cyberwares.map((cyberware) => {
+        const { id, img, name } = cyberware;
+
+        const isFoundational = cyberware.system.isFoundational;
+        const isInstalled = cyberware.system.isInstalled;
+
+        const slots = cyberware.system.installedItems.slots;
+        const usedSlots = cyberware.system.installedItems.usedSlots;
+
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = {
+          text: isFoundational
+            ? coreModule.api.Utils.i18n(`CPR.global.generic.foundational`)
+            : '',
+        };
+        const info2 = {
+          text: isInstalled
+            ? coreModule.api.Utils.i18n(
+                `CPR.characterSheet.bottomPane.fight.installed`
+              )
+            : '',
+        };
+        const info3 = {
+          text: isFoundational ? `${usedSlots} / ${slots}` : undefined,
+        };
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = undefined;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // drug
     async #buildDrugItemActions() {}
@@ -679,10 +745,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       // #40
       // const weaponAttachment = undefined;
 
-      // console.debug('***', this.actor.itemTypes.itemUpgrade);
-      // console.debug('*** weapons', weapons);
-      // console.debug('***', { attachmentWeapons, weaponAttachment });
-
       for (const weapon of weapons) {
         const itemId = weapon.id;
         const { type } = weapon;
@@ -719,9 +781,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         if (type === 'cyberware' && !isWeapon) continue;
 
+        const name = weapon.name + (isUpgraded ? ' ⬆️' : '');
+
         const group = {
           id: itemId,
-          name: weapon.name,
+          name,
           nestId: `weapon_${weapon.id}`,
           type: 'system',
         };
@@ -754,7 +818,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }`,
               },
               info3: { text: handsReq },
-              name: weapon.name,
+              name,
               tooltip: weapon.system.description.value,
             }
           );
