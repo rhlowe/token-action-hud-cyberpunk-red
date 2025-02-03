@@ -93,17 +93,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * Build character actions
      * @private
      */
-    #buildCharacterActions() {
+    async #buildCharacterActions() {
+      await this.#buildInventory();
+
       // this.#buildProgramActions();
       this.#buildCoreActions();
       this.#buildDeathSave();
       this.#buildFacedown();
       this.#buildInterfaceActions();
-      this.#buildInventory();
       this.#buildStats();
 
       this.#buildActiveEffectsToggleActions();
       this.#buildConditionLabToggleActions();
+      this.#buildAmmoItemActions();
       this.#buildWeaponItemActions();
     }
 
@@ -576,10 +578,46 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.addActions(actions, groupData);
     }
 
-    // token.actor.itemTypes
+    // this.actor.itemTypes
 
     // ammo
-    async #buildAmmoItemActions() {}
+    async #buildAmmoItemActions() {
+      const ammo = this.actor.itemTypes.ammo.sort((a, b) => a.name - b.name);
+      const groupData = { id: GROUP.ammo.id, type: 'system' };
+
+      const actions = ammo.map((ammoItem) => {
+        const { id, img, name } = ammoItem;
+
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = { text: `QTY: ${ammoItem.system.amount}` };
+        const info2 = undefined;
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = ammoItem.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // armor
     async #buildArmorItemActions() {}

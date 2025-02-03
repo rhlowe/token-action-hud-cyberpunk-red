@@ -39,6 +39,11 @@ export const GROUP = {
     name: 'TYPES.Item.cyberdeck',
     type: 'system',
   },
+  ammo: {
+    id: 'ammo',
+    name: 'TYPES.Item.ammo',
+    type: 'system',
+  },
   cyberware: {
     id: 'cyberware',
     name: 'TYPES.Item.cyberware',

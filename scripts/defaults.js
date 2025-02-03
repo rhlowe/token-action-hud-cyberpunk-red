@@ -63,6 +63,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         name: coreModule.api.Utils.i18n('CPR.global.itemTypes.gear'),
         groups: [
           // { ...groups.cyberdeck, nestId: 'gear_cyberdeck' },
+          { ...groups.ammo, nestId: 'gear_ammo' },
           { ...groups.gear, nestId: 'gear_gear' },
         ],
       },
