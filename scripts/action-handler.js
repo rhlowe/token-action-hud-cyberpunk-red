@@ -107,6 +107,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildAmmoItemActions();
       this.#buildConditionLabToggleActions();
       this.#buildCyberwareItemActions();
+      this.#buildWeaponAttackActions();
       this.#buildWeaponItemActions();
     }
 
@@ -583,7 +584,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // ammo
     async #buildAmmoItemActions() {
-      const ammo = this.actor.itemTypes.ammo.sort((a, b) => a.name - b.name);
+      const ammo = this.actor.itemTypes.ammo;
       const groupData = { id: GROUP.ammo.id, type: 'system' };
 
       const actions = ammo.map((ammoItem) => {
@@ -641,7 +642,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
        * Only display all foundational, all non-weapon, and uninstalled weapon Cyberwares.
        */
       const cyberwares = this.actor.itemTypes.cyberware
-        .sort((a, b) => a.name - b.name)
         .filter((c) => {
           return (
             c.system.isFoundational ||
@@ -728,7 +728,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildVehicleItemActions() {}
 
     // weapon
-    async #buildWeaponItemActions() {
+    async #buildWeaponAttackActions() {
       const meleeWeaponTypes = [
         'heavyMeleeWeapon',
         'lightMeleeWeapon',
@@ -792,7 +792,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const actions = [];
 
         if (isWeapon || type === 'weapon' || type === 'itemUpgrade') {
-          this.addGroup(group, { id: 'weapon', type: 'system' });
+          this.addGroup(group, { id: 'combat', type: 'system' });
 
           const handsReq = weapon.system.handsReq
             ? `Hands: ${weapon.system.handsReq}`
@@ -988,6 +988,43 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           this.addActions(actions, { id: group.id, type: 'system' });
         }
       }
+    }
+
+    #buildWeaponItemActions() {
+      const weapons = this.actor.itemTypes.weapon;
+      const groupData = { id: GROUP.weapon.id, type: 'system' };
+
+      const actions = weapons.map((weapon) => {
+        const { id, img, name } = weapon;
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = undefined;
+        const info2 = undefined;
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = undefined;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
     }
   };
 });

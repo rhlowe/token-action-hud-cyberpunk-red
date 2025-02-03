@@ -34,14 +34,19 @@ export const ACTION_TYPE = {
  */
 export const GROUP = {
   // character: { id: 'character', name: 'TYPES.Actor.character', type: 'system' ...collapsedByDefault, },
-  cyberdeck: {
-    id: 'cyberdeck',
-    name: 'TYPES.Item.cyberdeck',
-    type: 'system',
-  },
   ammo: {
     id: 'ammo',
     name: 'TYPES.Item.ammo',
+    type: 'system',
+  },
+  combat: {
+    id: 'combat',
+    name: 'CPR.effectSheet.keyCategory.combat',
+    type: 'system',
+  },
+  cyberdeck: {
+    id: 'cyberdeck',
+    name: 'TYPES.Item.cyberdeck',
     type: 'system',
   },
   cyberware: {

@@ -36,13 +36,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       },
 
       {
-        nestId: 'weapon',
-        id: 'weapon',
+        nestId: 'combat',
+        id: 'combat',
         name: coreModule.api.Utils.i18n(
-          'CPR.characterSheet.bottomPane.fight.weapons'
+          'CPR.effectSheet.keyCategory.combat'
         ),
         groups: [
-          { ...groups.weapon, nestId: 'weapon_weapon' },
+          { ...groups.combat, nestId: 'combat_combat' },
         ],
       },
 
@@ -65,6 +65,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           { ...groups.ammo, nestId: 'gear_ammo' },
           { ...groups.cyberware, nestId: 'gear_cyberware' },
           { ...groups.gear, nestId: 'gear_gear' },
+          { ...groups.weapon, nestId: 'gear_weapon' },
         ],
       },
 
