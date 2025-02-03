@@ -33,10 +33,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async handleActionClick(event, encodedValue) {
       // console.debug('*** handleActionClick', {event, encodedValue})
       const [actionTypeId, actionId] = encodedValue.split('|');
-      const renderable = ['item'];
 
-      if (renderable.includes(actionTypeId) && this.isRenderItem()) {
-        return this.doRenderItem(this.actor, actionId);
+      /**
+       * Enable right-click on core item types to open the item sheet
+       */
+      const cprItemTypes = Object.keys(this.actor.itemTypes);
+      if (cprItemTypes.includes(actionTypeId) && this.isRenderItem()) {
+        return this.renderItem(this.actor, actionId);
       }
 
       const knownCharacters = ['character'];
