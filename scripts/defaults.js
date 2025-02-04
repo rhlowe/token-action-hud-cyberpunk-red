@@ -36,25 +36,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       },
 
       {
-        nestId: 'weapon',
-        id: 'weapon',
-        name: coreModule.api.Utils.i18n(
-          'CPR.characterSheet.bottomPane.fight.weapons'
-        ),
-        groups: [
-          { ...groups.weapon, nestId: 'weapon_weapon' },
-          { ...groups.cyberware, nestId: 'weapon_cyberware' },
-        ],
+        nestId: 'combat',
+        id: 'combat',
+        name: coreModule.api.Utils.i18n('CPR.effectSheet.keyCategory.combat'),
+        groups: [{ ...groups.combat, nestId: 'combat_combat' }],
       },
 
       {
         nestId: 'netrunning',
         id: 'netrunning',
         name: coreModule.api.Utils.i18n('CPR.effectSheet.keyCategory.netrun'),
-        groups: [
-          { ...groups.interface, nestId: 'netrunning_interface' },
-          // { ...groups.program, nestId: 'netrunning_program' },
-        ],
+        groups: [{ ...groups.interface, nestId: 'netrunning_interface' }],
       },
 
       {
@@ -62,8 +54,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         id: 'gear',
         name: coreModule.api.Utils.i18n('CPR.global.itemTypes.gear'),
         groups: [
+          { ...groups.ammo, nestId: 'gear_ammo' },
+          { ...groups.armor, nestId: 'gear_armor' },
+          { ...groups.clothing, nestId: 'gear_clothing' },
           // { ...groups.cyberdeck, nestId: 'gear_cyberdeck' },
+          { ...groups.cyberware, nestId: 'gear_cyberware' },
+          { ...groups.drug, nestId: 'gear_drug' },
           { ...groups.gear, nestId: 'gear_gear' },
+          { ...groups.itemUpgrade, nestId: 'gear_itemUpgrade' },
+          { ...groups.netarch, nestId: 'gear_netarch' },
+          { ...groups.program, nestId: 'gear_program' },
+          { ...groups.vehicle, nestId: 'gear_vehicle' },
+          { ...groups.weapon, nestId: 'gear_weapon' },
         ],
       },
 

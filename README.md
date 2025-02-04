@@ -7,7 +7,24 @@ Token Action HUD is a repositionable HUD of actions for a selected token.
 # Features
 
 - Make rolls directly from the HUD instead of opening your character sheet.
-- Use items from the HUD or right-click an item to open its sheet.
+  - Skills
+  - Stats
+  - Role Abilities
+  - Facedown
+  - Death Saves
+- Manage weapons
+  - Roll Attack
+  - Roll Damage
+  - Reload
+  - Chage Ammo
+  - Set Fire Mode: Single, Aimed, Suppressive, & Autofire
+- Netrunning (COMING SOON)
+- Manage Active Effects
+- Supports [Condition Lab & Triggler](https://foundryvtt.com/packages/condition-lab-triggler) for Status Effect toggling
+- Roll Initiative
+- Control token visibility
+- End combat turn
+- View Gear in the HUD or right-click an item to open its sheet.
 - Move the HUD and choose to expand the menus up or down.
 - Unlock the HUD to customise layout and groups per user, and actions per actor.
 - Add your own macros, journal entries and roll table compendiums.

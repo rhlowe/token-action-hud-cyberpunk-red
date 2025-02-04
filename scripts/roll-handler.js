@@ -31,12 +31,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} encodedValue The encoded value
      */
     async handleActionClick(event, encodedValue) {
-      // console.debug('*** handleActionClick', {event, encodedValue})
+      // console.debug('*** handleActionClick', {event, encodedValue});
       const [actionTypeId, actionId] = encodedValue.split('|');
-      const renderable = ['item'];
 
-      if (renderable.includes(actionTypeId) && this.isRenderItem()) {
-        return this.doRenderItem(this.actor, actionId);
+      /**
+       * Enable right-click on core item types to open the item sheet
+       */
+      const cprItemTypes = Object.keys(this.actor.itemTypes);
+      if (cprItemTypes.includes(actionTypeId) && this.isRenderItem()) {
+        return this.renderItem(this.actor, actionId);
       }
 
       const knownCharacters = ['character'];
@@ -115,7 +118,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       actionId,
       encodedValue
     ) {
-      // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
+      // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId, encodedValue});
       let tahCprRoll = null;
       let item = null;
 
@@ -127,21 +130,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       if (actionTypeId === 'injury') {
         await this.#handleStatusEffectToggle(actionId, actor);
         return;
-      }
-
-      if (actionTypeId === 'item') {
-        item = actor.getOwnedItem(actionId);
-        // console.debug('*** handleAction item', item);
-
-        switch (item.type) {
-          case ITEM_TYPES.SKILL:
-            tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
-            break;
-          // case 'utility':
-          //   this.#handleUtilityAction(token, actionId);
-          //   break;
-          // default:
-        }
       }
 
       if (
@@ -159,6 +147,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       switch (actionTypeId) {
+        case ROLL_TYPES.SKILL:
+          item = actor.getOwnedItem(actionId);
+          tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
+          break;
+
         case ITEM_TYPES.STAT:
         case ROLL_TYPES.DEATHSAVE:
         case ROLL_TYPES.FACEDOWN:

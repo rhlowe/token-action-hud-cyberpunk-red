@@ -6,6 +6,7 @@
       "effects": "Effects",
       "endTurn": "End Turn",
       "fireMode": "Fire Mode",
+      "quantityString": "x",
       "inactive": "Inactive",
       "injury": "Critical Injuries / Status Effects",
       "permanent": "Permanent",
