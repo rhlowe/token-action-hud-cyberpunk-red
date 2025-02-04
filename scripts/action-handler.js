@@ -114,7 +114,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildCyberdeckItemActions();
       this.#buildCyberwareItemActions();
       this.#buildDrugItemActions();
-      this.#buildGearItemActions()
+      this.#buildGearItemActions();
       this.#buildItemUpgradeItemActions();
       // this.#buildNetarchItemActions();
       this.#buildProgramItemActions();
@@ -581,7 +581,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
         const cssClass = undefined;
-        const info1 = { text: coreModule.api.Utils.i18n(`tokenActionHud.template.quantityString`) + ammoItem.system.amount };
+        const info1 = {
+          text:
+            coreModule.api.Utils.i18n(
+              `tokenActionHud.template.quantityString`
+            ) + ammoItem.system.amount,
+        };
         const info2 = undefined;
         const info3 = undefined;
         const selected = undefined;
@@ -630,14 +635,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       /**
        * Only display all foundational, all non-weapon, and uninstalled weapon Cyberwares.
        */
-      const cyberwares = this.actor.itemTypes.cyberware
-        .filter((c) => {
-          return (
-            c.system.isFoundational ||
-            !c.system.isWeapon ||
-            (c.system.isWeapon && !c.system.isInstalled)
-          );
-        });
+      const cyberwares = this.actor.itemTypes.cyberware.filter((c) => {
+        return (
+          c.system.isFoundational ||
+          !c.system.isWeapon ||
+          (c.system.isWeapon && !c.system.isInstalled)
+        );
+      });
       const groupData = { id: GROUP.cyberware.id, type: 'system' };
 
       const actions = cyberwares.map((cyberware) => {
@@ -701,7 +705,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const { id, img, name } = drug;
         const encodedValue = [groupData.id, id].join(this.delimiter);
         const cssClass = undefined;
-        const info1 = { text: coreModule.api.Utils.i18n(`tokenActionHud.template.quantityString`) + drug.system.amount };
+        const info1 = {
+          text:
+            coreModule.api.Utils.i18n(
+              `tokenActionHud.template.quantityString`
+            ) + drug.system.amount,
+        };
         const info2 = undefined;
         const info3 = undefined;
         const selected = undefined;
@@ -739,7 +748,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const { id, img, name } = gear;
         const encodedValue = [groupData.id, id].join(this.delimiter);
         const cssClass = undefined;
-        const info1 = { text: coreModule.api.Utils.i18n(`tokenActionHud.template.quantityString`) + gear.system.amount };
+        const info1 = {
+          text:
+            coreModule.api.Utils.i18n(
+              `tokenActionHud.template.quantityString`
+            ) + gear.system.amount,
+        };
         const info2 = undefined;
         const info3 = undefined;
         const selected = undefined;
@@ -804,7 +818,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       });
 
       this.addActions(actions, groupData);
-}
+    }
 
     // netarch
     // async #buildNetarchItemActions() {}
@@ -854,19 +868,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildSkillItemActions() {
       const groupData = { id: GROUP.skill.id, type: 'system' };
 
-      const skills = this.actor.itemTypes.skill.filter(skill => {
-        if (
-          ((this.actorType === 'mook' && this.displayMookSkillWithZeroMod === false ) ||
-          (this.actorType === 'character' && this.displayCharacterSkillWithZeroMod === false ))
-          &&
-          skill.system.level === 0
-        ) {
-          return false;
-        };
+      const skills = this.actor.itemTypes.skill
+        .filter((skill) => {
+          if (
+            ((this.actorType === 'mook' &&
+              this.displayMookSkillWithZeroMod === false) ||
+              (this.actorType === 'character' &&
+                this.displayCharacterSkillWithZeroMod === false)) &&
+            skill.system.level === 0
+          ) {
+            return false;
+          }
 
-        return true;
-      }).sort((a, b) => a.name > b.name ? 1 : -1);
-
+          return true;
+        })
+        .sort((a, b) => (a.name > b.name ? 1 : -1));
 
       const actions = skills.map((skill) => {
         const { id, name } = skill;

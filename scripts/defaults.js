@@ -38,12 +38,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       {
         nestId: 'combat',
         id: 'combat',
-        name: coreModule.api.Utils.i18n(
-          'CPR.effectSheet.keyCategory.combat'
-        ),
-        groups: [
-          { ...groups.combat, nestId: 'combat_combat' },
-        ],
+        name: coreModule.api.Utils.i18n('CPR.effectSheet.keyCategory.combat'),
+        groups: [{ ...groups.combat, nestId: 'combat_combat' }],
       },
 
       {
@@ -52,7 +48,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         name: coreModule.api.Utils.i18n('CPR.effectSheet.keyCategory.netrun'),
         groups: [
           { ...groups.interface, nestId: 'netrunning_interface' },
-          // { ...groups.program, nestId: 'netrunning_program' },
         ],
       },
 
@@ -63,9 +58,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         groups: [
           { ...groups.ammo, nestId: 'gear_ammo' },
           { ...groups.armor, nestId: 'gear_armor' },
-          // { ...groups.base, nestId: 'gear_base' },
           { ...groups.clothing, nestId: 'gear_clothing' },
-          // { ...groups.criticalInjury, nestId: 'gear_criticalInjury' },
           // { ...groups.cyberdeck, nestId: 'gear_cyberdeck' },
           { ...groups.cyberware, nestId: 'gear_cyberware' },
           { ...groups.drug, nestId: 'gear_drug' },
