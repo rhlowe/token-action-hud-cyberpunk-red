@@ -798,17 +798,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.delimiter
           );
 
-          let roleItem = Object.assign(await role.clone(),
-            {
-              baseItem: role,
-              encodedValue,
-              name: role.system.mainRoleAbility,
-              rollSubType: 'mainRoleAbility',
-              subRoleName: role.system.mainRoleAbility,
-              type: GROUP.role.id,
-            }
-          );
-
+          let roleItem = Object.assign(await role.clone(), {
+            baseItem: role,
+            encodedValue,
+            name: role.system.mainRoleAbility,
+            rollSubType: 'mainRoleAbility',
+            subRoleName: role.system.mainRoleAbility,
+            type: GROUP.role.id,
+          });
 
           roleMap.set(encodedValue, roleItem);
         }
@@ -820,17 +817,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.delimiter
               );
 
-              let roleSubItem = Object.assign(
-                await role.clone(),
-                {
-                  baseItem: role,
-                  encodedValue: encodedValue,
-                  name: subRole.name,
-                  rollSubType: 'subRoleAbility',
-                  subRoleName: subRole.name,
-                  type: GROUP.role.id,
-                }
-              );
+              let roleSubItem = Object.assign(await role.clone(), {
+                baseItem: role,
+                encodedValue: encodedValue,
+                name: subRole.name,
+                rollSubType: 'subRoleAbility',
+                subRoleName: subRole.name,
+                type: GROUP.role.id,
+              });
 
               roleMap.set(encodedValue, roleSubItem);
             }

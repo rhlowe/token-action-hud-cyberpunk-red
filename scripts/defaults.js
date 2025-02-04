@@ -46,9 +46,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         nestId: 'netrunning',
         id: 'netrunning',
         name: coreModule.api.Utils.i18n('CPR.effectSheet.keyCategory.netrun'),
-        groups: [
-          { ...groups.interface, nestId: 'netrunning_interface' },
-        ],
+        groups: [{ ...groups.interface, nestId: 'netrunning_interface' }],
       },
 
       {
