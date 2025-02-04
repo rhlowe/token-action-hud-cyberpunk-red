@@ -614,10 +614,104 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // armor
-    async #buildArmorItemActions() {}
+    async #buildArmorItemActions() {
+      const armors = this.actor.itemTypes.armor;
+      const groupData = { id: GROUP.armor.id, type: 'system' };
+
+      const actions = armors.map((armor) => {
+        const { id, img, name } = armor;
+
+        const bodyInfo = armor.system.isBodyLocation
+          ? `${coreModule.api.Utils.i18n('CPR.global.location.body')}: ${
+              armor.system.bodyLocation.sp - armor.system.bodyLocation.ablation
+            } / ${armor.system.bodyLocation.sp}`
+          : undefined;
+        const headInfo = armor.system.isHeadLocation
+          ? `${coreModule.api.Utils.i18n('CPR.global.location.head')}: ${
+              armor.system.headLocation.sp - armor.system.headLocation.ablation
+            } / ${armor.system.headLocation.sp}`
+          : undefined;
+        const shieldHp = armor.system.shieldHitPoints
+          ? `${armor.system.shieldHitPoints.value} / ${
+              armor.system.shieldHitPoints.max
+            } ${coreModule.api.Utils.i18n('CPR.global.generic.hitpointsShort')}`
+          : undefined;
+
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = { text: armor.system.equipped };
+        const info2 = {
+          text: armor.system.shieldHitPoints.max ? shieldHp : bodyInfo,
+        };
+        const info3 = { text: headInfo };
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = armor.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // clothing
-    async #buildClothingItemActions() {}
+    async #buildClothingItemActions() {
+      const clothings = this.actor.itemTypes.clothing;
+      const groupData = { id: GROUP.clothing.id, type: 'system' };
+
+      const actions = clothings.map((clothing) => {
+        const { id, img, name } = clothing;
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = {
+          text:
+            coreModule.api.Utils.i18n(
+              `tokenActionHud.template.quantityString`
+            ) + clothing.system.amount,
+        };
+        const info2 = { text: clothing.system.equipped };
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = clothing.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // criticalInjury
     async #buildCriticalInjuryItemActions() {}
