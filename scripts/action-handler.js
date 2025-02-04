@@ -6,6 +6,7 @@ import {
   WEAPON_ACTION_TYPES,
 } from './constants.js';
 import { Utils } from './utils.js';
+import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
 
 export let ActionHandler = null;
 
@@ -105,9 +106,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       this.#buildActiveEffectsToggleActions();
       this.#buildAmmoItemActions();
+      this.#buildArmorItemActions();
+      // this.#buildBaseItemActions();
+      this.#buildClothingItemActions();
       this.#buildConditionLabToggleActions();
+      this.#buildCriticalInjuryItemActions();
+      this.#buildCyberdeckItemActions();
       this.#buildCyberwareItemActions();
+      this.#buildDrugItemActions();
       this.#buildGearItemActions()
+      this.#buildItemUpgradeItemActions();
+      // this.#buildNetarchItemActions();
+      this.#buildProgramItemActions();
+      this.#buildRoleItemActions();
+      this.#buildSkillItemActions();
+      this.#buildVehicleItemActions();
       this.#buildWeaponAttackActions();
       this.#buildWeaponItemActions();
     }
@@ -358,36 +371,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               img = undefined;
               break;
           }
-          let info1, info2;
-
-          if (itemData.type === 'skill') {
-            const camelSkill = Utils.cprCamelCase(itemData.name);
-            // console.debug('*** itemData', {camelSkill, itemData});
-            const level = itemData.system.level;
-            const stat = this.actor.system.stats[itemData.system.stat].value;
-            let tooltipPath;
-            if (!camelSkill.includes('(') && !camelSkill.includes(')')) {
-              tooltipPath = `CPR.global.skill.${itemData.system.stat}ToolTip`;
-            }
-
-            // img = itemData.img;
-            // tooltip = itemData.system?.description?.value ? itemData.system.description.value : game.i18n.localize(tooltipPath);
-            tooltip = itemData.system?.description?.value
-              ? itemData.system.description.value
-              : '';
-
-            let totalMod = level + stat;
-
-            info1 = { text: itemData.system.stat.toUpperCase() };
-            info2 = { text: totalMod.toString() };
-          }
 
           return {
             encodedValue,
             id,
             img,
-            info1,
-            info2,
             listName,
             name,
             tooltip,
@@ -593,7 +581,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
         const cssClass = undefined;
-        const info1 = { text: `QTY: ${ammoItem.system.amount}` };
+        const info1 = { text: coreModule.api.Utils.i18n(`tokenActionHud.template.quantityString`) + ammoItem.system.amount };
         const info2 = undefined;
         const info3 = undefined;
         const selected = undefined;
@@ -626,7 +614,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildArmorItemActions() {}
 
     // base
-    async #buildBaseItemActions() {}
+    // async #buildBaseItemActions() {}
 
     // clothing
     async #buildClothingItemActions() {}
@@ -705,7 +693,42 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // drug
-    async #buildDrugItemActions() {}
+    async #buildDrugItemActions() {
+      const drugs = this.actor.itemTypes.drug;
+      const groupData = { id: GROUP.drug.id, type: 'system' };
+
+      const actions = drugs.map((drug) => {
+        const { id, img, name } = drug;
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = { text: coreModule.api.Utils.i18n(`tokenActionHud.template.quantityString`) + drug.system.amount };
+        const info2 = undefined;
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = drug.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // gear
     async #buildGearItemActions() {
@@ -716,7 +739,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const { id, img, name } = gear;
         const encodedValue = [groupData.id, id].join(this.delimiter);
         const cssClass = undefined;
-        const info1 = undefined;
+        const info1 = { text: coreModule.api.Utils.i18n(`tokenActionHud.template.quantityString`) + gear.system.amount };
         const info2 = undefined;
         const info3 = undefined;
         const selected = undefined;
@@ -746,22 +769,181 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // itemUpgrade
-    async #buildItemUpgradeItemActions() {}
+    async #buildItemUpgradeItemActions() {
+      const itemUpgrades = this.actor.itemTypes.itemUpgrade;
+      const groupData = { id: GROUP.itemUpgrade.id, type: 'system' };
+
+      const actions = itemUpgrades.map((itemUpgrade) => {
+        const { id, img, name } = itemUpgrade;
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = undefined;
+        const info2 = undefined;
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = itemUpgrade.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+}
 
     // netarch
-    async #buildNetarchItemActions() {}
+    // async #buildNetarchItemActions() {}
 
     // program
-    async #buildProgramItemActions() {}
+    async #buildProgramItemActions() {
+      const programs = this.actor.itemTypes.program;
+      const groupData = { id: GROUP.program.id, type: 'system' };
+
+      const actions = programs.map((program) => {
+        const { id, img, name } = program;
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = undefined;
+        const info2 = undefined;
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = program.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // role
     async #buildRoleItemActions() {}
 
     // skill
-    async #buildSkillItemActions() {}
+    async #buildSkillItemActions() {
+      const groupData = { id: GROUP.skill.id, type: 'system' };
+
+      const skills = this.actor.itemTypes.skill.filter(skill => {
+        if (
+          ((this.actorType === 'mook' && this.displayMookSkillWithZeroMod === false ) ||
+          (this.actorType === 'character' && this.displayCharacterSkillWithZeroMod === false ))
+          &&
+          skill.system.level === 0
+        ) {
+          return false;
+        };
+
+        return true;
+      }).sort((a, b) => a.name > b.name ? 1 : -1);
+
+
+      const actions = skills.map((skill) => {
+        const { id, name } = skill;
+        const level = skill.system.level;
+        const stat = this.actor.system.stats[skill.system.stat].value;
+
+        let totalMod = level + stat;
+
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        // const img = undefined;
+        const info1 = { text: skill.system.stat.toUpperCase() };
+        const info2 = { text: totalMod.toString() };
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        // const tooltip = skill.system?.description?.value ? skill.system.description.value : game.i18n.localize(`CPR.global.skill.${camelSkill}ToolTip`);
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          // img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          // tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // vehicle
-    async #buildVehicleItemActions() {}
+    async #buildVehicleItemActions() {
+      const vehicles = this.actor.itemTypes.vehicle;
+      const groupData = { id: GROUP.vehicle.id, type: 'system' };
+
+      const actions = vehicles.map((vehicle) => {
+        const { id, img, name } = vehicle;
+        const encodedValue = [groupData.id, id].join(this.delimiter);
+        const cssClass = undefined;
+        const info1 = undefined;
+        const info2 = undefined;
+        const info3 = undefined;
+        const selected = undefined;
+        const system = 'system';
+        const tooltip = vehicle.system.description.value;
+        const onClick = undefined;
+        const onHover = undefined;
+
+        return {
+          id,
+          name,
+          encodedValue,
+          cssClass,
+          img,
+          info1,
+          info2,
+          info3,
+          selected,
+          system,
+          tooltip,
+          onClick,
+          onHover,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // weapon
     async #buildWeaponAttackActions() {
@@ -1026,7 +1208,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
     }
 
-    #buildWeaponItemActions() {
+    async #buildWeaponItemActions() {
       const weapons = this.actor.itemTypes.weapon;
       const groupData = { id: GROUP.weapon.id, type: 'system' };
 

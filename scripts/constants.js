@@ -34,9 +34,17 @@ export const ACTION_TYPE = {
  */
 export const GROUP = {
   // character: { id: 'character', name: 'TYPES.Actor.character', type: 'system' ...collapsedByDefault, },
-  ammo: {
-    id: 'ammo',
-    name: 'TYPES.Item.ammo',
+  activeEffects: {
+    id: 'activeEffects',
+    name: 'tokenActionHud.template.activeEffects',
+    type: 'system',
+  },
+  ammo: { id: 'ammo', name: 'CPR.global.itemTypes.ammo', type: 'system' },
+  armor: { id: 'armor', name: 'CPR.global.itemTypes.armor', type: 'system' },
+  base: { id: 'base', name: 'CPR.global.itemTypes.base', type: 'system' },
+  clothing: {
+    id: 'clothing',
+    name: 'CPR.global.itemTypes.clothing',
     type: 'system',
   },
   combat: {
@@ -44,14 +52,19 @@ export const GROUP = {
     name: 'CPR.effectSheet.keyCategory.combat',
     type: 'system',
   },
+  criticalInjury: {
+    id: 'criticalInjury',
+    name: 'CPR.global.itemTypes.criticalInjury',
+    type: 'system',
+  },
   cyberdeck: {
     id: 'cyberdeck',
-    name: 'TYPES.Item.cyberdeck',
+    name: 'CPR.global.itemTypes.cyberdeck',
     type: 'system',
   },
   cyberware: {
     id: 'cyberware',
-    name: 'TYPES.Item.cyberware',
+    name: 'CPR.global.itemTypes.cyberware',
     type: 'system',
   },
   deathsave: {
@@ -59,17 +72,13 @@ export const GROUP = {
     name: 'CPR.rolls.deathSave.title',
     type: 'system',
   },
-  activeEffects: {
-    id: 'activeEffects',
-    name: 'tokenActionHud.template.activeEffects',
-    type: 'system',
-  },
+  drug: { id: 'drug', name: 'CPR.global.itemTypes.drug', type: 'system' },
   facedown: {
     id: 'facedown',
     name: 'CPR.global.generic.facedown',
     type: 'system',
   },
-  gear: { id: 'gear', name: 'TYPES.Item.gear', type: 'system' },
+  gear: { id: 'gear', name: 'CPR.global.itemTypes.gear', type: 'system' },
   injury: {
     id: 'injury',
     name: 'tokenActionHud.template.injury',
@@ -80,24 +89,35 @@ export const GROUP = {
     name: 'CPR.global.role.netrunner.ability.interface',
     type: 'system',
   },
+  itemUpgrade: {
+    id: 'itemUpgrade',
+    name: 'CPR.global.itemTypes.itemUpgrade',
+    type: 'system',
+  },
+  netarch: {
+    id: 'netarch',
+    name: 'CPR.global.itemTypes.netarch',
+    type: 'system',
+  },
   program: {
     id: 'program',
     name: 'CPR.global.itemTypes.program',
     type: 'system',
   },
-  role: { id: 'role', name: 'CPR.global.generic.role', type: 'system' },
-  skill: { id: 'skill', name: 'CPR.global.generic.skill', type: 'system' },
+  role: { id: 'role', name: 'CPR.global.itemTypes.role', type: 'system' },
+  skill: { id: 'skill', name: 'CPR.global.itemTypes.skill', type: 'system' },
   stat: { id: 'stat', name: 'CPR.global.generic.stat', type: 'system' },
   utility: {
     id: 'utility',
     name: 'tokenActionHud.template.utility',
     type: 'system',
   },
-  weapon: {
-    id: 'weapon',
-    name: 'CPR.global.itemTypes.weapon',
+  vehicle: {
+    id: 'vehicle',
+    name: 'CPR.global.itemTypes.vehicle',
     type: 'system',
   },
+  weapon: { id: 'weapon', name: 'CPR.global.itemTypes.weapon', type: 'system' },
 };
 
 /**

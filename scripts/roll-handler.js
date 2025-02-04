@@ -31,7 +31,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} encodedValue The encoded value
      */
     async handleActionClick(event, encodedValue) {
-      // console.debug('*** handleActionClick', {event, encodedValue})
+      // console.debug('*** handleActionClick', {event, encodedValue});
       const [actionTypeId, actionId] = encodedValue.split('|');
 
       /**
@@ -132,21 +132,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         return;
       }
 
-      if (actionTypeId === 'item') {
-        item = actor.getOwnedItem(actionId);
-        // console.debug('*** handleAction item', item);
-
-        switch (item.type) {
-          case ITEM_TYPES.SKILL:
-            tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
-            break;
-          // case 'utility':
-          //   this.#handleUtilityAction(token, actionId);
-          //   break;
-          // default:
-        }
-      }
-
       if (
         actionTypeId === 'role' &&
         encodedValue &&
@@ -162,6 +147,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       switch (actionTypeId) {
+        case ROLL_TYPES.SKILL:
+          item = actor.getOwnedItem(actionId);
+          tahCprRoll = item.createRoll(ROLL_TYPES.SKILL, actor);
+          break;
+
         case ITEM_TYPES.STAT:
         case ROLL_TYPES.DEATHSAVE:
         case ROLL_TYPES.FACEDOWN:
