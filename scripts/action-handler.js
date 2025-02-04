@@ -107,7 +107,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildActiveEffectsToggleActions();
       this.#buildAmmoItemActions();
       this.#buildArmorItemActions();
-      // this.#buildBaseItemActions();
       this.#buildClothingItemActions();
       this.#buildConditionLabToggleActions();
       this.#buildCriticalInjuryItemActions();
@@ -116,7 +115,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildDrugItemActions();
       this.#buildGearItemActions();
       this.#buildItemUpgradeItemActions();
-      // this.#buildNetarchItemActions();
       this.#buildProgramItemActions();
       this.#buildRoleItemActions();
       this.#buildSkillItemActions();
@@ -618,9 +616,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     // armor
     async #buildArmorItemActions() {}
 
-    // base
-    // async #buildBaseItemActions() {}
-
     // clothing
     async #buildClothingItemActions() {}
 
@@ -819,9 +814,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       this.addActions(actions, groupData);
     }
-
-    // netarch
-    // async #buildNetarchItemActions() {}
 
     // program
     async #buildProgramItemActions() {
