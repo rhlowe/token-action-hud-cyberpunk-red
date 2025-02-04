@@ -118,7 +118,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       actionId,
       encodedValue
     ) {
-      // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId});
+      // console.debug('*** handleAction default', {event, actor, token, actionTypeId, actionId, encodedValue});
       let tahCprRoll = null;
       let item = null;
 

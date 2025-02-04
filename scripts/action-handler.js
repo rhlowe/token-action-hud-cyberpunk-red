@@ -6,7 +6,6 @@ import {
   WEAPON_ACTION_TYPES,
 } from './constants.js';
 import { Utils } from './utils.js';
-import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
 
 export let ActionHandler = null;
 
@@ -73,7 +72,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           encodedValue: [ROLL_TYPES.NET, 'standard'].join(this.delimiter),
           id: programUUID,
           info1: { text: standard },
-          // listName: stat[0],
           name: coreModule.api.Utils.i18n(`tokenActionHud.template.standard`),
         });
       }
@@ -83,7 +81,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           encodedValue: [ROLL_TYPES.NET, 'blackIce'].join(this.delimiter),
           id: programUUID,
           info1: { text: blackIce },
-          // listName: stat[0],
           name: coreModule.api.Utils.i18n(`TYPES.Actor.blackIce`),
         });
       }
@@ -95,8 +92,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     async #buildCharacterActions() {
-      await this.#buildInventory();
-
       // this.#buildProgramActions();
       this.#buildFVTTCoreActions();
       this.#buildDeathSave();
@@ -109,8 +104,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildArmorItemActions();
       this.#buildClothingItemActions();
       this.#buildConditionLabToggleActions();
-      this.#buildCriticalInjuryItemActions();
-      this.#buildCyberdeckItemActions();
+      // this.#buildCriticalInjuryItemActions();
+      // this.#buildCyberdeckItemActions();
       this.#buildCyberwareItemActions();
       this.#buildDrugItemActions();
       this.#buildGearItemActions();
@@ -236,7 +231,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, actionType].join(this.delimiter),
           id: groupData.id,
-          listName: groupData.id,
           name,
         },
         endCombatTurnAction,
@@ -261,7 +255,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
-          listName: groupData.id,
           name,
         },
       ];
@@ -276,113 +269,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
-          listName: groupData.id,
           name,
         },
       ];
 
       this.addActions(actions, groupData);
-    }
-
-    /**
-     * Build inventory
-     * @private
-     */
-    async #buildInventory() {
-      if (this.items.size === 0) return;
-
-      let actionTypeId = 'item';
-      const inventoryMap = new Map();
-
-      for (const [itemId, itemData] of this.items) {
-        // console.debug('*** itemData', itemData);
-        const type = itemData.type;
-        const { equipped, isWeapon, level } = itemData.system;
-
-        if (type === 'cyberware' || type === 'weapon') continue;
-        // if (type === 'cyberware' && !isWeapon) continue;
-        if (
-          this.displayUnequipped === false &&
-          type === 'weapon' &&
-          equipped !== 'equipped'
-        )
-          continue;
-        if (
-          this.actorType === 'mook' &&
-          this.displayMookSkillWithZeroMod === false &&
-          type === 'skill' &&
-          level === 0
-        )
-          continue;
-        if (
-          this.actorType === 'character' &&
-          this.displayCharacterSkillWithZeroMod === false &&
-          type === 'skill' &&
-          level === 0
-        )
-          continue;
-
-        const typeMap = inventoryMap.get(type) ?? new Map();
-        typeMap.set(itemId, itemData);
-        inventoryMap.set(type, typeMap);
-      }
-
-      for (let [type, typeMap] of inventoryMap) {
-        const groupId = SYSTEM_ITEM_TYPE[type]?.groupId;
-
-        if (!groupId) continue;
-
-        if (type === 'role') {
-          typeMap = await this.#buildRoleActions([type, typeMap]);
-          actionTypeId = 'role';
-        } else {
-          actionTypeId = 'item';
-        }
-
-        const groupData = { id: groupId, type: 'system' };
-
-        // Get actions
-        const actions = [...typeMap].map(([itemId, itemData]) => {
-          let name = itemData.name;
-
-          const id = itemId;
-          const actionTypeName = coreModule.api.Utils.i18n(
-            ACTION_TYPE[actionTypeId]
-          );
-          const listName = `${
-            actionTypeName ? `${actionTypeName}: ` : ''
-          }${name}`;
-          const encodedValue = [actionTypeId, id].join(this.delimiter);
-
-          let img;
-          let tooltip;
-
-          switch (itemData.type) {
-            case 'cyberware':
-            case 'cyberdeck':
-            case 'gear':
-            case 'weapon':
-              img = coreModule.api.Utils.getImage(itemData);
-              tooltip = itemData.system.description.value;
-              break;
-            default:
-              img = undefined;
-              break;
-          }
-
-          return {
-            encodedValue,
-            id,
-            img,
-            listName,
-            name,
-            tooltip,
-          };
-        });
-
-        // console.debug('*** #buildInventory', {actions, groupData});
-        this.addActions(actions, groupData);
-      }
     }
 
     async #buildInterfaceActions() {
@@ -418,7 +309,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           encodedValue: ['interface', id].join(this.delimiter),
           id,
           // info1,
-          listName: id,
           name: game.i18n.localize(
             `CPR.global.role.netrunner.interfaceAbility.${id}`
           ),
@@ -465,56 +355,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
     }
 
-    async #buildRoleActions([type, typeMap]) {
-      const roleMap = new Map();
-
-      typeMap.forEach(async (role) => {
-        if (role.system.hasRoll) {
-          const name = `${role.system.mainRoleAbility} [${role.name}]`;
-          const encodedValue = [role.name, role.system.mainRoleAbility].join(
-            this.delimiter
-          );
-
-          let roleItem = await role.clone();
-          roleItem.baseItem = role;
-          roleItem.name = name;
-          roleItem.rollSubType = 'mainRoleAbility';
-          roleItem.subRoleName = role.system.mainRoleAbility;
-          roleItem.type = type;
-          roleItem.encodedValue = encodedValue;
-
-          roleMap.set(encodedValue, roleItem);
-        }
-
-        if (role.system.abilities.length) {
-          role.system.abilities.forEach(async (subRole) => {
-            if (subRole.hasRoll) {
-              const name = `${subRole.name} [${role.name}]`;
-
-              const encodedValue = [role.name, subRole.name].join(
-                this.delimiter
-              );
-
-              let roleSubItem = await role.clone();
-
-              roleSubItem.baseItem = role;
-              roleSubItem.name = name;
-              roleSubItem.rollSubType = 'subRoleAbility';
-              roleSubItem.subRoleName = subRole.name;
-              roleSubItem.type = type;
-              roleSubItem.encodedValue = encodedValue;
-
-              roleMap.set(encodedValue, roleSubItem);
-            }
-          });
-        }
-      });
-
-      this.actor.system.externalData.secretItems = await roleMap;
-
-      return roleMap;
-    }
-
     async #buildStats() {
       const groupData = { id: 'stat', type: 'system' };
       const actions = Object.entries(this.actor.system.stats)
@@ -558,7 +398,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             encodedValue: ['stat', stat[0]].join(this.delimiter),
             id: stat[0],
             info1: { text: modifier.toString() },
-            listName: stat[0],
             name,
             tooltip,
           };
@@ -948,7 +787,83 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // role
-    async #buildRoleItemActions() {}
+    async #buildRoleItemActions() {
+      const groupData = { id: GROUP.role.id, type: 'system' };
+      const roles = this.actor.itemTypes.role;
+      const roleMap = new Map();
+
+      roles.forEach(async (role) => {
+        if (role.system.hasRoll) {
+          const encodedValue = [role.name, role.system.mainRoleAbility].join(
+            this.delimiter
+          );
+
+          let roleItem = Object.assign(await role.clone(),
+            {
+              baseItem: role,
+              encodedValue,
+              name: role.system.mainRoleAbility,
+              rollSubType: 'mainRoleAbility',
+              subRoleName: role.system.mainRoleAbility,
+              type: GROUP.role.id,
+            }
+          );
+
+
+          roleMap.set(encodedValue, roleItem);
+        }
+
+        if (role.system.abilities.length) {
+          role.system.abilities.forEach(async (subRole) => {
+            if (subRole.hasRoll) {
+              const encodedValue = [role.name, subRole.name].join(
+                this.delimiter
+              );
+
+              let roleSubItem = Object.assign(
+                await role.clone(),
+                {
+                  baseItem: role,
+                  encodedValue: encodedValue,
+                  name: subRole.name,
+                  rollSubType: 'subRoleAbility',
+                  subRoleName: subRole.name,
+                  type: GROUP.role.id,
+                }
+              );
+
+              roleMap.set(encodedValue, roleSubItem);
+            }
+          });
+        }
+      });
+
+      this.actor.system.externalData.secretItems = await roleMap;
+
+      const actions = [...roleMap].map(([itemId, itemData]) => {
+        let name = itemData.name;
+
+        const id = itemId;
+        const actionTypeName = coreModule.api.Utils.i18n(
+          ACTION_TYPE[GROUP.role.id]
+        );
+        const encodedValue = [GROUP.role.id, id].join(this.delimiter);
+
+        let img;
+        let tooltip;
+
+        return {
+          encodedValue,
+          id,
+          img,
+          info1: { text: itemData.baseItem.name },
+          name,
+          tooltip,
+        };
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // skill
     async #buildSkillItemActions() {
