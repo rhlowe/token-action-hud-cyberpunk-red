@@ -341,7 +341,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       switch (actionTypeId) {
         case WEAPON_ACTION_TYPES.CYCLE_EQUIPPED:
-          if (item.type === ITEM_TYPES.WEAPON) {
+          if (item.type === ITEM_TYPES.CYBERDECK || item.type === ITEM_TYPES.WEAPON) {
             Utils.cprCycleEquipState(actor, item);
           }
           break;
@@ -394,7 +394,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           await item._loadItem();
           break;
         case WEAPON_ACTION_TYPES.MEASURE_DV:
-          // return item._setDvTable(actor, this.system.dvTable);
           await item._setDvTable(actor, item.system.dvTable);
           break;
         case WEAPON_ACTION_TYPES.RELOAD:
