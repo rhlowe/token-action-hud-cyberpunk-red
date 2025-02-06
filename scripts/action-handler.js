@@ -562,6 +562,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             cyberdeck.system.favorite
           ),
           nestId: `netrunning_${cyberdeck.id}`,
+          settings: {
+            image: coreModule.api.Utils.getImage(cyberdeck),
+            showTitle: false,
+          },
           type: 'system',
         };
         this.addGroup(group, { id: 'cyberdeck', type: 'system' });
@@ -579,7 +583,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               cyberdeck.id,
             ].join(this.delimiter),
             id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
-            img: coreModule.api.Utils.getImage(cyberdeck),
+            // img: coreModule.api.Utils.getImage(cyberdeck),
             info1: { text: cyberdeck.system.equipped },
             info2: {
               text: `${coreModule.api.Utils.i18n(
@@ -795,7 +799,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     // program
     async #buildProgramInstalledActions() {
       const groupData = { id: GROUP.installed.id, type: 'system' };
-      const activeCyberdeck = this.sortedItemTypes['cyberdeck'].find(
+      const activeCyberdeck = this.sortedItemTypes.cyberdeck.find(
         (deck) => deck.system.equipped === 'equipped'
       );
       if (activeCyberdeck === undefined) {
@@ -1055,6 +1059,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           id: itemId,
           name,
           nestId: `weapon_${weapon.id}`,
+          settings: {
+            image: coreModule.api.Utils.getImage(weapon),
+            showTitle: false,
+          },
           type: 'system',
         };
         const actions = [];
@@ -1076,7 +1084,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.delimiter
               ),
               id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
-              img: coreModule.api.Utils.getImage(weapon),
+              // img: coreModule.api.Utils.getImage(weapon),
               info1: { text: weapon.system.equipped },
               info2: {
                 text: `ROF: ${
