@@ -1176,18 +1176,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             ? `Hands: ${weapon.system.handsReq}`
             : undefined;
 
+          let equipStatus = weapon.system.equipped;
+          if (type === 'itemUpgrade') {
+            const { installedIn } = weapon.system;
+            const baseWeapon = weapons.find(w => w.uuid === installedIn);
+            equipStatus = baseWeapon.system.equipped;
+          }
+
           actions.push(
             // Base Weapon info
             {
               cssClass:
                 'toggle' +
-                (weapon.system.equipped === 'equipped' ? ' active' : ''),
+                (equipStatus === 'equipped' ? ' active' : ''),
               encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
                 this.delimiter
               ),
               id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
               // img: coreModule.api.Utils.getImage(weapon),
-              info1: { text: weapon.system.equipped },
+              info1: { text: equipStatus },
               info2: {
                 text: `ROF: ${
                   !isAimed && !isAutofire && !isSuppressive
@@ -1201,7 +1208,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
           );
 
-          if (type === 'cyberware' || weapon.system.equipped === 'equipped') {
+          if (type === 'cyberware' || equipStatus === 'equipped') {
             actions.push(
               ...[
                 // Aimed Shot:
