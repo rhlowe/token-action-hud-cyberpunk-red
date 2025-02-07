@@ -46,7 +46,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         nestId: 'netrunning',
         id: 'netrunning',
         name: coreModule.api.Utils.i18n('CPR.effectSheet.keyCategory.netrun'),
-        groups: [{ ...groups.interface, nestId: 'netrunning_interface' }],
+        groups: [
+          { ...groups.cyberdeck, nestId: 'netrunning_cyberdecks' },
+          { ...groups.interface, nestId: 'netrunning_interface' },
+          { ...groups.installed, nestId: 'netrunning_installed' },
+        ],
       },
 
       {
@@ -62,7 +66,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           { ...groups.drug, nestId: 'gear_drug' },
           { ...groups.gear, nestId: 'gear_gear' },
           { ...groups.itemUpgrade, nestId: 'gear_itemUpgrade' },
-          { ...groups.netarch, nestId: 'gear_netarch' },
           { ...groups.program, nestId: 'gear_program' },
           { ...groups.vehicle, nestId: 'gear_vehicle' },
           { ...groups.weapon, nestId: 'gear_weapon' },

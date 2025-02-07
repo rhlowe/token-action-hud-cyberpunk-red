@@ -1,8 +1,8 @@
+// /Users/rhlowe/Library/Application Support/FoundryVTT/Data/modules/token-action-hud-cyberpunk-red
 import {
   ACTION_TYPE,
   GROUP,
   ROLL_TYPES,
-  SYSTEM_ITEM_TYPE,
   WEAPON_ACTION_TYPES,
 } from './constants.js';
 import { Utils } from './utils.js';
@@ -11,10 +11,18 @@ export let ActionHandler = null;
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
   // console.debug('*** coreModule', coreModule);
+
   /**
    * Extends Token Action HUD Core's ActionHandler class and builds system-defined actions for the HUD
    */
   ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
+    getFavoritedName(name = '', isFavorite = false, isUpgraded = false) {
+      let returnValue = [isFavorite ? '★' : '', name].join(' ');
+      returnValue = [returnValue, isUpgraded ? '⬆' : ''].join(' ');
+
+      return returnValue;
+    }
+
     /**
      * Build system actions
      * Called by Token Action HUD Core
@@ -22,6 +30,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {array} groupIds
      */
     async buildSystemActions(groupIds) {
+      // console.debug('*** itemTypes', this.actor.itemTypes);
+
+      this.sortedItemTypes = {};
+      for (const name in this.actor.itemTypes) {
+        this.sortedItemTypes[name] = await this.actor.itemTypes[name].sort(
+          (a, b) => {
+            if (a.system.favorite === b.system.favorite) {
+              return a.name.localeCompare(b.name);
+            }
+
+            return a.system.favorite ? -1 : 1;
+          }
+        );
+      }
+
       // Set actor and token variables
       this.actors = !this.actor ? game.canvas.tokens.controlled : [this.actor];
       this.actorType = this.actor?.type;
@@ -92,27 +115,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     async #buildCharacterActions() {
-      // this.#buildProgramActions();
-      this.#buildFVTTCoreActions();
-      this.#buildDeathSave();
-      this.#buildFacedown();
-      this.#buildInterfaceActions();
-      this.#buildStats();
-
+      // this.#buildCriticalInjuryItemActions();
       this.#buildActiveEffectsToggleActions();
       this.#buildAmmoItemActions();
       this.#buildArmorItemActions();
       this.#buildClothingItemActions();
       this.#buildConditionLabToggleActions();
-      // this.#buildCriticalInjuryItemActions();
-      // this.#buildCyberdeckItemActions();
+      this.#buildCyberdeckItemActions();
       this.#buildCyberwareItemActions();
+      this.#buildDeathSave();
       this.#buildDrugItemActions();
+      this.#buildFacedown();
+      this.#buildFVTTCoreActions();
       this.#buildGearItemActions();
+      this.#buildInterfaceActions();
       this.#buildItemUpgradeItemActions();
-      this.#buildProgramItemActions();
+      this.#buildProgramActions();
       this.#buildRoleItemActions();
       this.#buildSkillItemActions();
+      this.#buildStats();
       this.#buildVehicleItemActions();
       this.#buildWeaponAttackActions();
       this.#buildWeaponItemActions();
@@ -121,7 +142,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     #buildActiveEffectsToggleActions() {
       const groupData = { id: GROUP.activeEffects.id, type: 'system' };
 
-      const actions = this.actor.data.effects.map((effect) => {
+      const actions = this.actor.effects.map((effect) => {
         const { disabled, icon, id, name } = effect;
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
@@ -162,7 +183,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       const groupData = { id: GROUP.injury.id, type: 'system' };
-      const cltActiveEffects = this.actor.data.effects
+      const cltActiveEffects = this.actor.effects
         .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
         .filter(Boolean);
 
@@ -211,10 +232,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #buildFVTTCoreActions() {
       const groupData = { id: GROUP.utility.id, type: 'system' };
-      const actionType = 'initiative';
-      const name = coreModule.api.Utils.i18n(`CPR.chat.initiative`);
       let visibiltyString = `tokenActionHud.template.visibility.${
-        this.token.data.hidden ? 'makeVisible' : 'makeInvisible'
+        this.token.document.hidden ? 'makeVisible' : 'makeInvisible'
       }`;
       const endCombatTurnAction =
         game.combat?.current?.tokenId === this.token?.id
@@ -229,9 +248,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       const actions = [
         {
-          encodedValue: [groupData.id, actionType].join(this.delimiter),
+          encodedValue: [groupData.id, 'initiative'].join(this.delimiter),
           id: groupData.id,
-          name,
+          info1: { text: this.actor.system.stats.ref.value.toString() },
+          name: coreModule.api.Utils.i18n(`CPR.chat.initiative`),
         },
         endCombatTurnAction,
         /**
@@ -255,6 +275,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
+          info1: { text: coreModule.api.Utils.i18n(`CPR.global.generic.deathPenalty`) },
+          info2: { text: this.actor.system.derivedStats.deathSave.value.toString() },
           name,
         },
       ];
@@ -269,6 +291,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
+          info1: { text: coreModule.api.Utils.i18n(`CPR.rolls.reputation`) },
+          info2: { text: this.actor.system.reputation.value.toString() },
           name,
         },
       ];
@@ -279,7 +303,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildInterfaceActions() {
       if (this.items.size === 0) return;
 
-      // const activeCyberdeck = Array.from(this.items).find(([itemId, itemData]) => itemData.type === 'cyberdeck' && itemData.system.equipped === 'equipped');
       let activeCyberdeckId;
       for (const [itemId, itemData] of this.items) {
         if (
@@ -295,64 +318,36 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const groupData = { id: 'interface', type: 'system' };
       const actions = [];
       [
-        'backdoor',
-        'cloak',
-        'control',
-        'eyedee',
-        'pathfinder',
-        'scanner',
-        'slide',
-        'virus',
-        'zap',
-      ].forEach((id) => {
+        ['backdoor', 'exit-door'],
+        ['cloak', 'spy'],
+        ['control', 'retro-controller'],
+        ['defense', 'checked-shield'],
+        ['eyedee', 'magnifying-glass'],
+        ['pathfinder', 'treasure-map'],
+        ['scanner', 'compass'],
+        ['slide', 'run'],
+        ['speed', 'speedometer'],
+        ['virus', 'virus'],
+        ['zap', 'bolt-spell-cast'],
+      ].forEach(([id, svg]) => {
+        let name = coreModule.api.Utils.i18n(
+          `CPR.global.role.netrunner.interfaceAbility.${id}`
+        );
+        const imgPath = 'modules/token-action-hud-cyberpunk-red/static/';
+
+        if (id === 'speed' || id === 'defense') {
+          name = coreModule.api.Utils.i18n(`CPR.global.generic.${id}`);
+        }
+
         actions.push({
           encodedValue: ['interface', id].join(this.delimiter),
           id,
-          // info1,
-          name: game.i18n.localize(
-            `CPR.global.role.netrunner.interfaceAbility.${id}`
-          ),
+          img: imgPath + svg + '.svg',
+          name,
         });
       });
 
       this.addActions(actions, groupData);
-    }
-
-    async #buildProgramActions() {
-      if (this.items.size === 0) return;
-
-      const activeCyberdeck = Array.from(this.items).find(
-        ([itemId, itemData]) =>
-          itemData.type === 'cyberdeck' &&
-          itemData.system.equipped === 'equipped'
-      );
-      const installedProgramItems = Array.from(this.items).filter(
-        ([itemId, itemData]) =>
-          itemData.type === 'program' &&
-          itemData.system.installedIn.includes(activeCyberdeck[1].id)
-      );
-
-      // console.debug('*** buildProgramActions', {
-      //   actor: this.actor,
-      //   items: this.items,
-      //   activeCyberdeck,
-      //   installedProgramItems,
-      // });
-
-      let actionTypeId = 'program';
-
-      const inventoryMap = new Map();
-
-      for (const [itemId, itemData] of this.items) {
-        const type = itemData.type;
-        const equipped = itemData.equipped;
-
-        if (equipped || this.displayUnequipped) {
-          const typeMap = inventoryMap.get(type) ?? new Map();
-          typeMap.set(itemId, itemData);
-          inventoryMap.set(type, typeMap);
-        }
-      }
     }
 
     async #buildStats() {
@@ -410,42 +405,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // ammo
     async #buildAmmoItemActions() {
-      const ammo = this.actor.itemTypes.ammo;
+      const ammo = this.sortedItemTypes.ammo;
       const groupData = { id: GROUP.ammo.id, type: 'system' };
 
       const actions = ammo.map((ammoItem) => {
         const { id, img, name } = ammoItem;
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = undefined;
         const info1 = {
           text:
             coreModule.api.Utils.i18n(
               `tokenActionHud.template.quantityString`
             ) + ammoItem.system.amount,
         };
-        const info2 = undefined;
-        const info3 = undefined;
-        const selected = undefined;
         const system = 'system';
         const tooltip = ammoItem.system.description.value;
-        const onClick = undefined;
-        const onHover = undefined;
 
         return {
           id,
-          name,
+          name: this.getFavoritedName(name, ammoItem.system.favorite),
           encodedValue,
-          cssClass,
           img,
           info1,
-          info2,
-          info3,
-          selected,
           system,
           tooltip,
-          onClick,
-          onHover,
         };
       });
 
@@ -454,7 +437,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // armor
     async #buildArmorItemActions() {
-      const armors = this.actor.itemTypes.armor;
+      const armors = this.sortedItemTypes.armor;
       const groupData = { id: GROUP.armor.id, type: 'system' };
 
       const actions = armors.map((armor) => {
@@ -477,32 +460,24 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           : undefined;
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = undefined;
         const info1 = { text: armor.system.equipped };
         const info2 = {
           text: armor.system.shieldHitPoints.max ? shieldHp : bodyInfo,
         };
         const info3 = { text: headInfo };
-        const selected = undefined;
         const system = 'system';
         const tooltip = armor.system.description.value;
-        const onClick = undefined;
-        const onHover = undefined;
 
         return {
           id,
-          name,
+          name: this.getFavoritedName(name, armor.system.favorite),
           encodedValue,
-          cssClass,
           img,
           info1,
           info2,
           info3,
-          selected,
           system,
           tooltip,
-          onClick,
-          onHover,
         };
       });
 
@@ -511,13 +486,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // clothing
     async #buildClothingItemActions() {
-      const clothings = this.actor.itemTypes.clothing;
+      const clothings = this.sortedItemTypes.clothing;
       const groupData = { id: GROUP.clothing.id, type: 'system' };
 
       const actions = clothings.map((clothing) => {
         const { id, img, name } = clothing;
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = undefined;
         const info1 = {
           text:
             coreModule.api.Utils.i18n(
@@ -525,27 +499,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             ) + clothing.system.amount,
         };
         const info2 = { text: clothing.system.equipped };
-        const info3 = undefined;
-        const selected = undefined;
         const system = 'system';
         const tooltip = clothing.system.description.value;
-        const onClick = undefined;
-        const onHover = undefined;
 
         return {
-          id,
-          name,
           encodedValue,
-          cssClass,
+          id,
           img,
           info1,
           info2,
-          info3,
-          selected,
+          name: this.getFavoritedName(name, clothing.system.favorite),
           system,
           tooltip,
-          onClick,
-          onHover,
         };
       });
 
@@ -556,14 +521,67 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildCriticalInjuryItemActions() {}
 
     // cyberdeck
-    async #buildCyberdeckItemActions() {}
+    async #buildCyberdeckItemActions() {
+      const cyberdecks = this.sortedItemTypes.cyberdeck;
+
+      cyberdecks.forEach((cyberdeck) => {
+        const group = {
+          id: cyberdeck.id,
+          name: this.getFavoritedName(
+            cyberdeck.name,
+            cyberdeck.system.favorite
+          ),
+          nestId: `netrunning_${cyberdeck.id}`,
+          settings: {
+            image: coreModule.api.Utils.getImage(cyberdeck),
+            showTitle: false,
+          },
+          type: 'system',
+        };
+        this.addGroup(group, { id: 'cyberdeck', type: 'system' });
+
+        const actions = [];
+
+        actions.push(
+          // Base Cyberdeck info
+          {
+            cssClass:
+              'toggle' +
+              (cyberdeck.system.equipped === 'equipped' ? ' active' : ''),
+            encodedValue: [
+              WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
+              cyberdeck.id,
+            ].join(this.delimiter),
+            id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
+            // img: coreModule.api.Utils.getImage(cyberdeck),
+            info1: { text: cyberdeck.system.equipped },
+            info2: {
+              text: `${coreModule.api.Utils.i18n(
+                'CPR.itemSheet.container.availableSlots'
+              )} ${
+                cyberdeck.system.installedItems.slots -
+                cyberdeck.system.installedItems.usedSlots
+              } / ${cyberdeck.system.installedItems.slots}`,
+            },
+            info3: { text: '' },
+            name: this.getFavoritedName(
+              cyberdeck.name,
+              cyberdeck.system.favorite
+            ),
+            tooltip: cyberdeck.system.description.value,
+          }
+        );
+
+        this.addActions(actions, { id: group.id, type: 'system' });
+      });
+    }
 
     // cyberware
     async #buildCyberwareItemActions() {
       /**
        * Only display all foundational, all non-weapon, and uninstalled weapon Cyberwares.
        */
-      const cyberwares = this.actor.itemTypes.cyberware.filter((c) => {
+      const cyberwares = this.sortedItemTypes.cyberware.filter((c) => {
         return (
           c.system.isFoundational ||
           !c.system.isWeapon ||
@@ -626,7 +644,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // drug
     async #buildDrugItemActions() {
-      const drugs = this.actor.itemTypes.drug;
+      const drugs = this.sortedItemTypes.drug;
       const groupData = { id: GROUP.drug.id, type: 'system' };
 
       const actions = drugs.map((drug) => {
@@ -669,7 +687,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // gear
     async #buildGearItemActions() {
-      const gears = this.actor.itemTypes.gear;
+      const gears = this.sortedItemTypes.gear;
       const groupData = { id: GROUP.gear.id, type: 'system' };
 
       const actions = gears.map((gear) => {
@@ -712,7 +730,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // itemUpgrade
     async #buildItemUpgradeItemActions() {
-      const itemUpgrades = this.actor.itemTypes.itemUpgrade;
+      const itemUpgrades = this.sortedItemTypes.itemUpgrade;
       const groupData = { id: GROUP.itemUpgrade.id, type: 'system' };
 
       const actions = itemUpgrades.map((itemUpgrade) => {
@@ -749,47 +767,207 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // program
-    async #buildProgramItemActions() {
-      const programs = this.actor.itemTypes.program;
-      const groupData = { id: GROUP.program.id, type: 'system' };
+    async #buildProgramActions() {
+      const groupData = { id: GROUP.installed.id, type: 'system' };
+      const activeCyberdeck = this.sortedItemTypes.cyberdeck.find(
+        (deck) => deck.system.equipped === 'equipped'
+      );
+      if (activeCyberdeck === undefined) {
+        return;
+      }
+      const installed = activeCyberdeck.system.programs.installed;
+      // console.debug('*** buildProgramActions', {
+      //   activeCyberdeck,
+      //   installed,
+      // });
 
-      const actions = programs.map((program) => {
-        const { id, img, name } = program;
-        const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = undefined;
-        const info1 = undefined;
-        const info2 = undefined;
-        const info3 = undefined;
-        const selected = undefined;
-        const system = 'system';
-        const tooltip = program.system.description.value;
-        const onClick = undefined;
-        const onHover = undefined;
+      installed.forEach((program) => {
+        const programReference = program.isRezzed
+          ? activeCyberdeck.system.programs.rezzed.find(
+              (rezzedProgram) => rezzedProgram.uuid === program.uuid
+            )
+          : program;
+        const id = programReference.uuid;
+        const name = programReference.name;
+        let programClass = '';
 
-        return {
+        switch (programReference.class) {
+          case 'antipersonnelattacker':
+            programClass = coreModule.api.Utils.i18n(
+              `CPR.global.programClass.antiPersonnelAttacker`
+            );
+            break;
+          case 'antiprogramattacker':
+            programClass = coreModule.api.Utils.i18n(
+              `CPR.global.programClass.antiProgramAttacker`
+            );
+            break;
+          default:
+            programClass = coreModule.api.Utils.i18n(
+              `CPR.global.programClass.${programReference.class}`
+            );
+        }
+
+        const group = {
           id,
           name,
-          encodedValue,
-          cssClass,
-          img,
-          info1,
-          info2,
-          info3,
-          selected,
-          system,
-          tooltip,
-          onClick,
-          onHover,
+          nestId: `installed_${programReference.uuid}`,
+          settings: {
+            image:
+              'systems/cyberpunk-red-core/icons/compendium/default/Default_Program.svg',
+            showTitle: false,
+            // style: 'list',
+            // style: 'tab',
+          },
+          type: 'system',
         };
-      });
+        const actions = [];
+        this.addGroup(group, { id: 'installed', type: 'system' });
 
-      this.addActions(actions, groupData);
+        const programAction = programReference.isRezzed ? 'derez' : 'rez';
+
+        actions.push({
+          cssClass: 'toggle' + (programReference.isRezzed ? ' active' : ''),
+          encodedValue: [programAction, programReference.uuid].join(
+            this.delimiter
+          ),
+          id,
+          info1: { text: programClass },
+          info2: programReference.isRezzed
+            ? {
+                text: coreModule.api.Utils.i18n(
+                  'CPR.characterSheet.bottomPane.fight.rezzed'
+                ),
+              }
+            : undefined,
+          name,
+          tooltip: program.description.value,
+        });
+
+        const programStats = {
+          atk: 'CPR.global.blackIce.stats.atk',
+          def: 'CPR.global.blackIce.stats.def',
+          per: 'CPR.global.blackIce.stats.per',
+          spd: 'CPR.global.blackIce.stats.spd',
+          rez: 'CPR.global.generic.rez',
+        };
+
+        if (programReference.isRezzed) {
+          switch (programReference.class) {
+            case 'booster':
+            case 'defender':
+              ['atk', 'def', 'rez'].forEach((stat) => {
+                actions.push({
+                  id: stat,
+                  info1: { text: programReference[stat].toString() },
+                  name: coreModule.api.Utils.i18n(programStats[stat]),
+                });
+              });
+              actions.push(
+                ...[
+                  {
+                    encodedValue: ['rollDef', programReference.uuid].join(this.delimiter),
+                    id: 'rollDef',
+                    info1: { class: 'fas fa-shield red-fg', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.rollDefense'
+                    ),
+                  },
+                  {
+                    encodedValue: ['reduce-rez', programReference.uuid].join(
+                      this.delimiter
+                    ),
+                    id: 'reduce-rez',
+                    info1: { class: 'far fa-minus-square', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.reduceRez'
+                    ),
+                  },
+                  {
+                    encodedValue: ['reset-rez', programReference.uuid].join(
+                      this.delimiter
+                    ),
+                    id: 'reset-rez',
+                    info1: { class: 'fas fa-undo', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.resetRez'
+                    ),
+                  },
+                ]
+              );
+              break;
+
+            case 'antipersonnelattacker':
+            case 'antiprogramattacker':
+              ['atk'].forEach((stat) => {
+                actions.push({
+                  // encodedValue: [stat, name].join(this.delimiter),
+                  id: stat,
+                  info1: { text: programReference[stat].toString() },
+                  name: coreModule.api.Utils.i18n(
+                    `CPR.global.blackIce.stats.${stat}`
+                  ),
+                });
+              });
+
+              actions.push(
+                ...[
+                  {
+                    encodedValue: ['rollAnAttack', programReference.uuid].join(this.delimiter),
+                    id: 'rollAnAttack',
+                    info1: { class: 'fas fa-fist-raised red-fg', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.rollAnAttack'
+                    ),
+                  },
+                  {
+                    encodedValue: ['rollDamage', programReference.uuid].join(this.delimiter),
+                    id: 'rollDamage',
+                    info1: { class: 'fas fa-tint red-fg', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.actorSheets.commonActions.rollDamage'
+                    ),
+                  },
+                ]
+              );
+              break;
+
+            case 'blackice':
+              ['atk', 'def', 'per', 'spd', 'rez'].forEach((stat) => {
+                actions.push({
+                  // encodedValue: [stat, name].join(this.delimiter),
+                  id: stat,
+                  info1: { text: programReference[stat].toString() },
+                  name: coreModule.api.Utils.i18n(programStats[stat]),
+                });
+              });
+              break;
+          }
+
+          actions.push({
+            encodedValue: ['erase', programReference.uuid].join(this.delimiter),
+            id: 'erase',
+            info1: {
+              class: 'fas fa-folder-minus',
+              text: ' ',
+            },
+            name: coreModule.api.Utils.i18n(
+              'CPR.characterSheet.bottomPane.fight.eraseProgram'
+            ),
+            tooltip: `${coreModule.api.Utils.i18n(
+              'CPR.characterSheet.bottomPane.fight.eraseProgram'
+            )}: ${programReference.name}`,
+          });
+        }
+
+        this.addActions(actions, { id: group.id, type: 'system' });
+      });
     }
 
     // role
     async #buildRoleItemActions() {
       const groupData = { id: GROUP.role.id, type: 'system' };
-      const roles = this.actor.itemTypes.role;
+      const roles = this.sortedItemTypes.role;
       const roleMap = new Map();
 
       roles.forEach(async (role) => {
@@ -851,6 +1029,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           id,
           img,
           info1: { text: itemData.baseItem.name },
+          info2: { text: itemData.baseItem.system.rank },
           name,
           tooltip,
         };
@@ -863,55 +1042,41 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildSkillItemActions() {
       const groupData = { id: GROUP.skill.id, type: 'system' };
 
-      const skills = this.actor.itemTypes.skill
-        .filter((skill) => {
-          if (
-            ((this.actorType === 'mook' &&
-              this.displayMookSkillWithZeroMod === false) ||
-              (this.actorType === 'character' &&
-                this.displayCharacterSkillWithZeroMod === false)) &&
-            skill.system.level === 0
-          ) {
-            return false;
-          }
+      const skills = this.sortedItemTypes.skill.filter((skill) => {
+        if (
+          ((this.actorType === 'mook' &&
+            this.displayMookSkillWithZeroMod === false) ||
+            (this.actorType === 'character' &&
+              this.displayCharacterSkillWithZeroMod === false)) &&
+          skill.system.level === 0
+        ) {
+          return false;
+        }
 
-          return true;
-        })
-        .sort((a, b) => (a.name > b.name ? 1 : -1));
+        return true;
+      });
 
       const actions = skills.map((skill) => {
         const { id, name } = skill;
+
         const level = skill.system.level;
         const stat = this.actor.system.stats[skill.system.stat].value;
 
         let totalMod = level + stat;
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = undefined;
-        // const img = undefined;
         const info1 = { text: skill.system.stat.toUpperCase() };
         const info2 = { text: totalMod.toString() };
-        const info3 = undefined;
-        const selected = undefined;
         const system = 'system';
         // const tooltip = skill.system?.description?.value ? skill.system.description.value : game.i18n.localize(`CPR.global.skill.${camelSkill}ToolTip`);
-        const onClick = undefined;
-        const onHover = undefined;
 
         return {
-          id,
-          name,
           encodedValue,
-          cssClass,
-          // img,
+          id,
           info1,
           info2,
-          info3,
-          selected,
+          name: this.getFavoritedName(name, skill.system.favorite),
           system,
-          // tooltip,
-          onClick,
-          onHover,
         };
       });
 
@@ -920,36 +1085,24 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // vehicle
     async #buildVehicleItemActions() {
-      const vehicles = this.actor.itemTypes.vehicle;
+      const vehicles = this.sortedItemTypes.vehicle;
       const groupData = { id: GROUP.vehicle.id, type: 'system' };
 
       const actions = vehicles.map((vehicle) => {
         const { id, img, name } = vehicle;
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = undefined;
         const info1 = undefined;
-        const info2 = undefined;
-        const info3 = undefined;
-        const selected = undefined;
         const system = 'system';
         const tooltip = vehicle.system.description.value;
-        const onClick = undefined;
-        const onHover = undefined;
 
         return {
-          id,
-          name,
           encodedValue,
-          cssClass,
+          id,
           img,
           info1,
-          info2,
-          info3,
-          selected,
+          name: this.getFavoritedName(name, vehicle.system.favorite),
           system,
           tooltip,
-          onClick,
-          onHover,
         };
       });
 
@@ -958,16 +1111,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     // weapon
     async #buildWeaponAttackActions() {
-      const meleeWeaponTypes = [
-        'heavyMeleeWeapon',
-        'lightMeleeWeapon',
-        'mediumMeleeWeapon',
-        'veryHeavyMeleeWeapon',
-      ];
       // Core weapon items & cyberware
       const weapons = [
-        ...this.actor.itemTypes.weapon,
-        ...this.actor.itemTypes.cyberware,
+        ...this.sortedItemTypes.weapon,
+        ...this.sortedItemTypes.cyberware,
       ];
 
       //  Is ATTACHED to a weapon, like an extended magazine, will be listed as part of the weapon it is attached to.
@@ -977,14 +1124,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       for (const weapon of weapons) {
         const itemId = weapon.id;
         const { type } = weapon;
-
-        const { isWeapon } = weapon.system;
-        const { isUpgraded, upgrades } = weapon.system;
+        const { isUpgraded, isWeapon, upgrades } = weapon.system;
 
         if (isUpgraded) {
           upgrades.forEach((upgrade) => {
             if (upgrade.system.modifiers.secondaryWeapon.configured) {
-              const upgradeWeapon = this.actor.itemTypes.itemUpgrade.find(
+              const upgradeWeapon = this.sortedItemTypes.itemUpgrade.find(
                 (t) => t.id === upgrade._id
               );
               weapons.push(upgradeWeapon);
@@ -1010,12 +1155,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         if (type === 'cyberware' && !isWeapon) continue;
 
-        const name = weapon.name + (isUpgraded ? ' ⬆️' : '');
+        const name = this.getFavoritedName(
+          weapon.name,
+          weapon.system.favorite,
+          weapon.system.isUpgraded
+        );
 
         const group = {
           id: itemId,
           name,
           nestId: `weapon_${weapon.id}`,
+          settings: {
+            image: coreModule.api.Utils.getImage(weapon),
+            showTitle: false,
+          },
           type: 'system',
         };
         const actions = [];
@@ -1027,18 +1180,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             ? `Hands: ${weapon.system.handsReq}`
             : undefined;
 
+          let equipStatus = weapon.system.equipped;
+          if (type === 'itemUpgrade') {
+            const { installedIn } = weapon.system;
+            const baseWeapon = weapons.find(w => w.uuid === installedIn);
+            equipStatus = baseWeapon.system.equipped;
+          }
+
           actions.push(
             // Base Weapon info
             {
               cssClass:
                 'toggle' +
-                (weapon.system.equipped === 'equipped' ? ' active' : ''),
+                (equipStatus === 'equipped' ? ' active' : ''),
               encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
                 this.delimiter
               ),
               id: WEAPON_ACTION_TYPES.CYCLE_EQUIPPED,
-              img: coreModule.api.Utils.getImage(weapon),
-              info1: { text: weapon.system.equipped },
+              // img: coreModule.api.Utils.getImage(weapon),
+              info1: { text: equipStatus },
               info2: {
                 text: `ROF: ${
                   !isAimed && !isAutofire && !isSuppressive
@@ -1052,7 +1212,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
           );
 
-          if (type === 'cyberware' || weapon.system.equipped === 'equipped') {
+          if (type === 'cyberware' || equipStatus === 'equipped') {
             actions.push(
               ...[
                 // Aimed Shot:
@@ -1167,7 +1327,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               !weapon.system.isRanged ||
               (weapon.system.isRanged && weapon.system.magazine.value)
             ) {
-              const skillItem = Array.from(this.items.values()).find(
+              const skillItem = this.sortedItemTypes.skill.find(
                 (skill) => skill.name === weapon.system.weaponSkill
               );
               const skillMod = skillItem.system.level ?? 0;
@@ -1220,36 +1380,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     async #buildWeaponItemActions() {
-      const weapons = this.actor.itemTypes.weapon;
+      const weapons = this.sortedItemTypes.weapon;
       const groupData = { id: GROUP.weapon.id, type: 'system' };
 
       const actions = weapons.map((weapon) => {
         const { id, img, name } = weapon;
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = undefined;
-        const info1 = undefined;
-        const info2 = undefined;
-        const info3 = undefined;
-        const selected = undefined;
         const system = 'system';
         const tooltip = weapon.system.description.value;
-        const onClick = undefined;
-        const onHover = undefined;
 
         return {
           id,
-          name,
+          name: this.getFavoritedName(
+            name,
+            weapon.system.favorite,
+            weapon.system.isUpgraded
+          ),
           encodedValue,
-          cssClass,
           img,
-          info1,
-          info2,
-          info3,
-          selected,
           system,
           tooltip,
-          onClick,
-          onHover,
         };
       });
 

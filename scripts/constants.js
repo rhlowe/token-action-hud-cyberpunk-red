@@ -84,6 +84,11 @@ export const GROUP = {
     name: 'tokenActionHud.template.injury',
     type: 'system',
   },
+  installed: {
+    id: 'installed',
+    name: "CPR.characterSheet.bottomPane.fight.installed" ,
+    type: 'system',
+  },
   interface: {
     id: 'interface',
     name: 'CPR.global.role.netrunner.ability.interface',
@@ -102,6 +107,11 @@ export const GROUP = {
   program: {
     id: 'program',
     name: 'CPR.global.itemTypes.program',
+    type: 'system',
+  },
+  rezzed: {
+    id: 'rezzed',
+    name: "CPR.characterSheet.bottomPane.fight.rezzed" ,
     type: 'system',
   },
   role: { id: 'role', name: 'CPR.global.itemTypes.role', type: 'system' },
@@ -149,6 +159,7 @@ export const SYSTEM_ITEM_TYPE = {
 export const ACTOR_TYPES = ['blackIce', 'character', 'demon', 'mook'];
 
 export const ITEM_TYPES = {
+  CYBERDECK: 'cyberdeck',
   CYBERWARE: 'cyberware',
   SKILL: 'skill',
   STAT: 'stat',
