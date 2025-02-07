@@ -232,8 +232,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     async #buildFVTTCoreActions() {
       const groupData = { id: GROUP.utility.id, type: 'system' };
-      const actionType = 'initiative';
-      const name = coreModule.api.Utils.i18n(`CPR.chat.initiative`);
       let visibiltyString = `tokenActionHud.template.visibility.${
         this.token.data.hidden ? 'makeVisible' : 'makeInvisible'
       }`;
@@ -250,9 +248,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       const actions = [
         {
-          encodedValue: [groupData.id, actionType].join(this.delimiter),
+          encodedValue: [groupData.id, 'initiative'].join(this.delimiter),
           id: groupData.id,
-          name,
+          info1: { text: this.actor.system.stats.ref.value.toString() },
+          name: coreModule.api.Utils.i18n(`CPR.chat.initiative`),
         },
         endCombatTurnAction,
         /**
@@ -276,6 +275,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
+          info1: { text: coreModule.api.Utils.i18n(`CPR.global.generic.deathPenalty`) },
+          info2: { text: this.actor.system.derivedStats.deathSave.value.toString() },
           name,
         },
       ];
@@ -290,6 +291,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
+          info1: { text: coreModule.api.Utils.i18n(`CPR.rolls.reputation`) },
+          info2: { text: this.actor.system.reputation.value.toString() },
           name,
         },
       ];
@@ -1026,6 +1029,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           id,
           img,
           info1: { text: itemData.baseItem.name },
+          info2: { text: itemData.baseItem.system.rank },
           name,
           tooltip,
         };
