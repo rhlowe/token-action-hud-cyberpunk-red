@@ -326,7 +326,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         });
       }
 
-      token = token === null ? null : token.data._id;
+      token = token === null ? null : token.document.id;
       const targetedTokens =
         CPRSystemUtils.getUserTargetedOrSelected('targeted'); // get user targeted tokens for output to chat
 
@@ -383,7 +383,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     async #handleActiveEffectToggle(actionId, actor) {
-      const effect = actor.data.effects.get(actionId);
+      const effect = actor.effects.get(actionId);
       await effect.update({ disabled: !effect.disabled });
       Hooks.callAll('forceUpdateTokenActionHud');
     }

@@ -142,7 +142,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     #buildActiveEffectsToggleActions() {
       const groupData = { id: GROUP.activeEffects.id, type: 'system' };
 
-      const actions = this.actor.data.effects.map((effect) => {
+      const actions = this.actor.effects.map((effect) => {
         const { disabled, icon, id, name } = effect;
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
@@ -183,7 +183,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       const groupData = { id: GROUP.injury.id, type: 'system' };
-      const cltActiveEffects = this.actor.data.effects
+      const cltActiveEffects = this.actor.effects
         .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
         .filter(Boolean);
 
@@ -233,7 +233,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildFVTTCoreActions() {
       const groupData = { id: GROUP.utility.id, type: 'system' };
       let visibiltyString = `tokenActionHud.template.visibility.${
-        this.token.data.hidden ? 'makeVisible' : 'makeInvisible'
+        this.token.document.hidden ? 'makeVisible' : 'makeInvisible'
       }`;
       const endCombatTurnAction =
         game.combat?.current?.tokenId === this.token?.id
