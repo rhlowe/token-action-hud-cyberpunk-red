@@ -1,5 +1,7 @@
 # Token Action HUD for Cyberpunk RED
 
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/rhlowe/token-action-hud-cyberpunk-red)
+
 Token Action HUD is a repositionable HUD of actions for a selected token.
 
 ![Token Action HUD](static/tah.gif)
