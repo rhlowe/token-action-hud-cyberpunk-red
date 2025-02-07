@@ -50,7 +50,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           { ...groups.cyberdeck, nestId: 'netrunning_cyberdecks' },
           { ...groups.interface, nestId: 'netrunning_interface' },
           { ...groups.installed, nestId: 'netrunning_installed' },
-          { ...groups.rezzed, nestId: 'netrunning_rezzed' },
         ],
       },
 
@@ -67,7 +66,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           { ...groups.drug, nestId: 'gear_drug' },
           { ...groups.gear, nestId: 'gear_gear' },
           { ...groups.itemUpgrade, nestId: 'gear_itemUpgrade' },
-          { ...groups.netarch, nestId: 'gear_netarch' },
           { ...groups.program, nestId: 'gear_program' },
           { ...groups.vehicle, nestId: 'gear_vehicle' },
           { ...groups.weapon, nestId: 'gear_weapon' },

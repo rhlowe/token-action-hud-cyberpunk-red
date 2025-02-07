@@ -122,14 +122,58 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       let tahCprRoll = null;
       let item = null;
 
-      if (actionTypeId === 'activeEffects') {
-        await this.#handleActiveEffectToggle(actionId, actor);
-        return;
+      const activeCyberdeck = actor.itemTypes.cyberdeck.find(
+        (deck) => deck.system.equipped === 'equipped'
+      );
+      let program;
+
+      if (['derez','rez','reduce-rez','reset-rez', 'erase'].includes(actionTypeId)) {
+        program = actor.getOwnedItem(actionId);
       }
 
-      if (actionTypeId === 'injury') {
-        await this.#handleStatusEffectToggle(actionId, actor);
-        return;
+      switch (actionTypeId) {
+        case 'rez':
+          if (!activeCyberdeck.isRezzed(program)) {
+            await activeCyberdeck.rezProgram(program, token);
+            actor.sheet._updateOwnedItem(activeCyberdeck);
+          }
+          return;
+        case 'derez':
+          if (activeCyberdeck.isRezzed(program)) {
+            await activeCyberdeck.derezProgram(program);
+            actor.sheet._updateOwnedItem(activeCyberdeck);
+          }
+          return;
+        case 'reduce-rez':
+          if (activeCyberdeck.isRezzed(program)) {
+            await activeCyberdeck.reduceRezProgram(program);
+            actor.sheet._updateOwnedItem(activeCyberdeck);
+          }
+          return;
+        case 'reset-rez':
+          /**
+           * reimpliments CPR's cyberdeck.resetRezProgram(program) but searches for uuid instead of id
+           */
+          if (activeCyberdeck.isRezzed(program)) {
+            const { rezzed } = activeCyberdeck.system.programs;
+            const rezzedIndex = rezzed.findIndex((p) => p.uuid === program.uuid);
+            const { installed } = activeCyberdeck.system.programs;
+            const installedIndex = installed.findIndex((p) => p.uuid === program.uuid);
+            activeCyberdeck.system.programs.rezzed[rezzedIndex] = activeCyberdeck.system.programs.installed[installedIndex];
+            actor.sheet._updateOwnedItem(activeCyberdeck);
+          }
+          return;
+        case 'erase':
+          console.debug('*** erase', {activeCyberdeck, program});
+          await activeCyberdeck.uninstallItems([program]);
+          await activeCyberdeck.syncPrograms();
+          return;
+        case 'activeEffects':
+          await this.#handleActiveEffectToggle(actionId, actor);
+          return;
+        case 'injury':
+          await this.#handleStatusEffectToggle(actionId, actor);
+          return;
       }
 
       if (
@@ -163,12 +207,44 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             tahCprRoll = actor.createStatRoll(actionId);
           }
           break;
+
+        case 'rollAnAttack':
+          tahCprRoll = activeCyberdeck.createRoll('cyberdeckProgram', actor, {
+            programUUID: actionId,
+            netRoleItem: {
+              system: {
+                ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
+              }
+            },
+            executionType: 'atk'
+          });
+          break;
+
+        case 'rollDamage':
+          tahCprRoll = activeCyberdeck.createRoll('cyberdeckProgram', actor, {
+            programUUID: actionId,
+            netRoleItem: {
+              system: {
+                ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
+              }
+            },
+            executionType: 'damage'
+          });
+          break;
+
+        case 'rollDef':
+          tahCprRoll = activeCyberdeck.createRoll('cyberdeckProgram', actor, {
+            programUUID: actionId,
+            netRoleItem: {
+              system: {
+                ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
+              }
+            },
+            executionType: 'def'
+          });
+          break;
+
         case ROLL_TYPES.INTERFACEABILITY:
-          const activeCyberdeck = Array.from(actor.items).find(
-            (itemData) =>
-              itemData.type === 'cyberdeck' &&
-              itemData.system.equipped === 'equipped'
-          );
           const netRoleItem = actor.itemTypes.role.find(
             (r) => r.id === actor.system.roleInfo.activeNetRole
           );

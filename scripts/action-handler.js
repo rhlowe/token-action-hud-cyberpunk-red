@@ -30,7 +30,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {array} groupIds
      */
     async buildSystemActions(groupIds) {
-      console.debug('***', this.actor.itemTypes);
+      // console.debug('*** itemTypes', this.actor.itemTypes);
 
       this.sortedItemTypes = {};
       for (const name in this.actor.itemTypes) {
@@ -44,7 +44,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }
         );
       }
-      console.debug('*** this.sortedItemTypes', this.sortedItemTypes);
 
       // Set actor and token variables
       this.actors = !this.actor ? game.canvas.tokens.controlled : [this.actor];
@@ -132,8 +131,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildInterfaceActions();
       this.#buildItemUpgradeItemActions();
       this.#buildProgramActions();
-      this.#buildProgramInstalledActions();
-      this.#buildProgramRezzedActions();
       this.#buildRoleItemActions();
       this.#buildSkillItemActions();
       this.#buildStats();
@@ -348,36 +345,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       });
 
       this.addActions(actions, groupData);
-    }
-
-    async #buildProgramActions() {
-      if (this.items.size === 0) return;
-
-      const activeCyberdeck = Array.from(this.items).find(
-        ([itemId, itemData]) =>
-          itemData.type === 'cyberdeck' &&
-          itemData.system.equipped === 'equipped'
-      );
-      const installedProgramItems = Array.from(this.items).filter(
-        ([itemId, itemData]) =>
-          itemData.type === 'program' &&
-          itemData.system.installedIn.includes(activeCyberdeck[1].id)
-      );
-
-      let actionTypeId = 'program';
-
-      const inventoryMap = new Map();
-
-      for (const [itemId, itemData] of this.items) {
-        const type = itemData.type;
-        const equipped = itemData.equipped;
-
-        if (equipped || this.displayUnequipped) {
-          const typeMap = inventoryMap.get(type) ?? new Map();
-          typeMap.set(itemId, itemData);
-          inventoryMap.set(type, typeMap);
-        }
-      }
     }
 
     async #buildStats() {
@@ -797,7 +764,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // program
-    async #buildProgramInstalledActions() {
+    async #buildProgramActions() {
       const groupData = { id: GROUP.installed.id, type: 'system' };
       const activeCyberdeck = this.sortedItemTypes.cyberdeck.find(
         (deck) => deck.system.equipped === 'equipped'
@@ -806,57 +773,192 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         return;
       }
       const installed = activeCyberdeck.system.programs.installed;
-      console.debug('*** buildProgramInstalledActions', {
-        activeCyberdeck,
-        installed,
-      });
-    }
-
-    async #buildProgramRezzedActions() {
-      const groupData = { id: GROUP.rezzed.id, type: 'system' };
-      const activeCyberdeck = this.sortedItemTypes['cyberdeck'].find(
-        (deck) => deck.system.equipped === 'equipped'
-      );
-      if (activeCyberdeck === undefined) {
-        return;
-      }
-      const rezzed = activeCyberdeck.system.programs.rezzed;
-      console.debug('*** buildProgramRezzedActions', {
-        activeCyberdeck,
-        rezzed,
-      });
-
-      // const actions = programs.map((program) => {
-      //   const { id, img, name } = program;
-      //   const encodedValue = [groupData.id, id].join(this.delimiter);
-      //   const cssClass = undefined;
-      //   const info1 = undefined;
-      //   const info2 = undefined;
-      //   const info3 = undefined;
-      //   const selected = undefined;
-      //   const system = 'system';
-      //   const tooltip = program.system.description.value;
-      //   const onClick = undefined;
-      //   const onHover = undefined;
-
-      //   return {
-      //     id,
-      //     name,
-      //     encodedValue,
-      //     cssClass,
-      //     img,
-      //     info1,
-      //     info2,
-      //     info3,
-      //     selected,
-      //     system,
-      //     tooltip,
-      //     onClick,
-      //     onHover,
-      //   };
+      // console.debug('*** buildProgramActions', {
+      //   activeCyberdeck,
+      //   installed,
       // });
 
-      // this.addActions(actions, groupData);
+      installed.forEach((program) => {
+        const programReference = program.isRezzed
+          ? activeCyberdeck.system.programs.rezzed.find(
+              (rezzedProgram) => rezzedProgram.uuid === program.uuid
+            )
+          : program;
+        const id = programReference.uuid;
+        const name = programReference.name;
+        let programClass = '';
+
+        switch (programReference.class) {
+          case 'antipersonnelattacker':
+            programClass = coreModule.api.Utils.i18n(
+              `CPR.global.programClass.antiPersonnelAttacker`
+            );
+            break;
+          case 'antiprogramattacker':
+            programClass = coreModule.api.Utils.i18n(
+              `CPR.global.programClass.antiProgramAttacker`
+            );
+            break;
+          default:
+            programClass = coreModule.api.Utils.i18n(
+              `CPR.global.programClass.${programReference.class}`
+            );
+        }
+
+        const group = {
+          id,
+          name,
+          nestId: `installed_${programReference.uuid}`,
+          settings: {
+            image:
+              'systems/cyberpunk-red-core/icons/compendium/default/Default_Program.svg',
+            showTitle: false,
+            // style: 'list',
+            // style: 'tab',
+          },
+          type: 'system',
+        };
+        const actions = [];
+        this.addGroup(group, { id: 'installed', type: 'system' });
+
+        const programAction = programReference.isRezzed ? 'derez' : 'rez';
+
+        actions.push({
+          cssClass: 'toggle' + (programReference.isRezzed ? ' active' : ''),
+          encodedValue: [programAction, programReference.uuid].join(
+            this.delimiter
+          ),
+          id,
+          info1: { text: programClass },
+          info2: programReference.isRezzed
+            ? {
+                text: coreModule.api.Utils.i18n(
+                  'CPR.characterSheet.bottomPane.fight.rezzed'
+                ),
+              }
+            : undefined,
+          name,
+          tooltip: program.description.value,
+        });
+
+        const programStats = {
+          atk: 'CPR.global.blackIce.stats.atk',
+          def: 'CPR.global.blackIce.stats.def',
+          per: 'CPR.global.blackIce.stats.per',
+          spd: 'CPR.global.blackIce.stats.spd',
+          rez: 'CPR.global.generic.rez',
+        };
+
+        if (programReference.isRezzed) {
+          switch (programReference.class) {
+            case 'booster':
+            case 'defender':
+              ['atk', 'def', 'rez'].forEach((stat) => {
+                actions.push({
+                  id: stat,
+                  info1: { text: programReference[stat].toString() },
+                  name: coreModule.api.Utils.i18n(programStats[stat]),
+                });
+              });
+              actions.push(
+                ...[
+                  {
+                    encodedValue: ['rollDef', programReference.uuid].join(this.delimiter),
+                    id: 'rollDef',
+                    info1: { class: 'fas fa-shield red-fg', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.rollDefense'
+                    ),
+                  },
+                  {
+                    encodedValue: ['reduce-rez', programReference.uuid].join(
+                      this.delimiter
+                    ),
+                    id: 'reduce-rez',
+                    info1: { class: 'far fa-minus-square', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.reduceRez'
+                    ),
+                  },
+                  {
+                    encodedValue: ['reset-rez', programReference.uuid].join(
+                      this.delimiter
+                    ),
+                    id: 'reset-rez',
+                    info1: { class: 'fas fa-undo', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.resetRez'
+                    ),
+                  },
+                ]
+              );
+              break;
+
+            case 'antipersonnelattacker':
+            case 'antiprogramattacker':
+              ['atk'].forEach((stat) => {
+                actions.push({
+                  // encodedValue: [stat, name].join(this.delimiter),
+                  id: stat,
+                  info1: { text: programReference[stat].toString() },
+                  name: coreModule.api.Utils.i18n(
+                    `CPR.global.blackIce.stats.${stat}`
+                  ),
+                });
+              });
+
+              actions.push(
+                ...[
+                  {
+                    encodedValue: ['rollAnAttack', programReference.uuid].join(this.delimiter),
+                    id: 'rollAnAttack',
+                    info1: { class: 'fas fa-fist-raised red-fg', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.characterSheet.bottomPane.fight.rollAnAttack'
+                    ),
+                  },
+                  {
+                    encodedValue: ['rollDamage', programReference.uuid].join(this.delimiter),
+                    id: 'rollDamage',
+                    info1: { class: 'fas fa-tint red-fg', text: ' ' },
+                    name: coreModule.api.Utils.i18n(
+                      'CPR.actorSheets.commonActions.rollDamage'
+                    ),
+                  },
+                ]
+              );
+              break;
+
+            case 'blackice':
+              ['atk', 'def', 'per', 'spd', 'rez'].forEach((stat) => {
+                actions.push({
+                  // encodedValue: [stat, name].join(this.delimiter),
+                  id: stat,
+                  info1: { text: programReference[stat].toString() },
+                  name: coreModule.api.Utils.i18n(programStats[stat]),
+                });
+              });
+              break;
+          }
+
+          actions.push({
+            encodedValue: ['erase', programReference.uuid].join(this.delimiter),
+            id: 'erase',
+            info1: {
+              class: 'fas fa-folder-minus',
+              text: ' ',
+            },
+            name: coreModule.api.Utils.i18n(
+              'CPR.characterSheet.bottomPane.fight.eraseProgram'
+            ),
+            tooltip: `${coreModule.api.Utils.i18n(
+              'CPR.characterSheet.bottomPane.fight.eraseProgram'
+            )}: ${programReference.name}`,
+          });
+        }
+
+        this.addActions(actions, { id: group.id, type: 'system' });
+      });
     }
 
     // role
@@ -1278,7 +1380,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         return {
           id,
-          name: this.getFavoritedName(name, weapon.system.favorite, weapon.system.isUpgraded),
+          name: this.getFavoritedName(
+            name,
+            weapon.system.favorite,
+            weapon.system.isUpgraded
+          ),
           encodedValue,
           img,
           system,
