@@ -174,6 +174,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         case 'injury':
           await this.#handleStatusEffectToggle(actionId, actor);
           return;
+        case 'ledger':
+          console.debug('***', actionId);
+          await this.actor.sheet.showLedger(actionId);
+          return;
       }
 
       if (

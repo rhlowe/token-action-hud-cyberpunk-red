@@ -134,6 +134,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildGearItemActions();
       this.#buildInterfaceActions();
       this.#buildItemUpgradeItemActions();
+      this.#buildLedgerActions();
       this.#buildProgramActions();
       this.#buildRoleItemActions();
       this.#buildSkillItemActions();
@@ -349,6 +350,41 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           img: imgPath + svg + '.svg',
           name,
         });
+      });
+
+      this.addActions(actions, groupData);
+    }
+
+    async #buildLedgerActions() {
+      const groupData = { id: GROUP.ledger.id, type: 'system' };
+
+      const actions = [
+        'improvementPoints',
+        'reputation',
+        'wealth',
+      ].map(ledger => {
+        let info2 = '';
+
+        switch(ledger) {
+          case 'improvementPoints':
+            info2 = this.actor.system.improvementPoints.value.toString();
+            break;
+          case 'reputation':
+            info2 = this.actor.system.reputation.value.toString();
+            break;
+          case 'wealth':
+            info2 = `${Number(this.actor.system.wealth.value).toLocaleString()} eb`;
+            break;
+        }
+
+        return {
+          encodedValue: ['ledger', ledger].join(this.delimiter),
+          id: ledger,
+          info1: { class: 'fas fa-sticky-note', text: ' ' },
+          info2: { text: info2 },
+          name: coreModule.api.Utils.i18n(`CPR.ledger.${ledger.toLowerCase()}`),
+          tooltip: coreModule.api.Utils.i18n('CPR.ledger.ledgerOpen'),
+        };
       });
 
       this.addActions(actions, groupData);

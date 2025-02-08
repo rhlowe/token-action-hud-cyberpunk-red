@@ -6,10 +6,11 @@
       "effects": "Effects",
       "endTurn": "End Turn",
       "fireMode": "Fire Mode",
-      "quantityString": "x",
       "inactive": "Inactive",
       "injury": "Critical Injuries / Status Effects",
+      "ledgers": "Ledgers",
       "permanent": "Permanent",
+      "quantityString": "x",
       "settings": {
         "displayUnequipped": {
           "hint": "Choose whether to display unequipped items on the HUD",

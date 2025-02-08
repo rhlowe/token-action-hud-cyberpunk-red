@@ -99,6 +99,11 @@ export const GROUP = {
     name: 'CPR.global.itemTypes.itemUpgrade',
     type: 'system',
   },
+  ledger: {
+    id: 'netarch',
+    name: 'tokenActionHud.template.ledgers',
+    type: 'system',
+  },
   netarch: {
     id: 'netarch',
     name: 'CPR.global.itemTypes.netarch',
