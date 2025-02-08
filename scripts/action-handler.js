@@ -280,8 +280,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
-          info1: { text: coreModule.api.Utils.i18n(`CPR.global.generic.deathPenalty`) },
-          info2: { text: this.actor.system.derivedStats.deathSave.value.toString() },
+          info1: {
+            text: coreModule.api.Utils.i18n(`CPR.global.generic.deathPenalty`),
+          },
+          info2: {
+            text: this.actor.system.derivedStats.deathSave.value.toString(),
+          },
           name,
         },
       ];
@@ -358,34 +362,36 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async #buildLedgerActions() {
       const groupData = { id: GROUP.ledger.id, type: 'system' };
 
-      const actions = [
-        'improvementPoints',
-        'reputation',
-        'wealth',
-      ].map(ledger => {
-        let info2 = '';
+      const actions = ['improvementPoints', 'reputation', 'wealth'].map(
+        (ledger) => {
+          let info2 = '';
 
-        switch(ledger) {
-          case 'improvementPoints':
-            info2 = this.actor.system.improvementPoints.value.toString();
-            break;
-          case 'reputation':
-            info2 = this.actor.system.reputation.value.toString();
-            break;
-          case 'wealth':
-            info2 = `${Number(this.actor.system.wealth.value).toLocaleString()} eb`;
-            break;
+          switch (ledger) {
+            case 'improvementPoints':
+              info2 = this.actor.system.improvementPoints.value.toString();
+              break;
+            case 'reputation':
+              info2 = this.actor.system.reputation.value.toString();
+              break;
+            case 'wealth':
+              info2 = `${Number(
+                this.actor.system.wealth.value
+              ).toLocaleString()} eb`;
+              break;
+          }
+
+          return {
+            encodedValue: ['ledger', ledger].join(this.delimiter),
+            id: ledger,
+            info1: { class: 'fas fa-sticky-note', text: ' ' },
+            info2: { text: info2 },
+            name: coreModule.api.Utils.i18n(
+              `CPR.ledger.${ledger.toLowerCase()}`
+            ),
+            tooltip: coreModule.api.Utils.i18n('CPR.ledger.ledgerOpen'),
+          };
         }
-
-        return {
-          encodedValue: ['ledger', ledger].join(this.delimiter),
-          id: ledger,
-          info1: { class: 'fas fa-sticky-note', text: ' ' },
-          info2: { text: info2 },
-          name: coreModule.api.Utils.i18n(`CPR.ledger.${ledger.toLowerCase()}`),
-          tooltip: coreModule.api.Utils.i18n('CPR.ledger.ledgerOpen'),
-        };
-      });
+      );
 
       this.addActions(actions, groupData);
     }
@@ -906,7 +912,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               actions.push(
                 ...[
                   {
-                    encodedValue: ['rollDef', programReference.uuid].join(this.delimiter),
+                    encodedValue: ['rollDef', programReference.uuid].join(
+                      this.delimiter
+                    ),
                     id: 'rollDef',
                     info1: { class: 'fas fa-shield red-fg', text: ' ' },
                     name: coreModule.api.Utils.i18n(
@@ -953,7 +961,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               actions.push(
                 ...[
                   {
-                    encodedValue: ['rollAnAttack', programReference.uuid].join(this.delimiter),
+                    encodedValue: ['rollAnAttack', programReference.uuid].join(
+                      this.delimiter
+                    ),
                     id: 'rollAnAttack',
                     info1: { class: 'fas fa-fist-raised red-fg', text: ' ' },
                     name: coreModule.api.Utils.i18n(
@@ -961,7 +971,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                   },
                   {
-                    encodedValue: ['rollDamage', programReference.uuid].join(this.delimiter),
+                    encodedValue: ['rollDamage', programReference.uuid].join(
+                      this.delimiter
+                    ),
                     id: 'rollDamage',
                     info1: { class: 'fas fa-tint red-fg', text: ' ' },
                     name: coreModule.api.Utils.i18n(
@@ -1223,7 +1235,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           let equipStatus = weapon.system.equipped;
           if (type === 'itemUpgrade') {
             const { installedIn } = weapon.system;
-            const baseWeapon = weapons.find(w => w.uuid === installedIn);
+            const baseWeapon = weapons.find((w) => w.uuid === installedIn);
             equipStatus = baseWeapon.system.equipped;
           }
 
@@ -1231,8 +1243,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Base Weapon info
             {
               cssClass:
-                'toggle' +
-                (equipStatus === 'equipped' ? ' active' : ''),
+                'toggle' + (equipStatus === 'equipped' ? ' active' : ''),
               encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
                 this.delimiter
               ),

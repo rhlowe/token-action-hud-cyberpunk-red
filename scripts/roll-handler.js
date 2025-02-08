@@ -127,7 +127,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       );
       let program;
 
-      if (['derez','rez','reduce-rez','reset-rez', 'erase'].includes(actionTypeId)) {
+      if (
+        ['derez', 'rez', 'reduce-rez', 'reset-rez', 'erase'].includes(
+          actionTypeId
+        )
+      ) {
         program = actor.getOwnedItem(actionId);
       }
 
@@ -156,15 +160,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
            */
           if (activeCyberdeck.isRezzed(program)) {
             const { rezzed } = activeCyberdeck.system.programs;
-            const rezzedIndex = rezzed.findIndex((p) => p.uuid === program.uuid);
+            const rezzedIndex = rezzed.findIndex(
+              (p) => p.uuid === program.uuid
+            );
             const { installed } = activeCyberdeck.system.programs;
-            const installedIndex = installed.findIndex((p) => p.uuid === program.uuid);
-            activeCyberdeck.system.programs.rezzed[rezzedIndex] = activeCyberdeck.system.programs.installed[installedIndex];
+            const installedIndex = installed.findIndex(
+              (p) => p.uuid === program.uuid
+            );
+            activeCyberdeck.system.programs.rezzed[rezzedIndex] =
+              activeCyberdeck.system.programs.installed[installedIndex];
             actor.sheet._updateOwnedItem(activeCyberdeck);
           }
           return;
         case 'erase':
-          console.debug('*** erase', {activeCyberdeck, program});
           await activeCyberdeck.uninstallItems([program]);
           await activeCyberdeck.syncPrograms();
           return;
@@ -175,7 +183,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           await this.#handleStatusEffectToggle(actionId, actor);
           return;
         case 'ledger':
-          console.debug('***', actionId);
           await this.actor.sheet.showLedger(actionId);
           return;
       }
@@ -218,9 +225,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             netRoleItem: {
               system: {
                 ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
-              }
+              },
             },
-            executionType: 'atk'
+            executionType: 'atk',
           });
           break;
 
@@ -230,9 +237,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             netRoleItem: {
               system: {
                 ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
-              }
+              },
             },
-            executionType: 'damage'
+            executionType: 'damage',
           });
           break;
 
@@ -242,9 +249,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             netRoleItem: {
               system: {
                 ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
-              }
+              },
             },
-            executionType: 'def'
+            executionType: 'def',
           });
           break;
 
@@ -421,7 +428,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       switch (actionTypeId) {
         case WEAPON_ACTION_TYPES.CYCLE_EQUIPPED:
-          if (item.type === ITEM_TYPES.CYBERDECK || item.type === ITEM_TYPES.WEAPON) {
+          if (
+            item.type === ITEM_TYPES.CYBERDECK ||
+            item.type === ITEM_TYPES.WEAPON
+          ) {
             Utils.cprCycleEquipState(actor, item);
           }
           break;

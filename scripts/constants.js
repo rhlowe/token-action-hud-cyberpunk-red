@@ -86,7 +86,7 @@ export const GROUP = {
   },
   installed: {
     id: 'installed',
-    name: "CPR.characterSheet.bottomPane.fight.installed" ,
+    name: 'CPR.characterSheet.bottomPane.fight.installed',
     type: 'system',
   },
   interface: {
@@ -116,7 +116,7 @@ export const GROUP = {
   },
   rezzed: {
     id: 'rezzed',
-    name: "CPR.characterSheet.bottomPane.fight.rezzed" ,
+    name: 'CPR.characterSheet.bottomPane.fight.rezzed',
     type: 'system',
   },
   role: { id: 'role', name: 'CPR.global.itemTypes.role', type: 'system' },
