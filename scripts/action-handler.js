@@ -32,6 +32,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async buildSystemActions(groupIds) {
       // console.debug('*** itemTypes', this.actor.itemTypes);
 
+      if (game.canvas.tokens.controlled.length > 1) {
+        return;
+      }
+
       this.sortedItemTypes = {};
       for (const name in this.actor.itemTypes) {
         this.sortedItemTypes[name] = await this.actor.itemTypes[name].sort(
