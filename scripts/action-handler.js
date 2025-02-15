@@ -368,14 +368,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
           switch (ledger) {
             case 'improvementPoints':
-              info2 = this.actor.system.improvementPoints.value.toString();
+              info2 = this.actor.system.improvementPoints?.value.toString();
               break;
             case 'reputation':
-              info2 = this.actor.system.reputation.value.toString();
+              info2 = this.actor.system.reputation?.value.toString();
               break;
             case 'wealth':
               info2 = `${Number(
-                this.actor.system.wealth.value
+                this.actor.system.wealth?.value
               ).toLocaleString()} eb`;
               break;
           }
