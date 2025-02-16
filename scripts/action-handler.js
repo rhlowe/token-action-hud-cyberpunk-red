@@ -172,8 +172,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     #buildActiveEffectsToggleActions() {
       const groupData = { id: GROUP.activeEffects.id, type: 'system' };
-      // appliedEffects not activeEffects
-      const actions = this.actor.effects.map((effect) => {
+      // appliedEffects
+      const cltActiveEffects = this.actor.effects
+        .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
+        .filter(Boolean);
+      const actorEffects = [
+        ...this.actor.effects.filter(effect => !cltActiveEffects.includes(effect.flags['condition-lab-triggler']?.conditionId)),
+        // ...this.actor.appliedEffects,
+      ]
+
+      const actions = actorEffects.map((effect) => {
         const { disabled, icon, id, name } = effect;
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
