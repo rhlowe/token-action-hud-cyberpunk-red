@@ -8,6 +8,7 @@
       "fireMode": "Fire Mode",
       "inactive": "Inactive",
       "injury": "Critical Injuries / Status Effects",
+      "injuryTooltip": "<p>Left-click injury to remove. Right-click injury to open description</p>",
       "ledgers": "Ledgers",
       "permanent": "Permanent",
       "quantityString": "x",

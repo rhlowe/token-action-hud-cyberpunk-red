@@ -25,6 +25,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           { ...groups.role, nestId: 'character_role' },
           { ...groups.facedown, nestId: 'character_facedown' },
           { ...groups.ledger, nestId: 'character_ledger' },
+          { ...groups.criticalInjury, nestId: 'character_criticalInjury' },
           { ...groups.deathsave, nestId: 'character_deathsave' },
         ],
       },

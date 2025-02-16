@@ -182,6 +182,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         case 'injury':
           await this.#handleStatusEffectToggle(actionId, actor);
           return;
+        case 'criticalInjury':
+          if (actionId === 'rollCriticalInjury') {
+            await this.token.actor.sheet._rollCriticalInjury();
+            return;
+        }
+          await this.#handleRemoveCriticalInjury(actionId, actor);
+          return;
         case 'ledger':
           await this.actor.sheet.showLedger(actionId);
           return;
@@ -260,13 +267,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             (r) => r.id === actor.system.roleInfo.activeNetRole
           );
 
-          // if (!netRoleItem) {
-          //   const error = SystemUtils.Localize(
-          //     "CPR.messages.noNetrunningRoleConfigured"
-          //   );
-          //   SystemUtils.DisplayMessage("error", error);
-          //   return;
-          // }
+          if (!netRoleItem) {
+            const error = CPRSystemUtils.Localize(
+              "CPR.messages.noNetrunningRoleConfigured"
+            );
+            CPRSystemUtils.DisplayMessage("error", error);
+            return;
+          }
 
           tahCprRoll = activeCyberdeck.createRoll('interfaceAbility', actor, {
             interfaceAbility: actionId,
@@ -398,6 +405,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       if (effect) {
         await effect.update({ disabled: !effect.disabled });
         Hooks.callAll('forceUpdateTokenActionHud');
+      }
+    }
+
+    async #handleRemoveCriticalInjury(actionId, actor) {
+      const injury = this.actor.getOwnedItem(actionId);
+      if (injury) {
+        await this.actor.sheet._deleteOwnedItem(injury);
       }
     }
 

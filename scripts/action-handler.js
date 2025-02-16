@@ -145,12 +145,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     async #buildCharacterActions() {
-      // this.#buildCriticalInjuryItemActions();
       this.#buildActiveEffectsToggleActions();
       this.#buildAmmoItemActions();
       this.#buildArmorItemActions();
       this.#buildClothingItemActions();
       this.#buildConditionLabToggleActions();
+      this.#buildCriticalInjuryItemActions();
       this.#buildCyberdeckItemActions();
       this.#buildCyberwareItemActions();
       this.#buildDeathSave();
@@ -626,7 +626,41 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // criticalInjury
-    async #buildCriticalInjuryItemActions() {}
+    async #buildCriticalInjuryItemActions() {
+      const groupData = { id: GROUP.criticalInjury.id, type: 'system' };
+      const criticalInjuries = this.actor.itemTypes.criticalInjury;
+      const actions = [
+        // Roll Critical Injury
+        {
+          encodedValue: [groupData.id, 'rollCriticalInjury'].join(
+            this.delimiter
+          ),
+          id: 'rollCriticalInjury',
+          info1: { class: 'fas fa-dice', text: ' ' },
+          name: coreModule.api.Utils.i18n(
+            'CPR.characterSheet.bottomPane.fight.criticalInjuryRoll'
+          ),
+          system: 'system',
+          tooltip: '',
+        },
+      ];
+
+      criticalInjuries.forEach((injury) => {
+        actions.push({
+          cssClass: 'toggle active',
+          encodedValue: [groupData.id, injury.id].join(
+            this.delimiter
+          ),
+          id: injury.id,
+          img: injury.img,
+          name: injury.name,
+          system: 'system',
+          tooltip: (injury.system.description.value + coreModule.api.Utils.i18n('tokenActionHud.template.injuryTooltip')),
+        });
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // cyberdeck
     async #buildCyberdeckItemActions() {
