@@ -394,9 +394,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     async #handleActiveEffectToggle(actionId, actor) {
-      const effect = actor.effects.get(actionId);
-      await effect.update({ disabled: !effect.disabled });
-      Hooks.callAll('forceUpdateTokenActionHud');
+      const effect = Array.from(actor.allApplicableEffects()).find(e => e.id === actionId);
+      if (effect) {
+        await effect.update({ disabled: !effect.disabled });
+        Hooks.callAll('forceUpdateTokenActionHud');
+      }
     }
 
     async #handleStatusEffectToggle(actionId, actor) {

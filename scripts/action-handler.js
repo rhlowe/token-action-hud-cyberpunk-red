@@ -172,27 +172,50 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     #buildActiveEffectsToggleActions() {
       const groupData = { id: GROUP.activeEffects.id, type: 'system' };
-      // appliedEffects
+
+      // const actorEffects = this.actor.effects;
+      const allApplicableEffects = Array.from(
+        this.actor.allApplicableEffects()
+      );
+      // const appliedEffects = this.actor.appliedEffects;
       const cltActiveEffects = this.actor.effects
         .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
         .filter(Boolean);
-      const actorEffects = [
-        ...this.actor.effects.filter(effect => !cltActiveEffects.includes(effect.flags['condition-lab-triggler']?.conditionId)),
-        // ...this.actor.appliedEffects,
-      ]
+      const allActorEffects = [
+        // ...actorEffects,
+        ...allApplicableEffects,
+        // ...appliedEffects,
+      ].filter(
+        (effect) =>
+          !cltActiveEffects.includes(
+            effect.flags['condition-lab-triggler']?.conditionId
+          )
+      );
 
-      const actions = actorEffects.map((effect) => {
-        const { disabled, icon, id, name } = effect;
+      // console.debug('*** allApplicableEffects', {
+      //   allActorEffects,
+      //   actorEffects,
+      //   allApplicableEffects,
+      //   appliedEffects,
+      //   cltActiveEffects,
+      // });
+
+      const actions = allActorEffects.map((effect) => {
+        // const actions = actorEffects.map((effect) => {
+        const { active, icon, id, name, usage } = effect;
+        const effectTooltip = coreModule.api.Utils.i18n(
+          `CPR.effectSheet.uses.${usage ?? 'toggled'}`
+        );
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = 'toggle' + (!disabled ? ' active' : '');
+        const cssClass = 'toggle' + (active ? ' active' : '');
         const img = icon;
-        const info1 = '';
+        const info1 = { text: effectTooltip };
         const info2 = '';
         const info3 = '';
-        const selected = !disabled;
+        const selected = active;
         const system = 'system';
-        const tooltip = ''; // '<ul><li>foo</li><li>bars</li></ul>'?
+        const tooltip = ''; // effectTooltip // '<ul><li>foo</li><li>bars</li></ul>'?
         const onClick = undefined;
         const onHover = undefined;
 
@@ -225,6 +248,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const cltActiveEffects = this.actor.effects
         .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
         .filter(Boolean);
+      // console.debug('*** #buildConditionLabToggleActions', {
+      //   cltActiveEffects,
+      //   ['clt.conditions']: game.clt.conditions,
+      //   criticalInjury: this.token.actor.itemTypes.criticalInjury,
+      // });
 
       const actions = game.clt.conditions.map((condition) => {
         const { icon, id, name } = condition;
