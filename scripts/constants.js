@@ -86,7 +86,7 @@ export const GROUP = {
   },
   installed: {
     id: 'installed',
-    name: "CPR.characterSheet.bottomPane.fight.installed" ,
+    name: 'CPR.characterSheet.bottomPane.fight.installed',
     type: 'system',
   },
   interface: {
@@ -97,6 +97,11 @@ export const GROUP = {
   itemUpgrade: {
     id: 'itemUpgrade',
     name: 'CPR.global.itemTypes.itemUpgrade',
+    type: 'system',
+  },
+  ledger: {
+    id: 'netarch',
+    name: 'tokenActionHud.template.ledgers',
     type: 'system',
   },
   netarch: {
@@ -111,7 +116,7 @@ export const GROUP = {
   },
   rezzed: {
     id: 'rezzed',
-    name: "CPR.characterSheet.bottomPane.fight.rezzed" ,
+    name: 'CPR.characterSheet.bottomPane.fight.rezzed',
     type: 'system',
   },
   role: { id: 'role', name: 'CPR.global.itemTypes.role', type: 'system' },

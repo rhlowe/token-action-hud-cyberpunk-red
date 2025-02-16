@@ -32,6 +32,45 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     async buildSystemActions(groupIds) {
       // console.debug('*** itemTypes', this.actor.itemTypes);
 
+      if (game.canvas.tokens.controlled.length > 1) {
+        return;
+      }
+
+      // Settings
+      this.displayCharacterSkillWithZeroMod = Utils.getSetting(
+        'displayCharacterSkillWithZeroMod'
+      );
+      this.displayMookSkillWithZeroMod = Utils.getSetting(
+        'displayMookSkillWithZeroMod'
+      );
+      // this.displayUnequipped = Utils.getSetting('displayUnequipped');
+      this.equipThrownWeapon = Utils.getSetting('equipThrownWeapon');
+      this.equipUnarmed = Utils.getSetting('equipUnarmed');
+
+      if (this.actor?.type === 'character' || this.actor?.type === 'mook') {
+        if (
+          this.equipUnarmed &&
+          !this.actor.items.find((item) => item.name === 'Unarmed')
+        ) {
+          // Item ID X6VYB5awDbtURwIv is "Unarmed" in the CPR compendium.
+          let item = await game.packs
+            .get('cyberpunk-red-core.core_weapons')
+            .getDocument('X6VYB5awDbtURwIv');
+          await this.actor.createEmbeddedDocuments('Item', [item]);
+        }
+
+        if (
+          this.equipThrownWeapon &&
+          !this.actor.items.find((item) => item.name === 'Thrown Weapon')
+        ) {
+          // Item ID 29p2bEfPcAWHpsTY is "Thrown Weapon" in the CPR compendium.
+          let item = await game.packs
+            .get('cyberpunk-red-core.core_weapons')
+            .getDocument('29p2bEfPcAWHpsTY');
+          await this.actor.createEmbeddedDocuments('Item', [item]);
+        }
+      }
+
       this.sortedItemTypes = {};
       for (const name in this.actor.itemTypes) {
         this.sortedItemTypes[name] = await this.actor.itemTypes[name].sort(
@@ -48,15 +87,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       // Set actor and token variables
       this.actors = !this.actor ? game.canvas.tokens.controlled : [this.actor];
       this.actorType = this.actor?.type;
-
-      // Settings
-      this.displayMookSkillWithZeroMod = Utils.getSetting(
-        'displayMookSkillWithZeroMod'
-      );
-      this.displayCharacterSkillWithZeroMod = Utils.getSetting(
-        'displayCharacterSkillWithZeroMod'
-      );
-      this.displayUnequipped = Utils.getSetting('displayUnequipped');
 
       // Set items variable
       if (this.actor) {
@@ -115,12 +145,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @private
      */
     async #buildCharacterActions() {
-      // this.#buildCriticalInjuryItemActions();
       this.#buildActiveEffectsToggleActions();
       this.#buildAmmoItemActions();
       this.#buildArmorItemActions();
       this.#buildClothingItemActions();
       this.#buildConditionLabToggleActions();
+      this.#buildCriticalInjuryItemActions();
       this.#buildCyberdeckItemActions();
       this.#buildCyberwareItemActions();
       this.#buildDeathSave();
@@ -130,6 +160,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       this.#buildGearItemActions();
       this.#buildInterfaceActions();
       this.#buildItemUpgradeItemActions();
+      this.#buildLedgerActions();
       this.#buildProgramActions();
       this.#buildRoleItemActions();
       this.#buildSkillItemActions();
@@ -142,18 +173,49 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     #buildActiveEffectsToggleActions() {
       const groupData = { id: GROUP.activeEffects.id, type: 'system' };
 
-      const actions = this.actor.effects.map((effect) => {
-        const { disabled, icon, id, name } = effect;
+      // const actorEffects = this.actor.effects;
+      const allApplicableEffects = Array.from(
+        this.actor.allApplicableEffects()
+      );
+      // const appliedEffects = this.actor.appliedEffects;
+      const cltActiveEffects = this.actor.effects
+        .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
+        .filter(Boolean);
+      const allActorEffects = [
+        // ...actorEffects,
+        ...allApplicableEffects,
+        // ...appliedEffects,
+      ].filter(
+        (effect) =>
+          !cltActiveEffects.includes(
+            effect.flags['condition-lab-triggler']?.conditionId
+          )
+      );
+
+      // console.debug('*** allApplicableEffects', {
+      //   allActorEffects,
+      //   actorEffects,
+      //   allApplicableEffects,
+      //   appliedEffects,
+      //   cltActiveEffects,
+      // });
+
+      const actions = allActorEffects.map((effect) => {
+        // const actions = actorEffects.map((effect) => {
+        const { active, icon, id, name, usage } = effect;
+        const effectTooltip = coreModule.api.Utils.i18n(
+          `CPR.effectSheet.uses.${usage ?? 'toggled'}`
+        );
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
-        const cssClass = 'toggle' + (!disabled ? ' active' : '');
+        const cssClass = 'toggle' + (active ? ' active' : '');
         const img = icon;
-        const info1 = '';
+        const info1 = { text: effectTooltip };
         const info2 = '';
         const info3 = '';
-        const selected = !disabled;
+        const selected = active;
         const system = 'system';
-        const tooltip = ''; // '<ul><li>foo</li><li>bars</li></ul>'?
+        const tooltip = ''; // effectTooltip // '<ul><li>foo</li><li>bars</li></ul>'?
         const onClick = undefined;
         const onHover = undefined;
 
@@ -186,6 +248,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const cltActiveEffects = this.actor.effects
         .map((effect) => effect.flags['condition-lab-triggler']?.conditionId)
         .filter(Boolean);
+      // console.debug('*** #buildConditionLabToggleActions', {
+      //   cltActiveEffects,
+      //   ['clt.conditions']: game.clt.conditions,
+      //   criticalInjury: this.token.actor.itemTypes.criticalInjury,
+      // });
 
       const actions = game.clt.conditions.map((condition) => {
         const { icon, id, name } = condition;
@@ -275,8 +342,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         {
           encodedValue: [groupData.id, groupData.id].join(this.delimiter),
           id: groupData.id,
-          info1: { text: coreModule.api.Utils.i18n(`CPR.global.generic.deathPenalty`) },
-          info2: { text: this.actor.system.derivedStats.deathSave.value.toString() },
+          info1: {
+            text: coreModule.api.Utils.i18n(`CPR.global.generic.deathPenalty`),
+          },
+          info2: {
+            text: this.actor.system.derivedStats.deathSave.value.toString(),
+          },
           name,
         },
       ];
@@ -346,6 +417,43 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           name,
         });
       });
+
+      this.addActions(actions, groupData);
+    }
+
+    async #buildLedgerActions() {
+      const groupData = { id: GROUP.ledger.id, type: 'system' };
+
+      const actions = ['improvementPoints', 'reputation', 'wealth'].map(
+        (ledger) => {
+          let info2 = '';
+
+          switch (ledger) {
+            case 'improvementPoints':
+              info2 = this.actor.system.improvementPoints?.value.toString();
+              break;
+            case 'reputation':
+              info2 = this.actor.system.reputation?.value.toString();
+              break;
+            case 'wealth':
+              info2 = `${Number(
+                this.actor.system.wealth?.value
+              ).toLocaleString()} eb`;
+              break;
+          }
+
+          return {
+            encodedValue: ['ledger', ledger].join(this.delimiter),
+            id: ledger,
+            info1: { class: 'fas fa-sticky-note', text: ' ' },
+            info2: { text: info2 },
+            name: coreModule.api.Utils.i18n(
+              `CPR.ledger.${ledger.toLowerCase()}`
+            ),
+            tooltip: coreModule.api.Utils.i18n('CPR.ledger.ledgerOpen'),
+          };
+        }
+      );
 
       this.addActions(actions, groupData);
     }
@@ -518,7 +626,41 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     // criticalInjury
-    async #buildCriticalInjuryItemActions() {}
+    async #buildCriticalInjuryItemActions() {
+      const groupData = { id: GROUP.criticalInjury.id, type: 'system' };
+      const criticalInjuries = this.actor.itemTypes.criticalInjury;
+      const actions = [
+        // Roll Critical Injury
+        {
+          encodedValue: [groupData.id, 'rollCriticalInjury'].join(
+            this.delimiter
+          ),
+          id: 'rollCriticalInjury',
+          info1: { class: 'fas fa-dice', text: ' ' },
+          name: coreModule.api.Utils.i18n(
+            'CPR.characterSheet.bottomPane.fight.criticalInjuryRoll'
+          ),
+          system: 'system',
+          tooltip: '',
+        },
+      ];
+
+      criticalInjuries.forEach((injury) => {
+        actions.push({
+          cssClass: 'toggle active',
+          encodedValue: [groupData.id, injury.id].join(
+            this.delimiter
+          ),
+          id: injury.id,
+          img: injury.img,
+          name: injury.name,
+          system: 'system',
+          tooltip: (injury.system.description.value + coreModule.api.Utils.i18n('tokenActionHud.template.injuryTooltip')),
+        });
+      });
+
+      this.addActions(actions, groupData);
+    }
 
     // cyberdeck
     async #buildCyberdeckItemActions() {
@@ -866,7 +1008,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               actions.push(
                 ...[
                   {
-                    encodedValue: ['rollDef', programReference.uuid].join(this.delimiter),
+                    encodedValue: ['rollDef', programReference.uuid].join(
+                      this.delimiter
+                    ),
                     id: 'rollDef',
                     info1: { class: 'fas fa-shield red-fg', text: ' ' },
                     name: coreModule.api.Utils.i18n(
@@ -913,7 +1057,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               actions.push(
                 ...[
                   {
-                    encodedValue: ['rollAnAttack', programReference.uuid].join(this.delimiter),
+                    encodedValue: ['rollAnAttack', programReference.uuid].join(
+                      this.delimiter
+                    ),
                     id: 'rollAnAttack',
                     info1: { class: 'fas fa-fist-raised red-fg', text: ' ' },
                     name: coreModule.api.Utils.i18n(
@@ -921,7 +1067,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                   },
                   {
-                    encodedValue: ['rollDamage', programReference.uuid].join(this.delimiter),
+                    encodedValue: ['rollDamage', programReference.uuid].join(
+                      this.delimiter
+                    ),
                     id: 'rollDamage',
                     info1: { class: 'fas fa-tint red-fg', text: ' ' },
                     name: coreModule.api.Utils.i18n(
@@ -1183,7 +1331,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           let equipStatus = weapon.system.equipped;
           if (type === 'itemUpgrade') {
             const { installedIn } = weapon.system;
-            const baseWeapon = weapons.find(w => w.uuid === installedIn);
+            const baseWeapon = weapons.find((w) => w.uuid === installedIn);
             equipStatus = baseWeapon.system.equipped;
           }
 
@@ -1191,8 +1339,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Base Weapon info
             {
               cssClass:
-                'toggle' +
-                (equipStatus === 'equipped' ? ' active' : ''),
+                'toggle' + (equipStatus === 'equipped' ? ' active' : ''),
               encodedValue: [WEAPON_ACTION_TYPES.CYCLE_EQUIPPED, itemId].join(
                 this.delimiter
               ),
@@ -1330,7 +1477,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               const skillItem = this.sortedItemTypes.skill.find(
                 (skill) => skill.name === weapon.system.weaponSkill
               );
-              const skillMod = skillItem.system.level ?? 0;
+              const skillMod = skillItem.system?.level ?? 0;
               const statMod =
                 this.actor.system.stats[skillItem.system.stat].value ?? 0;
               const attackMod = weapon.system.attackMod ?? 0;

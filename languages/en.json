@@ -6,10 +6,12 @@
       "effects": "Effects",
       "endTurn": "End Turn",
       "fireMode": "Fire Mode",
-      "quantityString": "x",
       "inactive": "Inactive",
       "injury": "Critical Injuries / Status Effects",
+      "injuryTooltip": "<p>Left-click injury to remove. Right-click injury to open description</p>",
+      "ledgers": "Ledgers",
       "permanent": "Permanent",
+      "quantityString": "x",
       "settings": {
         "displayUnequipped": {
           "hint": "Choose whether to display unequipped items on the HUD",
@@ -21,7 +23,14 @@
         "displayCharacterSkillWithZeroMod": {
           "name": "Display Player Skills With Zero Mod"
         },
-        "": {}
+        "equipThrownWeapon": {
+          "hint": "If enabled, Characters and Mooks without the Thrown Weapon item will automatically get the item added to their inventory.",
+          "name": "Automatically Equip Thrown Weapon"
+        },
+        "equipUnarmed": {
+          "hint": "If enabled, Characters and Mooks without the Unarmed item will automatically get the item added to their inventory.",
+          "name": "Automatically Equip Unarmed"
+        }
       },
       "situational": "Situational",
       "standard": "Standard",
