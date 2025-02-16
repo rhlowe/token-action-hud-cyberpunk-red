@@ -22,7 +22,14 @@
         "displayCharacterSkillWithZeroMod": {
           "name": "Display Player Skills With Zero Mod"
         },
-        "": {}
+        "equipThrownWeapon": {
+          "hint": "If enabled, Characters and Mooks without the Thrown Weapon item will automatically get the item added to their inventory.",
+          "name": "Automatically Equip Thrown Weapon"
+        },
+        "equipUnarmed": {
+          "hint": "If enabled, Characters and Mooks without the Unarmed item will automatically get the item added to their inventory.",
+          "name": "Automatically Equip Unarmed"
+        }
       },
       "situational": "Situational",
       "standard": "Standard",

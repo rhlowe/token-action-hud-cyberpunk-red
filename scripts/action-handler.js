@@ -36,6 +36,41 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         return;
       }
 
+      // Settings
+      this.displayCharacterSkillWithZeroMod = Utils.getSetting(
+        'displayCharacterSkillWithZeroMod'
+      );
+      this.displayMookSkillWithZeroMod = Utils.getSetting(
+        'displayMookSkillWithZeroMod'
+      );
+      // this.displayUnequipped = Utils.getSetting('displayUnequipped');
+      this.equipThrownWeapon = Utils.getSetting('equipThrownWeapon');
+      this.equipUnarmed = Utils.getSetting('equipUnarmed');
+
+      if (this.actor?.type === 'character' || this.actor?.type === 'mook') {
+        if (
+          this.equipUnarmed &&
+          !this.actor.items.find((item) => item.name === 'Unarmed')
+        ) {
+          // Item ID X6VYB5awDbtURwIv is "Unarmed" in the CPR compendium.
+          let item = await game.packs
+            .get('cyberpunk-red-core.core_weapons')
+            .getDocument('X6VYB5awDbtURwIv');
+          await this.actor.createEmbeddedDocuments('Item', [item]);
+        }
+
+        if (
+          this.equipThrownWeapon &&
+          !this.actor.items.find((item) => item.name === 'Thrown Weapon')
+        ) {
+          // Item ID 29p2bEfPcAWHpsTY is "Thrown Weapon" in the CPR compendium.
+          let item = await game.packs
+            .get('cyberpunk-red-core.core_weapons')
+            .getDocument('29p2bEfPcAWHpsTY');
+          await this.actor.createEmbeddedDocuments('Item', [item]);
+        }
+      }
+
       this.sortedItemTypes = {};
       for (const name in this.actor.itemTypes) {
         this.sortedItemTypes[name] = await this.actor.itemTypes[name].sort(
@@ -52,15 +87,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       // Set actor and token variables
       this.actors = !this.actor ? game.canvas.tokens.controlled : [this.actor];
       this.actorType = this.actor?.type;
-
-      // Settings
-      this.displayMookSkillWithZeroMod = Utils.getSetting(
-        'displayMookSkillWithZeroMod'
-      );
-      this.displayCharacterSkillWithZeroMod = Utils.getSetting(
-        'displayCharacterSkillWithZeroMod'
-      );
-      this.displayUnequipped = Utils.getSetting('displayUnequipped');
 
       // Set items variable
       if (this.actor) {
