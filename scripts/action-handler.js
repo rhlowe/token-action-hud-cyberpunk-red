@@ -146,7 +146,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
     #buildActiveEffectsToggleActions() {
       const groupData = { id: GROUP.activeEffects.id, type: 'system' };
-
+      // appliedEffects not activeEffects
       const actions = this.actor.effects.map((effect) => {
         const { disabled, icon, id, name } = effect;
 
@@ -1381,7 +1381,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               const skillItem = this.sortedItemTypes.skill.find(
                 (skill) => skill.name === weapon.system.weaponSkill
               );
-              const skillMod = skillItem.system.level ?? 0;
+              const skillMod = skillItem.system?.level ?? 0;
               const statMod =
                 this.actor.system.stats[skillItem.system.stat].value ?? 0;
               const attackMod = weapon.system.attackMod ?? 0;
