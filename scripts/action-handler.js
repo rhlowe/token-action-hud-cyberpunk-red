@@ -1206,7 +1206,46 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       const actions = skills.map((skill) => {
         const { id, name } = skill;
-
+        let i18nName = "";
+        switch (name) {
+          case "Conceal/Reveal Object":
+            i18nName = coreModule.api.Utils.i18n(
+              "CPR.global.itemType.skill.concealOrRevealObject"
+            );
+            break;
+          case "Electronics/Security Tech":
+            i18nName = coreModule.api.Utils.i18n(
+              "CPR.global.itemType.skill.electronicsAndSecurityTech"
+            );
+            break;
+          case "Paint/Draw/Sculpt":
+            i18nName = coreModule.api.Utils.i18n(
+              "CPR.global.itemType.skill.paintOrDrawOrSculpt"
+            );
+            break;
+          case "Photography/Film":
+            i18nName = coreModule.api.Utils.i18n(
+              "CPR.global.itemType.skill.photographyAndFilm"
+            );
+            break;
+          case "Resist Torture/Drugs":
+            i18nName = coreModule.api.Utils.i18n(
+              "CPR.global.itemType.skill.resistTortureOrDrugs"
+            );
+            break;
+          case "Wardrobe & Style":
+            i18nName = coreModule.api.Utils.i18n(
+              "CPR.global.itemType.skill.wardrobeAndStyle"
+            );
+            break;
+          default:
+            i18nName = coreModule.api.Utils.i18n(
+              `CPR.global.itemType.skill.${name
+                .toLowerCase()
+                .replace(/[()]/g, "")
+                .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
+            );
+        }
         const level = skill.system.level;
         const stat = this.actor.system.stats[skill.system.stat].value;
 
@@ -1223,7 +1262,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           id,
           info1,
           info2,
-          name: this.getFavoritedName(name, skill.system.favorite),
+          name: this.getFavoritedName(i18nName, skill.system.favorite),
           system,
         };
       });
