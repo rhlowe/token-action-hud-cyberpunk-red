@@ -1239,12 +1239,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             );
             break;
           default:
-            i18nName = coreModule.api.Utils.i18n(
-              `CPR.global.itemType.skill.${name
-                .toLowerCase()
-                .replace(/[()]/g, "")
-                .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
-            );
+            if (name.startsWith("Language (") && name !== "Language (Streetslang)") {
+              i18nName = coreModule.api.Utils.i18n(
+                `tokenActionHud.template.languages.${name
+                  .toLowerCase()
+                  .replace(/[()]/g, "")
+                  .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
+              );
+            } else {
+              i18nName = coreModule.api.Utils.i18n(
+                `CPR.global.itemType.skill.${name
+                  .toLowerCase()
+                  .replace(/[()]/g, "")
+                  .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
+              );
+            }
+
         }
         const level = skill.system.level;
         const stat = this.actor.system.stats[skill.system.stat].value;
