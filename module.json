@@ -2,7 +2,7 @@
   "id": "token-action-hud-cyberpunk-red",
   "title": "Token Action HUD for Cyberpunk RED",
   "description": "Token Action HUD is a repositionable HUD of actions for a selected token",
-  "version": "1.0.0-beta.25",
+  "version": "1.0.0",
   "compatibility": {
     "maximum": "12.999",
     "minimum": "12.343",
@@ -23,7 +23,7 @@
         "id": "socketlib",
         "type": "module",
         "compatibility": {
-          "verified": "1.4"
+          "verified": "1.1.3"
         }
       }
     ],
@@ -63,7 +63,8 @@
     {
       "name": "Rob Lowe",
       "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red",
-      "discord": "rhlowe"
+      "discord": "rhlowe",
+      "flags": {}
     }
   ],
   "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red",
@@ -81,7 +82,7 @@
       "flags": {}
     }
   ],
-  "download": "https://github.com/rhlowe/token-action-hud-cyberpunk-red/archive/refs/tags/v1.0.0-beta.25.zip",
-  "manifest": "https://github.com/rhlowe/token-action-hud-cyberpunk-red/releases/download/v1.0.0-beta.25/module.json",
-  "readme": "https://github.com/rhlowe/token-action-hud-cyberpunk-red/releases/tag/v1.0.0-beta.25"
+  "download": "https://github.com/rhlowe/token-action-hud-cyberpunk-red/archive/refs/tags/v1.0.0.zip",
+  "manifest": "https://github.com/rhlowe/token-action-hud-cyberpunk-red/releases/download/v1.0.0/module.json",
+  "readme": "https://github.com/rhlowe/token-action-hud-cyberpunk-red/releases/tag/v1.0.0"
 }
