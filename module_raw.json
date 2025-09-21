@@ -4,8 +4,8 @@
   "description": "Token Action HUD is a repositionable HUD of actions for a selected token",
   "version": "VERSION_TO_REPLACE",
   "compatibility": {
-    "maximum": "12",
-    "minimum": "11",
+    "maximum": "12.999",
+    "minimum": "12.343",
     "verified": "12.343"
   },
   "relationships": {
@@ -14,9 +14,9 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "minimum": "2",
-          "verified": "2.0.16",
-          "maximum": "2.0.16"
+          "maximum": "2.0.99",
+          "minimum": "2.0.11",
+          "verified": "2.0.16"
         }
       },
       {
@@ -32,6 +32,7 @@
         "id": "cyberpunk-red-core",
         "type": "system",
         "compatibility": {
+          "maximum": "v0.89.1",
           "minimum": "v0.89.1",
           "verified": "v0.89.1"
         }
@@ -42,15 +43,17 @@
         "id": "color-picker",
         "type": "module",
         "compatibility": {
+          "maximum": "1.7",
           "minimum": "1.7",
-          "verified": "1.7",
-          "maximum": "1.7"
+          "verified": "1.7"
         }
       },
       {
         "id": "condition-lab-triggler",
         "type": "module",
         "compatibility": {
+          "maximum": "2.1.0",
+          "minimum": "2.1.0",
           "verified": "2.1.0"
         }
       }
