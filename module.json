@@ -14,9 +14,9 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "minimum": "1.5.1",
-          "verified": "1.5.4",
-          "maximum": "1.5.7"
+          "minimum": "2",
+          "verified": "2.0.16",
+          "maximum": "2.0.16"
         }
       },
       {
