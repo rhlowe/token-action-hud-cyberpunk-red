@@ -202,14 +202,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       const actions = allActorEffects.map((effect) => {
         // const actions = actorEffects.map((effect) => {
-        const { active, icon, id, name, usage } = effect;
+        const { active, id, img, name, usage } = effect;
         const effectTooltip = coreModule.api.Utils.i18n(
           `CPR.effectSheet.uses.${usage ?? 'toggled'}`
         );
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
         const cssClass = 'toggle' + (active ? ' active' : '');
-        const img = icon;
         const info1 = { text: effectTooltip };
         const info2 = '';
         const info3 = '';
@@ -1338,17 +1337,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         const isAimed =
-          getProperty(
+          foundry.utils.getProperty(
             this.actor,
             `flags.${game.system.id}.firetype-${itemId}`
           ) === WEAPON_ACTION_TYPES.TOGGLE_AIMED;
         const isAutofire =
-          getProperty(
+          foundry.utils.getProperty(
             this.actor,
             `flags.${game.system.id}.firetype-${itemId}`
           ) === WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE;
         const isSuppressive =
-          getProperty(
+          foundry.utils.getProperty(
             this.actor,
             `flags.${game.system.id}.firetype-${itemId}`
           ) === WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE;
