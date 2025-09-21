@@ -76,7 +76,7 @@ Thank you to the Community Helpers on Foundry's Discord who provide tireless sup
 # Generating a Release
 
 1. Make all code changes needed
-2. In the project root, run `$ npm version prerelease`
+2. In the project root, run `$ npm version [VERSION]`
 
 - Commit history should have changes in package.json, package-lock.json, and module.json
 
