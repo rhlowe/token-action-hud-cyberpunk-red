@@ -917,7 +917,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       if (activeCyberdeck === undefined) {
         return;
       }
-      const installed = activeCyberdeck.system.programs.installed;
+      const installedIds = activeCyberdeck.system.installedItems.list;
+      const installed = this.actor.items.filter((item) =>
+        installedIds.includes(item._id)
+      );
       // console.debug('*** buildProgramActions', {
       //   activeCyberdeck,
       //   installed,
@@ -983,7 +986,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               }
             : undefined,
           name,
-          tooltip: program.description.value,
+          tooltip: program.system.description.value,
         });
 
         const programStats = {
@@ -1321,10 +1324,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       for (const weapon of weapons) {
         const itemId = weapon.id;
         const { type } = weapon;
-        const { isUpgraded, isWeapon, upgrades } = weapon.system;
+        const { isUpgraded, isWeapon } = weapon.system;
 
         if (isUpgraded) {
-          upgrades.forEach((upgrade) => {
+          weapon.getInstalledItems().filter(upgrade => upgrade.type === 'itemUpgrade').forEach((upgrade) => {
             if (upgrade.system.modifiers.secondaryWeapon.configured) {
               const upgradeWeapon = this.sortedItemTypes.itemUpgrade.find(
                 (t) => t.id === upgrade._id
@@ -1380,7 +1383,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           let equipStatus = weapon.system.equipped;
           if (type === 'itemUpgrade') {
             const { installedIn } = weapon.system;
-            const baseWeapon = weapons.find((w) => w.uuid === installedIn);
+            const baseWeapon = weapons.find((w) => w._id === installedIn[0]);
             equipStatus = baseWeapon.system.equipped;
           }
 
@@ -1431,6 +1434,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             );
 
             if (weapon.system.isRanged) {
+              const installedAmmo = weapon.getInstalledItems().find(upgrade => upgrade.type === 'ammo');
               // Autofire: weapon.system.fireModes.autoFire > 0
               if (weapon.system.fireModes.autoFire > 0) {
                 actions.push({
@@ -1507,7 +1511,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     id: WEAPON_ACTION_TYPES.RELOAD,
                     info1: {
                       text: weapon.system.magazine.value
-                        ? `${weapon.system.magazine.ammoData.name}`
+                        ? `${installedAmmo.name}`
                         : 'unloaded',
                     },
                     info2: {
