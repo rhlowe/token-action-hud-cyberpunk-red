@@ -32,7 +32,7 @@
         "id": "cyberpunk-red-core",
         "type": "system",
         "compatibility": {
-          "maximum": "v0.89.1",
+          "maximum": "v0.89.99",
           "minimum": "v0.89.1",
           "verified": "v0.89.1"
         }
