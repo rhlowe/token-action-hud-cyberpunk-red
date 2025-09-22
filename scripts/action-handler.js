@@ -113,14 +113,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     async #buildBlackIceDamage() {
-      console.debug('*** #buildBlackIceDamage', this.actor);
+      // console.debug('*** #buildBlackIceDamage', this.token);
       const groupData = { id: 'weapon', type: 'system' };
       const programId =
-        this.actor.token.flags['cyberpunk-red-core'].programUUID.split('.');
-      const { standard, blackIce } = game.items.get(programId[1]).system.damage;
+        this.token.actor.token.flags['cyberpunk-red-core'].programUUID.split(
+          '.'
+        );
+      const damage = game.actors.get(programId[1]).items.get(programId[3])
+        .system.damage;
+      const { standard, blackIce } = damage;
       const actions = [];
 
-      if (Number.isNumeric(Number.parseInt(standard))) {
+      if (standard !== '') {
         actions.push({
           encodedValue: [ROLL_TYPES.NET, 'standard'].join(this.delimiter),
           id: programId,
@@ -129,7 +133,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         });
       }
 
-      if (Number.isNumeric(Number.parseInt(blackIce))) {
+      if (blackIce !== '') {
         actions.push({
           encodedValue: [ROLL_TYPES.NET, 'blackIce'].join(this.delimiter),
           id: programId,
@@ -1010,7 +1014,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           rez: 'CPR.global.generic.rez',
         };
 
-        if (programReference.system.isRezzed) {
+        if (
+          programReference.system.isRezzed ||
+          programReference.system.class === 'antipersonnelattacker' ||
+          programReference.system.class === 'antiprogramattacker'
+        ) {
           switch (programReference.system.class) {
             case 'booster':
             case 'defender':

@@ -167,7 +167,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           break;
         case 'erase':
           await activeCyberdeck.uninstallItems([program]);
-          await activeCyberdeck.syncPrograms();
           break;
         case 'activeEffects':
           await this.#handleActiveEffectToggle(actionId, actor);
@@ -243,7 +242,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         case 'rollAnAttack':
           tahCprRoll = activeCyberdeck.createRoll('cyberdeckProgram', actor, {
-            programUUID: actionId,
+            programId: actionId,
             netRoleItem: {
               system: {
                 ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
@@ -255,7 +254,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         case 'rollDamage':
           tahCprRoll = activeCyberdeck.createRoll('cyberdeckProgram', actor, {
-            programUUID: actionId,
+            programId: actionId,
             netRoleItem: {
               system: {
                 ...actor.items.get(actor.system.roleInfo.activeNetRole).system,
@@ -297,10 +296,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           });
           break;
         case ROLL_TYPES.NET:
-          const programUUID =
-            actor.token.flags['cyberpunk-red-core'].programUUID;
-          const netrunnerTokenId = undefined;
-          const sceneId = token.scene.uuid;
+          const { netrunnerTokenId, programUUID, sceneId } =
+            actor.token.flags['cyberpunk-red-core'];
           tahCprRoll = actor.createDamageRoll(
             programUUID,
             netrunnerTokenId,
@@ -333,9 +330,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       }
 
       // note: for aimed shots this is where location is set
-      const keepRolling = await tahCprRoll.handleRollDialog(event, actor, item);
-      if (!keepRolling) {
-        return;
+      if (actionTypeId !== ROLL_TYPES.NET) {
+        const keepRolling = await tahCprRoll.handleRollDialog(
+          event,
+          actor,
+          item
+        );
+        if (!keepRolling) {
+          return;
+        }
       }
 
       if (item !== null) {
