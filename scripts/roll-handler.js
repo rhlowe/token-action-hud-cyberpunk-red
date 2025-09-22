@@ -140,7 +140,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         case 'rez':
           if (!program.system.isRezzed) {
             // console.debug('***', {activeCyberdeck, program, token})
-            const requestingToken = game.scenes.find(s => s.active).tokens.find(t => t.id === token.id);
+            const requestingToken = game.scenes
+              .find((s) => s.active)
+              .tokens.find((t) => t.id === token.id);
             await activeCyberdeck.rezProgram(program, requestingToken);
             actor.sheet._updateOwnedItem(activeCyberdeck);
           }
@@ -177,7 +179,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           if (actionId === 'rollCriticalInjury') {
             await this.token.actor.sheet._rollCriticalInjury();
             break;
-        }
+          }
           await this.#handleRemoveCriticalInjury(actionId, actor);
           break;
         case 'ledger':
@@ -185,10 +187,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           break;
       }
 
-      if (['rez','derez','reduce-rez','reset-rez','erase'].includes(actionTypeId)) {
+      if (
+        ['rez', 'derez', 'reduce-rez', 'reset-rez', 'erase'].includes(
+          actionTypeId
+        )
+      ) {
         const updateList = [];
         if (activeCyberdeck.isOwned && activeCyberdeck.isEmbedded) {
-          updateList.push({ _id: activeCyberdeck.id, system: activeCyberdeck.system });
+          updateList.push({
+            _id: activeCyberdeck.id,
+            system: activeCyberdeck.system,
+          });
         }
 
         if (program.isOwned && program.isEmbedded) {
@@ -196,7 +205,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         if (updateList.length > 0) {
-          actor.updateEmbeddedDocuments("Item", updateList);
+          actor.updateEmbeddedDocuments('Item', updateList);
         }
       }
 
@@ -275,9 +284,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
           if (!netRoleItem) {
             const error = CPRSystemUtils.Localize(
-              "CPR.messages.noNetrunningRoleConfigured"
+              'CPR.messages.noNetrunningRoleConfigured'
             );
-            CPRSystemUtils.DisplayMessage("error", error);
+            CPRSystemUtils.DisplayMessage('error', error);
             return;
           }
 
@@ -408,7 +417,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     async #handleActiveEffectToggle(actionId, actor) {
-      const effect = Array.from(actor.allApplicableEffects()).find(e => e.id === actionId);
+      const effect = Array.from(actor.allApplicableEffects()).find(
+        (e) => e.id === actionId
+      );
       if (effect) {
         await effect.update({ disabled: !effect.disabled });
         Hooks.callAll('forceUpdateTokenActionHud');

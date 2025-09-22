@@ -117,8 +117,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       const groupData = { id: 'weapon', type: 'system' };
       const programId =
         this.actor.token.flags['cyberpunk-red-core'].programUUID.split('.');
-      const { standard, blackIce } = game.items.get(programId[1]).system
-        .damage;
+      const { standard, blackIce } = game.items.get(programId[1]).system.damage;
       const actions = [];
 
       if (Number.isNumeric(Number.parseInt(standard))) {
@@ -982,7 +981,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const info2 = () => {
           if (!canRezDerez) return undefined;
           return {
-            text: programReference.system.isRezzed ? coreModule.api.Utils.i18n('CPR.characterSheet.bottomPane.fight.rezzed') : 'Unrezzed',
+            text: programReference.system.isRezzed
+              ? coreModule.api.Utils.i18n(
+                  'CPR.characterSheet.bottomPane.fight.rezzed'
+                )
+              : 'Unrezzed',
           };
         };
 
