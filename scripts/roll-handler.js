@@ -7,6 +7,7 @@ import {
 import { Utils } from './utils.js';
 import CPRChat from '../../../systems/cyberpunk-red-core/modules/chat/cpr-chat.js';
 import CPRSystemUtils from '../../../systems/cyberpunk-red-core/modules/utils/cpr-systemUtils.js';
+import * as CPRRolls from '../../../systems/cyberpunk-red-core/modules/rolls/cpr-rolls.js';
 
 export let RollHandler = null;
 
@@ -137,61 +138,64 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       switch (actionTypeId) {
         case 'rez':
-          if (!activeCyberdeck.isRezzed(program)) {
+          if (!program.system.isRezzed) {
             await activeCyberdeck.rezProgram(program, token);
             actor.sheet._updateOwnedItem(activeCyberdeck);
           }
-          return;
+          break;
         case 'derez':
-          if (activeCyberdeck.isRezzed(program)) {
+          if (program.system.isRezzed) {
             await activeCyberdeck.derezProgram(program);
             actor.sheet._updateOwnedItem(activeCyberdeck);
           }
-          return;
+          break;
         case 'reduce-rez':
-          if (activeCyberdeck.isRezzed(program)) {
+          if (program.system.isRezzed) {
             await activeCyberdeck.reduceRezProgram(program);
             actor.sheet._updateOwnedItem(activeCyberdeck);
           }
-          return;
+          break;
         case 'reset-rez':
-          /**
-           * reimpliments CPR's cyberdeck.resetRezProgram(program) but searches for uuid instead of id
-           */
-          if (activeCyberdeck.isRezzed(program)) {
-            const { rezzed } = activeCyberdeck.system.programs;
-            const rezzedIndex = rezzed.findIndex(
-              (p) => p.uuid === program.uuid
-            );
-            const { installed } = activeCyberdeck.system.programs;
-            const installedIndex = installed.findIndex(
-              (p) => p.uuid === program.uuid
-            );
-            activeCyberdeck.system.programs.rezzed[rezzedIndex] =
-              activeCyberdeck.system.programs.installed[installedIndex];
+          if (program.system.isRezzed) {
+            await activeCyberdeck.resetRezProgram(program);
             actor.sheet._updateOwnedItem(activeCyberdeck);
           }
-          return;
+          break;
         case 'erase':
           await activeCyberdeck.uninstallItems([program]);
           await activeCyberdeck.syncPrograms();
-          return;
+          break;
         case 'activeEffects':
           await this.#handleActiveEffectToggle(actionId, actor);
-          return;
+          break;
         case 'injury':
           await this.#handleStatusEffectToggle(actionId, actor);
-          return;
+          break;
         case 'criticalInjury':
           if (actionId === 'rollCriticalInjury') {
             await this.token.actor.sheet._rollCriticalInjury();
-            return;
+            break;
         }
           await this.#handleRemoveCriticalInjury(actionId, actor);
-          return;
+          break;
         case 'ledger':
           await this.actor.sheet.showLedger(actionId);
-          return;
+          break;
+      }
+
+      if (['rez','derez','reduce-rez','reset-rez','erase'].includes(actionTypeId)) {
+        const updateList = [];
+        if (activeCyberdeck.isOwned && activeCyberdeck.isEmbedded) {
+          updateList.push({ _id: activeCyberdeck.id, system: activeCyberdeck.system });
+        }
+
+        if (program.isOwned && program.isEmbedded) {
+          updateList.push({ _id: program.id, system: program.system });
+        }
+
+        if (updateList.length > 0) {
+          actor.updateEmbeddedDocuments("Item", updateList);
+        }
       }
 
       if (
@@ -292,12 +296,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             sceneId
           );
           break;
-        case 'attack':
+        case CPRRolls.rollTypes.ATTACK:
           item = actor.getOwnedItem(actionId);
           const fireMode = this._getFireMode(actionId);
           tahCprRoll = item.createRoll(fireMode, actor);
           break;
-        case 'damage':
+        case CPRRolls.rollTypes.DAMAGE:
           item = actor.getOwnedItem(actionId);
           const damageType = this._getFireMode(actionId);
           tahCprRoll = item.createRoll(actionTypeId, actor, { damageType });
@@ -313,6 +317,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       // console.debug('*** tahCprRoll check', tahCprRoll);
       if (!tahCprRoll) {
+        Hooks.callAll('forceUpdateTokenActionHud');
         return;
       }
 
@@ -457,7 +462,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         case WEAPON_ACTION_TYPES.TOGGLE_AIMED:
         case WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE:
           dataId = 'data-fire-mode';
-          const flag = getProperty(
+          const flag = foundry.utils.getProperty(
             actor,
             `flags.${game.system.id}.firetype-${actionId}`
           );
@@ -466,7 +471,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const weaponDvTable = actor.getOwnedItem(actionId).system.dvTable;
             const currentDvTable =
               weaponDvTable === ''
-                ? getProperty(token, 'flags.cprDvTable')
+                ? foundry.utils.getProperty(token, 'flags.cprDvTable')
                 : weaponDvTable;
             if (typeof currentDvTable !== 'undefined') {
               const dvTable = currentDvTable.replace(' (Autofire)', '');
@@ -497,13 +502,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         // data-action
         case WEAPON_ACTION_TYPES.CHANGE_AMMO:
-          await item._loadItem();
+          await item.load();
           break;
         case WEAPON_ACTION_TYPES.MEASURE_DV:
           await item._setDvTable(actor, item.system.dvTable);
           break;
         case WEAPON_ACTION_TYPES.RELOAD:
-          await item._loadItem(item.system.magazine.ammoData.uuid);
+          await item.reload();
           break;
 
         // data-roll-type
