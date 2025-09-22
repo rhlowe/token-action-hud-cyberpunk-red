@@ -139,7 +139,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       switch (actionTypeId) {
         case 'rez':
           if (!program.system.isRezzed) {
-            await activeCyberdeck.rezProgram(program, token);
+            // console.debug('***', {activeCyberdeck, program, token})
+            const requestingToken = game.scenes.find(s => s.active).tokens.find(t => t.id === token.id);
+            await activeCyberdeck.rezProgram(program, requestingToken);
             actor.sheet._updateOwnedItem(activeCyberdeck);
           }
           break;
