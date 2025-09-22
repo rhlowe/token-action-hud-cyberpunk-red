@@ -113,26 +113,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     }
 
     async #buildBlackIceDamage() {
+      // console.debug('*** #buildBlackIceDamage', this.token);
       const groupData = { id: 'weapon', type: 'system' };
-      const programUUID =
-        this.actor.token.flags['cyberpunk-red-core'].programUUID.split('.');
-      const { standard, blackIce } = game.items.get(programUUID[1]).system
-        .damage;
+      const programId =
+        this.token.actor.token.flags['cyberpunk-red-core'].programUUID.split(
+          '.'
+        );
+      const damage = game.actors.get(programId[1]).items.get(programId[3])
+        .system.damage;
+      const { standard, blackIce } = damage;
       const actions = [];
 
-      if (Number.isNumeric(Number.parseInt(standard))) {
+      if (standard !== '') {
         actions.push({
           encodedValue: [ROLL_TYPES.NET, 'standard'].join(this.delimiter),
-          id: programUUID,
+          id: programId,
           info1: { text: standard },
           name: coreModule.api.Utils.i18n(`tokenActionHud.template.standard`),
         });
       }
 
-      if (Number.isNumeric(Number.parseInt(blackIce))) {
+      if (blackIce !== '') {
         actions.push({
           encodedValue: [ROLL_TYPES.NET, 'blackIce'].join(this.delimiter),
-          id: programUUID,
+          id: programId,
           info1: { text: blackIce },
           name: coreModule.api.Utils.i18n(`TYPES.Actor.blackIce`),
         });
@@ -202,14 +206,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       const actions = allActorEffects.map((effect) => {
         // const actions = actorEffects.map((effect) => {
-        const { active, icon, id, name, usage } = effect;
+        const { active, id, img, name, usage } = effect;
         const effectTooltip = coreModule.api.Utils.i18n(
           `CPR.effectSheet.uses.${usage ?? 'toggled'}`
         );
 
         const encodedValue = [groupData.id, id].join(this.delimiter);
         const cssClass = 'toggle' + (active ? ' active' : '');
-        const img = icon;
         const info1 = { text: effectTooltip };
         const info2 = '';
         const info3 = '';
@@ -648,14 +651,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       criticalInjuries.forEach((injury) => {
         actions.push({
           cssClass: 'toggle active',
-          encodedValue: [groupData.id, injury.id].join(
-            this.delimiter
-          ),
+          encodedValue: [groupData.id, injury.id].join(this.delimiter),
           id: injury.id,
           img: injury.img,
           name: injury.name,
           system: 'system',
-          tooltip: (injury.system.description.value + coreModule.api.Utils.i18n('tokenActionHud.template.injuryTooltip')),
+          tooltip:
+            injury.system.description.value +
+            coreModule.api.Utils.i18n('tokenActionHud.template.injuryTooltip'),
         });
       });
 
@@ -917,23 +920,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       if (activeCyberdeck === undefined) {
         return;
       }
-      const installed = activeCyberdeck.system.programs.installed;
+      const installedIds = activeCyberdeck.system.installedItems.list;
+      const installed = this.actor.items.filter((item) =>
+        installedIds.includes(item.id)
+      );
       // console.debug('*** buildProgramActions', {
       //   activeCyberdeck,
       //   installed,
       // });
 
       installed.forEach((program) => {
-        const programReference = program.isRezzed
-          ? activeCyberdeck.system.programs.rezzed.find(
-              (rezzedProgram) => rezzedProgram.uuid === program.uuid
+        const programReference = program.system.isRezzed
+          ? activeCyberdeck.system.rezzedPrograms.find(
+              (rezzedProgram) => rezzedProgram.id === program.id
             )
           : program;
-        const id = programReference.uuid;
+        const id = programReference.id;
         const name = programReference.name;
         let programClass = '';
 
-        switch (programReference.class) {
+        switch (programReference.system.class) {
           case 'antipersonnelattacker':
             programClass = coreModule.api.Utils.i18n(
               `CPR.global.programClass.antiPersonnelAttacker`
@@ -946,44 +952,58 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             break;
           default:
             programClass = coreModule.api.Utils.i18n(
-              `CPR.global.programClass.${programReference.class}`
+              `CPR.global.programClass.${programReference.system.class}`
             );
         }
 
         const group = {
           id,
           name,
-          nestId: `installed_${programReference.uuid}`,
+          nestId: `installed_${programReference.id}`,
           settings: {
             image:
               'systems/cyberpunk-red-core/icons/compendium/default/Default_Program.svg',
             showTitle: false,
-            // style: 'list',
-            // style: 'tab',
           },
           type: 'system',
         };
         const actions = [];
         this.addGroup(group, { id: 'installed', type: 'system' });
 
-        const programAction = programReference.isRezzed ? 'derez' : 'rez';
+        const canRezDerez = ['booster', 'defender', 'blackice'].includes(
+          programReference.system.class
+        );
+        const programAction = programReference.system.isRezzed
+          ? 'derez'
+          : 'rez';
+
+        const cssClass = () => {
+          if (!canRezDerez) return '';
+          return 'toggle' + (programReference.system.isRezzed ? ' active' : '');
+        };
+
+        const info2 = () => {
+          if (!canRezDerez) return undefined;
+          return {
+            text: programReference.system.isRezzed
+              ? coreModule.api.Utils.i18n(
+                  'CPR.characterSheet.bottomPane.fight.rezzed'
+                )
+              : 'Unrezzed',
+          };
+        };
 
         actions.push({
-          cssClass: 'toggle' + (programReference.isRezzed ? ' active' : ''),
-          encodedValue: [programAction, programReference.uuid].join(
-            this.delimiter
-          ),
+          cssClass: cssClass(),
+          encodedValue: [
+            canRezDerez ? programAction : '',
+            programReference.id,
+          ].join(this.delimiter),
           id,
           info1: { text: programClass },
-          info2: programReference.isRezzed
-            ? {
-                text: coreModule.api.Utils.i18n(
-                  'CPR.characterSheet.bottomPane.fight.rezzed'
-                ),
-              }
-            : undefined,
+          info2: info2(),
           name,
-          tooltip: program.description.value,
+          tooltip: program.system.description.value,
         });
 
         const programStats = {
@@ -994,21 +1014,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           rez: 'CPR.global.generic.rez',
         };
 
-        if (programReference.isRezzed) {
-          switch (programReference.class) {
+        if (
+          programReference.system.isRezzed ||
+          programReference.system.class === 'antipersonnelattacker' ||
+          programReference.system.class === 'antiprogramattacker'
+        ) {
+          switch (programReference.system.class) {
             case 'booster':
             case 'defender':
-              ['atk', 'def', 'rez'].forEach((stat) => {
+              ['atk', 'def'].forEach((stat) => {
                 actions.push({
                   id: stat,
-                  info1: { text: programReference[stat].toString() },
+                  info1: { text: programReference.system[stat].toString() },
                   name: coreModule.api.Utils.i18n(programStats[stat]),
                 });
               });
               actions.push(
                 ...[
                   {
-                    encodedValue: ['rollDef', programReference.uuid].join(
+                    encodedValue: ['rollDef', programReference.id].join(
                       this.delimiter
                     ),
                     id: 'rollDef',
@@ -1018,7 +1042,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                   },
                   {
-                    encodedValue: ['reduce-rez', programReference.uuid].join(
+                    id: 'rez',
+                    info1: {
+                      text: `${programReference.system.rez.value}/${programReference.system.rez.max}`,
+                    },
+                    name: coreModule.api.Utils.i18n(programStats.rez),
+                  },
+                  {
+                    encodedValue: ['reduce-rez', programReference.id].join(
                       this.delimiter
                     ),
                     id: 'reduce-rez',
@@ -1028,7 +1059,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                   },
                   {
-                    encodedValue: ['reset-rez', programReference.uuid].join(
+                    encodedValue: ['reset-rez', programReference.id].join(
                       this.delimiter
                     ),
                     id: 'reset-rez',
@@ -1047,7 +1078,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 actions.push({
                   // encodedValue: [stat, name].join(this.delimiter),
                   id: stat,
-                  info1: { text: programReference[stat].toString() },
+                  info1: { text: programReference.system[stat].toString() },
                   name: coreModule.api.Utils.i18n(
                     `CPR.global.blackIce.stats.${stat}`
                   ),
@@ -1057,7 +1088,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               actions.push(
                 ...[
                   {
-                    encodedValue: ['rollAnAttack', programReference.uuid].join(
+                    encodedValue: ['rollAnAttack', programReference.id].join(
                       this.delimiter
                     ),
                     id: 'rollAnAttack',
@@ -1067,7 +1098,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     ),
                   },
                   {
-                    encodedValue: ['rollDamage', programReference.uuid].join(
+                    encodedValue: ['rollDamage', programReference.id].join(
                       this.delimiter
                     ),
                     id: 'rollDamage',
@@ -1081,11 +1112,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
               break;
 
             case 'blackice':
-              ['atk', 'def', 'per', 'spd', 'rez'].forEach((stat) => {
+              ['atk', 'def', 'per', 'spd'].forEach((stat) => {
                 actions.push({
                   // encodedValue: [stat, name].join(this.delimiter),
                   id: stat,
-                  info1: { text: programReference[stat].toString() },
+                  info1: { text: programReference.system[stat].toString() },
                   name: coreModule.api.Utils.i18n(programStats[stat]),
                 });
               });
@@ -1093,7 +1124,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           }
 
           actions.push({
-            encodedValue: ['erase', programReference.uuid].join(this.delimiter),
+            encodedValue: ['erase', programReference.id].join(this.delimiter),
             id: 'erase',
             info1: {
               class: 'fas fa-folder-minus',
@@ -1206,55 +1237,57 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
       const actions = skills.map((skill) => {
         const { id, name } = skill;
-        let i18nName = "";
+        let i18nName = '';
         switch (name) {
-          case "Conceal/Reveal Object":
+          case 'Conceal/Reveal Object':
             i18nName = coreModule.api.Utils.i18n(
-              "CPR.global.itemType.skill.concealOrRevealObject"
+              'CPR.global.itemType.skill.concealOrRevealObject'
             );
             break;
-          case "Electronics/Security Tech":
+          case 'Electronics/Security Tech':
             i18nName = coreModule.api.Utils.i18n(
-              "CPR.global.itemType.skill.electronicsAndSecurityTech"
+              'CPR.global.itemType.skill.electronicsAndSecurityTech'
             );
             break;
-          case "Paint/Draw/Sculpt":
+          case 'Paint/Draw/Sculpt':
             i18nName = coreModule.api.Utils.i18n(
-              "CPR.global.itemType.skill.paintOrDrawOrSculpt"
+              'CPR.global.itemType.skill.paintOrDrawOrSculpt'
             );
             break;
-          case "Photography/Film":
+          case 'Photography/Film':
             i18nName = coreModule.api.Utils.i18n(
-              "CPR.global.itemType.skill.photographyAndFilm"
+              'CPR.global.itemType.skill.photographyAndFilm'
             );
             break;
-          case "Resist Torture/Drugs":
+          case 'Resist Torture/Drugs':
             i18nName = coreModule.api.Utils.i18n(
-              "CPR.global.itemType.skill.resistTortureOrDrugs"
+              'CPR.global.itemType.skill.resistTortureOrDrugs'
             );
             break;
-          case "Wardrobe & Style":
+          case 'Wardrobe & Style':
             i18nName = coreModule.api.Utils.i18n(
-              "CPR.global.itemType.skill.wardrobeAndStyle"
+              'CPR.global.itemType.skill.wardrobeAndStyle'
             );
             break;
           default:
-            if (name.startsWith("Language (") && name !== "Language (Streetslang)") {
+            if (
+              name.startsWith('Language (') &&
+              name !== 'Language (Streetslang)'
+            ) {
               i18nName = coreModule.api.Utils.i18n(
                 `tokenActionHud.template.languages.${name
                   .toLowerCase()
-                  .replace(/[()]/g, "")
+                  .replace(/[()]/g, '')
                   .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
               );
             } else {
               i18nName = coreModule.api.Utils.i18n(
                 `CPR.global.itemType.skill.${name
                   .toLowerCase()
-                  .replace(/[()]/g, "")
+                  .replace(/[()]/g, '')
                   .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
               );
             }
-
         }
         const level = skill.system.level;
         const stat = this.actor.system.stats[skill.system.stat].value;
@@ -1321,31 +1354,34 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       for (const weapon of weapons) {
         const itemId = weapon.id;
         const { type } = weapon;
-        const { isUpgraded, isWeapon, upgrades } = weapon.system;
+        const { isUpgraded, isWeapon } = weapon.system;
 
         if (isUpgraded) {
-          upgrades.forEach((upgrade) => {
-            if (upgrade.system.modifiers.secondaryWeapon.configured) {
-              const upgradeWeapon = this.sortedItemTypes.itemUpgrade.find(
-                (t) => t.id === upgrade._id
-              );
-              weapons.push(upgradeWeapon);
-            }
-          });
+          weapon
+            .getInstalledItems()
+            .filter((upgrade) => upgrade.type === 'itemUpgrade')
+            .forEach((upgrade) => {
+              if (upgrade.system.modifiers.secondaryWeapon.configured) {
+                const upgradeWeapon = this.sortedItemTypes.itemUpgrade.find(
+                  (t) => t.id === upgrade.id
+                );
+                weapons.push(upgradeWeapon);
+              }
+            });
         }
 
         const isAimed =
-          getProperty(
+          foundry.utils.getProperty(
             this.actor,
             `flags.${game.system.id}.firetype-${itemId}`
           ) === WEAPON_ACTION_TYPES.TOGGLE_AIMED;
         const isAutofire =
-          getProperty(
+          foundry.utils.getProperty(
             this.actor,
             `flags.${game.system.id}.firetype-${itemId}`
           ) === WEAPON_ACTION_TYPES.TOGGLE_AUTOFIRE;
         const isSuppressive =
-          getProperty(
+          foundry.utils.getProperty(
             this.actor,
             `flags.${game.system.id}.firetype-${itemId}`
           ) === WEAPON_ACTION_TYPES.SUPPRESSIVE_FIRE;
@@ -1380,7 +1416,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           let equipStatus = weapon.system.equipped;
           if (type === 'itemUpgrade') {
             const { installedIn } = weapon.system;
-            const baseWeapon = weapons.find((w) => w.uuid === installedIn);
+            const baseWeapon = weapons.find((w) => w.id === installedIn[0]);
             equipStatus = baseWeapon.system.equipped;
           }
 
@@ -1431,6 +1467,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             );
 
             if (weapon.system.isRanged) {
+              const installedAmmo = weapon
+                .getInstalledItems()
+                .find((upgrade) => upgrade.type === 'ammo');
               // Autofire: weapon.system.fireModes.autoFire > 0
               if (weapon.system.fireModes.autoFire > 0) {
                 actions.push({
@@ -1507,7 +1546,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     id: WEAPON_ACTION_TYPES.RELOAD,
                     info1: {
                       text: weapon.system.magazine.value
-                        ? `${weapon.system.magazine.ammoData.name}`
+                        ? `${installedAmmo.name}`
                         : 'unloaded',
                     },
                     info2: {

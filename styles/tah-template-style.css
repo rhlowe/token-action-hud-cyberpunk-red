@@ -276,6 +276,10 @@
     display: flex;
 }
 
+#token-action-hud .tah-groups {
+    flex-direction: row;
+}
+
 .tah-tab-group > .tah-groups-container.expand-down > .tah-groups {
     flex-direction: column;
     left: -10px;

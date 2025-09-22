@@ -72,3 +72,14 @@ Thank you to the Community Helpers on Foundry's Discord who provide tireless sup
 
 - Token Action HUD Core is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/) and licensed under [Foundry Virtual Tabletop EULA - Limited License Agreement for module development](https://foundryvtt.com/article/license/).
 - Token Action HUD for Cyberpunk RED is licensed under the [GNU General Public License v3.0](./LICENSE)
+
+# Generating a Release
+
+1. Make all code changes needed
+2. In the project root, run `$ npm version [VERSION]`
+
+- Commit history should have changes in package.json, package-lock.json, and module.json
+
+3. Open and merge a PR
+4. Manually Tag and push to master
+5. Create a release in github
