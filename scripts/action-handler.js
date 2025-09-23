@@ -1022,13 +1022,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           switch (programReference.system.class) {
             case 'booster':
             case 'defender':
-              ['atk', 'def'].forEach((stat) => {
-                actions.push({
-                  id: stat,
-                  info1: { text: programReference.system[stat].toString() },
-                  name: coreModule.api.Utils.i18n(programStats[stat]),
-                });
-              });
+              // ['atk', 'def'].forEach((stat) => {
+              //   actions.push({
+              //     id: stat,
+              //     info1: { text: programReference.system[stat].toString() },
+              //     name: coreModule.api.Utils.i18n(programStats[stat]),
+              //   });
+              // });
               actions.push(
                 ...[
                   {
@@ -1036,7 +1036,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                       this.delimiter
                     ),
                     id: 'rollDef',
-                    info1: { class: 'fas fa-shield red-fg', text: ' ' },
+                    info1: { class: 'fas fa-shield red-fg', text: ` ${programReference.system.def.toString()}` },
                     name: coreModule.api.Utils.i18n(
                       'CPR.characterSheet.bottomPane.fight.rollDefense'
                     ),
@@ -1074,17 +1074,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             case 'antipersonnelattacker':
             case 'antiprogramattacker':
-              ['atk'].forEach((stat) => {
-                actions.push({
-                  // encodedValue: [stat, name].join(this.delimiter),
-                  id: stat,
-                  info1: { text: programReference.system[stat].toString() },
-                  name: coreModule.api.Utils.i18n(
-                    `CPR.global.blackIce.stats.${stat}`
-                  ),
-                });
-              });
-
+              // ['atk'].forEach((stat) => {
+              //   actions.push({
+              //     // encodedValue: [stat, name].join(this.delimiter),
+              //     id: stat,
+              //     info1: { text: programReference.system[stat].toString() },
+              //     name: coreModule.api.Utils.i18n(
+              //       `CPR.global.blackIce.stats.${stat}`
+              //     ),
+              //   });
+              // });
               actions.push(
                 ...[
                   {
@@ -1092,7 +1091,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                       this.delimiter
                     ),
                     id: 'rollAnAttack',
-                    info1: { class: 'fas fa-fist-raised red-fg', text: ' ' },
+                    info1: { class: 'fas fa-fist-raised red-fg', text: ` ${programReference.system.atk.toString()}` },
                     name: coreModule.api.Utils.i18n(
                       'CPR.characterSheet.bottomPane.fight.rollAnAttack'
                     ),

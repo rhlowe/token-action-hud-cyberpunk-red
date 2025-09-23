@@ -33,6 +33,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      */
     async handleActionClick(event, encodedValue) {
       // console.debug('*** handleActionClick', {event, encodedValue});
+      if (!encodedValue) {
+        coreModule.api.Logger.debug('handleActionClick `encodedValue` is undefined. This is likely intentional as the button that triggered it was a no-op.');
+        return;
+      }
+
       const [actionTypeId, actionId] = encodedValue.split('|');
 
       /**

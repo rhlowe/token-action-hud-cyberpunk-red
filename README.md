@@ -76,10 +76,11 @@ Thank you to the Community Helpers on Foundry's Discord who provide tireless sup
 # Generating a Release
 
 1. Make all code changes needed
-2. In the project root, run `$ npm version [VERSION]`
+2. Also make sure that npm doesn't auto tag versions: `npm config set git-tag-version false`
+3. In the project root, run `$ npm version [VERSION]`
 
 - Commit history should have changes in package.json, package-lock.json, and module.json
 
-3. Open and merge a PR
-4. Manually Tag and push to master
-5. Create a release in github
+4. Open and merge a PR
+5. Manually tag and push tag to master
+6. Create a release in github
