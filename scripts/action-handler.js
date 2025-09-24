@@ -1238,6 +1238,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         const { id, name } = skill;
         let i18nName = '';
         switch (name) {
+          case "Lowdown":
+          case "Martial":
+          case "Physical":
+          case "Technical":
+            i18nName = coreModule.api.Utils.i18n(
+              `tokenActionHud.template.night-city-mooks.${name.toLowerCase()}.name`
+            );
+            break;
+
           case 'Conceal/Reveal Object':
             i18nName = coreModule.api.Utils.i18n(
               'CPR.global.itemType.skill.concealOrRevealObject'
