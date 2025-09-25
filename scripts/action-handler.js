@@ -1278,6 +1278,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             );
             break;
           default:
+            // Edge case for languages
             if (
               name.startsWith('Language (') &&
               name !== 'Language (Streetslang)'
@@ -1288,14 +1289,23 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                   .replace(/[()]/g, '')
                   .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
               );
-            } else {
-              i18nName = coreModule.api.Utils.i18n(
-                `CPR.global.itemType.skill.${name
-                  .toLowerCase()
-                  .replace(/[()]/g, '')
-                  .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
-              );
+              break;
             }
+
+            // Custom skills appear to have system.core set to false, just use the name for those
+            if (skill.system.core === false) {
+              i18nName = skill.name;
+              break;
+            }
+
+            // Finally fall back to CPR Core names
+            i18nName = coreModule.api.Utils.i18n(
+              `CPR.global.itemType.skill.${name
+                .toLowerCase()
+                .replace(/[()]/g, '')
+                .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`
+            );
+            break;
         }
         const level = skill.system.level;
         const stat = this.actor.system.stats[skill.system.stat].value;
