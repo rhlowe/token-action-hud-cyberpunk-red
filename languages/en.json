@@ -1,12 +1,9 @@
 {
   "tokenActionHud": {
     "template": {
-      "active": "Active",
       "activeEffects": "Active Effects",
       "effects": "Effects",
       "endTurn": "End Turn",
-      "fireMode": "Fire Mode",
-      "inactive": "Inactive",
       "injury": "Critical Injuries / Status Effects",
       "injuryTooltip": "<p>Left-click injury to remove. Right-click injury to open description</p>",
       "languages": {
@@ -65,7 +62,24 @@
         "languageYoruba": "Language (Yoruba)"
       },
       "ledgers": "Ledgers",
-      "permanent": "Permanent",
+      "night-city-mooks": {
+        "lowdown": {
+          "name": "Lowdown",
+          "hint": "Checks based in Cool, Emp, or Will"
+        },
+        "martial": {
+          "name": "Martial",
+          "hint": "Attack checks"
+        },
+        "physical": {
+          "name": "Physical",
+          "hint": "Checks based in Body, Ref, or Dex which are not covered by the Martial skill, and for evasion"
+        },
+        "technical": {
+          "name": "Technical",
+          "hint": "Checks based in Int or Tech"
+        }
+      },
       "quantityString": "x",
       "settings": {
         "displayUnequipped": {
@@ -87,7 +101,6 @@
           "name": "Automatically Equip Unarmed"
         }
       },
-      "situational": "Situational",
       "standard": "Standard",
       "utility": "Utility",
       "visibility": {
