@@ -929,12 +929,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       //   installed,
       // });
 
-      installed.forEach((program) => {
-        const programReference = program.system.isRezzed
+      installed.forEach((item) => {
+        console.debug('*** item', item);
+        const programReference = item.system.isRezzed
           ? activeCyberdeck.system.rezzedPrograms.find(
-              (rezzedProgram) => rezzedProgram.id === program.id
+              (rezzedProgram) => rezzedProgram.id === item.id
             )
-          : program;
+          : item;
         const id = programReference.id;
         const name = programReference.name;
         let programClass = '';
@@ -1003,7 +1004,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
           info1: { text: programClass },
           info2: info2(),
           name,
-          tooltip: program.system.description.value,
+          tooltip: item.system.description.value,
         });
 
         const programStats = {
