@@ -930,216 +930,264 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
       // });
 
       installed.forEach((item) => {
-        console.debug('*** item', item);
-        const programReference = item.system.isRezzed
-          ? activeCyberdeck.system.rezzedPrograms.find(
-              (rezzedProgram) => rezzedProgram.id === item.id
-            )
-          : item;
-        const id = programReference.id;
-        const name = programReference.name;
-        let programClass = '';
+        if (item.type === 'program') {
+          const programReference = item.system.isRezzed
+            ? activeCyberdeck.system.rezzedPrograms.find(
+                (rezzedProgram) => rezzedProgram.id === item.id
+              )
+            : item;
+          const id = programReference.id;
+          const name = programReference.name;
+          let programClass = '';
 
-        switch (programReference.system.class) {
-          case 'antipersonnelattacker':
-            programClass = coreModule.api.Utils.i18n(
-              `CPR.global.programClass.antiPersonnelAttacker`
-            );
-            break;
-          case 'antiprogramattacker':
-            programClass = coreModule.api.Utils.i18n(
-              `CPR.global.programClass.antiProgramAttacker`
-            );
-            break;
-          default:
-            programClass = coreModule.api.Utils.i18n(
-              `CPR.global.programClass.${programReference.system.class}`
-            );
-        }
-
-        const group = {
-          id,
-          name,
-          nestId: `installed_${programReference.id}`,
-          settings: {
-            image:
-              'systems/cyberpunk-red-core/icons/compendium/default/Default_Program.svg',
-            showTitle: false,
-          },
-          type: 'system',
-        };
-        const actions = [];
-        this.addGroup(group, { id: 'installed', type: 'system' });
-
-        const canRezDerez = ['booster', 'defender', 'blackice'].includes(
-          programReference.system.class
-        );
-        const programAction = programReference.system.isRezzed
-          ? 'derez'
-          : 'rez';
-
-        const cssClass = () => {
-          if (!canRezDerez) return '';
-          return 'toggle' + (programReference.system.isRezzed ? ' active' : '');
-        };
-
-        const info2 = () => {
-          if (!canRezDerez) return undefined;
-          return {
-            text: programReference.system.isRezzed
-              ? coreModule.api.Utils.i18n(
-                  'CPR.characterSheet.bottomPane.fight.rezzed'
-                )
-              : 'Unrezzed',
-          };
-        };
-
-        actions.push({
-          cssClass: cssClass(),
-          encodedValue: [
-            canRezDerez ? programAction : '',
-            programReference.id,
-          ].join(this.delimiter),
-          id,
-          info1: { text: programClass },
-          info2: info2(),
-          name,
-          tooltip: item.system.description.value,
-        });
-
-        const programStats = {
-          atk: 'CPR.global.blackIce.stats.atk',
-          def: 'CPR.global.blackIce.stats.def',
-          per: 'CPR.global.blackIce.stats.per',
-          spd: 'CPR.global.blackIce.stats.spd',
-          rez: 'CPR.global.generic.rez',
-        };
-
-        if (
-          programReference.system.isRezzed ||
-          programReference.system.class === 'antipersonnelattacker' ||
-          programReference.system.class === 'antiprogramattacker'
-        ) {
           switch (programReference.system.class) {
-            case 'booster':
-            case 'defender':
-              // ['atk', 'def'].forEach((stat) => {
-              //   actions.push({
-              //     id: stat,
-              //     info1: { text: programReference.system[stat].toString() },
-              //     name: coreModule.api.Utils.i18n(programStats[stat]),
-              //   });
-              // });
-              actions.push(
-                ...[
-                  {
-                    encodedValue: ['rollDef', programReference.id].join(
-                      this.delimiter
-                    ),
-                    id: 'rollDef',
-                    info1: { class: 'fas fa-shield red-fg', text: ` ${programReference.system.def.toString()}` },
-                    name: coreModule.api.Utils.i18n(
-                      'CPR.characterSheet.bottomPane.fight.rollDefense'
-                    ),
-                  },
-                  {
-                    id: 'rez',
-                    info1: {
-                      text: `${programReference.system.rez.value}/${programReference.system.rez.max}`,
-                    },
-                    name: coreModule.api.Utils.i18n(programStats.rez),
-                  },
-                  {
-                    encodedValue: ['reduce-rez', programReference.id].join(
-                      this.delimiter
-                    ),
-                    id: 'reduce-rez',
-                    info1: { class: 'far fa-minus-square', text: ' ' },
-                    name: coreModule.api.Utils.i18n(
-                      'CPR.characterSheet.bottomPane.fight.reduceRez'
-                    ),
-                  },
-                  {
-                    encodedValue: ['reset-rez', programReference.id].join(
-                      this.delimiter
-                    ),
-                    id: 'reset-rez',
-                    info1: { class: 'fas fa-undo', text: ' ' },
-                    name: coreModule.api.Utils.i18n(
-                      'CPR.characterSheet.bottomPane.fight.resetRez'
-                    ),
-                  },
-                ]
-              );
-              break;
-
             case 'antipersonnelattacker':
-            case 'antiprogramattacker':
-              // ['atk'].forEach((stat) => {
-              //   actions.push({
-              //     // encodedValue: [stat, name].join(this.delimiter),
-              //     id: stat,
-              //     info1: { text: programReference.system[stat].toString() },
-              //     name: coreModule.api.Utils.i18n(
-              //       `CPR.global.blackIce.stats.${stat}`
-              //     ),
-              //   });
-              // });
-              actions.push(
-                ...[
-                  {
-                    encodedValue: ['rollAnAttack', programReference.id].join(
-                      this.delimiter
-                    ),
-                    id: 'rollAnAttack',
-                    info1: { class: 'fas fa-fist-raised red-fg', text: ` ${programReference.system.atk.toString()}` },
-                    name: coreModule.api.Utils.i18n(
-                      'CPR.characterSheet.bottomPane.fight.rollAnAttack'
-                    ),
-                  },
-                  {
-                    encodedValue: ['rollDamage', programReference.id].join(
-                      this.delimiter
-                    ),
-                    id: 'rollDamage',
-                    info1: { class: 'fas fa-tint red-fg', text: ' ' },
-                    name: coreModule.api.Utils.i18n(
-                      'CPR.actorSheets.commonActions.rollDamage'
-                    ),
-                  },
-                ]
+              programClass = coreModule.api.Utils.i18n(
+                `CPR.global.programClass.antiPersonnelAttacker`
               );
               break;
-
-            case 'blackice':
-              ['atk', 'def', 'per', 'spd'].forEach((stat) => {
-                actions.push({
-                  // encodedValue: [stat, name].join(this.delimiter),
-                  id: stat,
-                  info1: { text: programReference.system[stat].toString() },
-                  name: coreModule.api.Utils.i18n(programStats[stat]),
-                });
-              });
+            case 'antiprogramattacker':
+              programClass = coreModule.api.Utils.i18n(
+                `CPR.global.programClass.antiProgramAttacker`
+              );
               break;
+            default:
+              programClass = coreModule.api.Utils.i18n(
+                `CPR.global.programClass.${programReference.system.class}`
+              );
           }
 
-          actions.push({
-            encodedValue: ['erase', programReference.id].join(this.delimiter),
-            id: 'erase',
-            info1: {
-              class: 'fas fa-folder-minus',
-              text: ' ',
+          const group = {
+            id,
+            name,
+            nestId: `installed_${programReference.id}`,
+            settings: {
+              image: item.img,
+              showTitle: false,
             },
-            name: coreModule.api.Utils.i18n(
-              'CPR.characterSheet.bottomPane.fight.eraseProgram'
-            ),
-            tooltip: `${coreModule.api.Utils.i18n(
-              'CPR.characterSheet.bottomPane.fight.eraseProgram'
-            )}: ${programReference.name}`,
+            type: 'system',
+          };
+          const actions = [];
+          this.addGroup(group, { id: 'installed', type: 'system' });
+
+          const canRezDerez = ['booster', 'defender', 'blackice'].includes(
+            programReference.system.class
+          );
+          const programAction = programReference.system.isRezzed
+            ? 'derez'
+            : 'rez';
+
+          const cssClass = () => {
+            if (!canRezDerez) return '';
+            return 'toggle' + (programReference.system.isRezzed ? ' active' : '');
+          };
+
+          const info2 = () => {
+            if (!canRezDerez) return undefined;
+            return {
+              text: programReference.system.isRezzed
+                ? coreModule.api.Utils.i18n(
+                    'CPR.characterSheet.bottomPane.fight.rezzed'
+                  )
+                : 'Unrezzed',
+            };
+          };
+
+          actions.push({
+            cssClass: cssClass(),
+            encodedValue: [
+              canRezDerez ? programAction : '',
+              programReference.id,
+            ].join(this.delimiter),
+            id,
+            info1: { text: programClass },
+            info2: info2(),
+            name,
+            tooltip: item.system.description.value,
           });
+
+          const programStats = {
+            atk: 'CPR.global.blackIce.stats.atk',
+            def: 'CPR.global.blackIce.stats.def',
+            per: 'CPR.global.blackIce.stats.per',
+            spd: 'CPR.global.blackIce.stats.spd',
+            rez: 'CPR.global.generic.rez',
+          };
+
+          if (
+            programReference.system.isRezzed ||
+            programReference.system.class === 'antipersonnelattacker' ||
+            programReference.system.class === 'antiprogramattacker'
+          ) {
+            switch (programReference.system.class) {
+              case 'booster':
+              case 'defender':
+                // ['atk', 'def'].forEach((stat) => {
+                //   actions.push({
+                //     id: stat,
+                //     info1: { text: programReference.system[stat].toString() },
+                //     name: coreModule.api.Utils.i18n(programStats[stat]),
+                //   });
+                // });
+                actions.push(
+                  ...[
+                    {
+                      encodedValue: ['rollDef', programReference.id].join(
+                        this.delimiter
+                      ),
+                      id: 'rollDef',
+                      info1: { class: 'fas fa-shield red-fg', text: ` ${programReference.system.def.toString()}` },
+                      name: coreModule.api.Utils.i18n(
+                        'CPR.characterSheet.bottomPane.fight.rollDefense'
+                      ),
+                    },
+                    {
+                      id: 'rez',
+                      info1: {
+                        text: `${programReference.system.rez.value}/${programReference.system.rez.max}`,
+                      },
+                      name: coreModule.api.Utils.i18n(programStats.rez),
+                    },
+                    {
+                      encodedValue: ['reduce-rez', programReference.id].join(
+                        this.delimiter
+                      ),
+                      id: 'reduce-rez',
+                      info1: { class: 'far fa-minus-square', text: ' ' },
+                      name: coreModule.api.Utils.i18n(
+                        'CPR.characterSheet.bottomPane.fight.reduceRez'
+                      ),
+                    },
+                    {
+                      encodedValue: ['reset-rez', programReference.id].join(
+                        this.delimiter
+                      ),
+                      id: 'reset-rez',
+                      info1: { class: 'fas fa-undo', text: ' ' },
+                      name: coreModule.api.Utils.i18n(
+                        'CPR.characterSheet.bottomPane.fight.resetRez'
+                      ),
+                    },
+                  ]
+                );
+                break;
+
+              case 'antipersonnelattacker':
+              case 'antiprogramattacker':
+                // ['atk'].forEach((stat) => {
+                //   actions.push({
+                //     // encodedValue: [stat, name].join(this.delimiter),
+                //     id: stat,
+                //     info1: { text: programReference.system[stat].toString() },
+                //     name: coreModule.api.Utils.i18n(
+                //       `CPR.global.blackIce.stats.${stat}`
+                //     ),
+                //   });
+                // });
+                actions.push(
+                  ...[
+                    {
+                      encodedValue: ['rollAnAttack', programReference.id].join(
+                        this.delimiter
+                      ),
+                      id: 'rollAnAttack',
+                      info1: { class: 'fas fa-fist-raised red-fg', text: ` ${programReference.system.atk.toString()}` },
+                      name: coreModule.api.Utils.i18n(
+                        'CPR.characterSheet.bottomPane.fight.rollAnAttack'
+                      ),
+                    },
+                    {
+                      encodedValue: ['rollDamage', programReference.id].join(
+                        this.delimiter
+                      ),
+                      id: 'rollDamage',
+                      info1: { class: 'fas fa-tint red-fg', text: ' ' },
+                      name: coreModule.api.Utils.i18n(
+                        'CPR.actorSheets.commonActions.rollDamage'
+                      ),
+                    },
+                  ]
+                );
+                break;
+
+              case 'blackice':
+                ['atk', 'def', 'per', 'spd'].forEach((stat) => {
+                  actions.push({
+                    // encodedValue: [stat, name].join(this.delimiter),
+                    id: stat,
+                    info1: { text: programReference.system[stat].toString() },
+                    name: coreModule.api.Utils.i18n(programStats[stat]),
+                  });
+                });
+                break;
+            }
+
+            actions.push({
+              encodedValue: ['erase', programReference.id].join(this.delimiter),
+              id: 'erase',
+              info1: {
+                class: 'fas fa-folder-minus',
+                text: ' ',
+              },
+              name: coreModule.api.Utils.i18n(
+                'CPR.characterSheet.bottomPane.fight.eraseProgram'
+              ),
+              tooltip: `${coreModule.api.Utils.i18n(
+                'CPR.characterSheet.bottomPane.fight.eraseProgram'
+              )}: ${programReference.name}`,
+            });
+          }
+          this.addActions(actions, { id: group.id, type: 'system' });
         }
 
-        this.addActions(actions, { id: group.id, type: 'system' });
+        if (item.type === 'itemUpgrade') {
+          const { id, img, name } = item;
+          const group = {
+            id: id,
+            name: name,
+            nestId: `installed_${id}`,
+            settings: {
+              image: img,
+              showTitle: false,
+            },
+            type: 'system',
+          };
+          this.addGroup(group, { id: 'upgrades', type: 'system' });
+
+          const encodedValue = [groupData.id, id].join(this.delimiter);
+          const cssClass = undefined;
+          const info1 = undefined;
+          const info2 = undefined;
+          const info3 = undefined;
+          const selected = undefined;
+          const system = 'system';
+          const tooltip = item.system.description.value;
+          const onClick = undefined;
+          const onHover = undefined;
+
+          const action = {
+            id,
+            name,
+            encodedValue,
+            cssClass,
+            img,
+            info1,
+            info2,
+            info3,
+            selected,
+            system,
+            tooltip,
+            onClick,
+            onHover,
+          };
+
+          this.addActions([action], groupData);
+        }
+
+        if (!['program', 'itemUpgrade'].includes(item.type)) {
+          console.debug('*** item is something else that needs to be categorized', item);
+        }
+
       });
     }
 
