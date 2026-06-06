@@ -11,8 +11,7 @@
     "build": "rolldown -c rolldown.config.mjs",
     "copyVersion": "node ./shell/copyVersion.js",
     "postversion": "npm run copyVersion",
-    "check:deps": "node scripts/check-dep-age.mjs",
-    "prepare": "husky || true"
+"prepare": "husky || true"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
