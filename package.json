@@ -1,26 +1,28 @@
 {
   "name": "token-action-hud-cyberpunk-red",
   "license": "GPL-3.0-only",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/rhlowe/token-action-hud-cyberpunk-red.git"
   },
   "version": "1.0.5",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -wcm",
+    "build": "rolldown -c rolldown.config.mjs",
     "copyVersion": "node ./shell/copyVersion.js",
-    "postversion": "npm run copyVersion"
+    "postversion": "npm run copyVersion",
+"prepare": "husky || true"
   },
   "devDependencies": {
-    "@rollup/plugin-multi-entry": "^6.0.0",
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "eslint": "^8.25.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.3.0",
     "eslint-plugin-promise": "^6.1.0",
-    "rollup": "^2.56.3",
-    "rollup-plugin-terser": "^7.0.2"
+    "husky": "^9.1.7",
+    "rolldown": "^1.1.0"
   },
   "dependencies": {
     "shelljs": "^0.8.5"

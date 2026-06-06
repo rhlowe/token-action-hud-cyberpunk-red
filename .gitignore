@@ -2,3 +2,5 @@
 *.tgz
 node_modules
 *.lock
+*.feedback.md
+scripts/token-action-hud-template.min.js
