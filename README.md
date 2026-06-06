@@ -18,7 +18,7 @@ Token Action HUD is a repositionable HUD of actions for a selected token.
   - Roll Attack
   - Roll Damage
   - Reload
-  - Chage Ammo
+  - Change Ammo
   - Set Fire Mode: Single, Aimed, Suppressive, & Autofire
 - Netrunning (COMING SOON)
 - Manage Active Effects
